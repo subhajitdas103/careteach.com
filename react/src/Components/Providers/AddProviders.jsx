@@ -10,16 +10,14 @@ import FormLabel from '@mui/material/FormLabel';
 import axios from "axios";
 import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
-// import isEmail from 'react-email-validator';
-import validator from 'email-validator';  // Import the validator // Default import
-// import InputMask from 'react-input-mask';
+import validator from 'email-validator';
 import { toast, ToastContainer } from 'react-toastify';
 import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/material';
 
 
 const ProviderForm = () => {
-  const [anchorEl, setAnchorEl] = useState(null); 
-  const [error, setError] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);  // For choose Grade Checkbox
+  const [error, setError] = useState(''); // For Showing Error in Span
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -31,71 +29,59 @@ const ProviderForm = () => {
   const [rateNotes, setRateNotes] = useState('');
   const [selectedform, setForm] = useState('F1');
   const [companyName, setCompanyName] = useState('');
-  // const [selectedGrade, setSelectedGrade] = useState('Choose Grades'); 
   const [selectedGrades, setSelectedGrades] = useState([]);
-  // const [grades, setGrades] = useState([]);
   const [licenseExpDateApplicable, setLicenseExpDateApplicable] = useState('Yes');
   const [licenseExpDate, setLicenseExpDate] = useState(null);
   const [petStatus, setPetStatus] = useState('Choose Pets Status');
-
   const [petsApprovalDate, setPetsApprovalDate] = useState(null); 
   const [bilingual, setBilingual] = useState('Yes'); 
   const [notes, setNotes] = useState('');
   const [ssNumber, setSSNumer] = useState('');
   const [status, setStatus] = useState('Active');
-
+// ==============================================================
   const handleFirstNameChange = (event) => {
     setFirstName(event.target.value);
     console.log('First Name:', event.target.value);
   };
+
   const handleLastNameChange = (event) => {
     setLastName(event.target.value);
     console.log('Last Name:', event.target.value);
   };
+
   const handleDateChange = (date) => {
     setSelectedDate(date); 
   };
-
-
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
     setIsValid(validator.validate(value)); 
-    // setIsValid(isEmailValid);
-    
-    // Validate using the email-validator package
   };
 
-  const handleInputChange = (e) => {
+  const handleIPhoneNumberChange = (e) => {
     const value = e.target.value;
-    // Allow only numbers and limit length to 12
     if (/^\d{0,12}$/.test(value)) {
       setPhone(value);
     }
   };
+
   const handleAddressChange = (e) => {
     const value = e.target.value;
-    // Limit address input to 200 characters
     if (value.length <= 200) {
       setAddress(value);
     }
   };
 
-
-   // Handle rate input change, allow only numeric values (with optional decimals) and limit length
    const handleRateChange = (e) => {
     const value = e.target.value;
-    // Allow only numbers or decimals (max 10 digits, with 2 decimal places)
     if (/^\d{0,10}(\.\d{0,2})?$/.test(value)) {
       setRate(value);
     }
   };
 
- // Handle rate notes input change, allow text with a maximum length (e.g., 500 characters)
  const handleRateNotesChange = (e) => {
   const value = e.target.value;
-  // Limit rate notes input to 500 characters
   if (value.length <= 500) {
     setRateNotes(value);
   }
@@ -118,76 +104,81 @@ const handleGradeChange = (event) => {
       : [...prevGrades, grade]
   );
 };
-const handleDropdownClick = (event) => {
-  setAnchorEl(event.currentTarget); // Open dropdown
-};
-
-const handleCloseDropdown = () => {
-  setAnchorEl(null); // Close dropdown
-};
-
-const open = Boolean(anchorEl); // Check if dropdown is open
-const id = open ? 'simple-popover' : undefined;
 
 
+  const handleDropdownClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseDropdown = () => {
+    setAnchorEl(null);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
 
 
-  // Handle radio button change
   const handleLicenseExpDateChange = (event) => {
-    setLicenseExpDateApplicable(event.target.value); // Update the state with selected radio option
+    setLicenseExpDateApplicable(event.target.value); 
   };
   const handleLicenseExpDateChangeDate = (date) => {
-    setLicenseExpDate(date); // Update the state with selected date
+    setLicenseExpDate(date);
   };
 
 
   const handlePetStatusChange = (status) => {
-    setPetStatus(status); // Update the pet status state with the selected option
+    setPetStatus(status);
   };
 
   const handlePetsApprovalDateChange = (date) => {
-    setPetsApprovalDate(date); // Update the state with selected date
+    setPetsApprovalDate(date);
   };
 
 
   const handleBilingualChange = (event) => {
-    setBilingual(event.target.value); // Update the state with selected value
+    setBilingual(event.target.value);
   };
   
-    const handleSSnumberChange = (event) => {
-      let value = event.target.value;
-      value = value.replace(/[^0-9-]/g, '');
-      if (value.length <= 11) {
-        value = value
-          .replace(/^(\d{3})(\d{1,2})/, '$1-$2')
-          .replace(/^(\d{3}-\d{2})(\d{1,4})/, '$1-$2');
-      }
-      setSSNumer(value);
+  const handleSSnumberChange = (event) => {
+    let value = event.target.value;
+    value = value.replace(/[^0-9-]/g, '');
+    if (value.length <= 11) {
+      value = value
+        .replace(/^(\d{3})(\d{1,2})/, '$1-$2')
+        .replace(/^(\d{3}-\d{2})(\d{1,4})/, '$1-$2');
+    }
+    setSSNumer(value);
 
-      if (value.match(/^\d{3}-\d{2}-\d{3}$/) || value === '') {
-        setError(''); 
-      } else {
-        setError('Invalid SSN format. Please enter as 111-222-222.');
-      }
-    };
+    if (value.match(/^\d{3}-\d{2}-\d{3}$/) || value === '') {
+      setError(''); 
+    } else {
+      setError('Invalid SSN format. Please enter as 111-222-222.');
+    }
+  };
   
   const handleNotesChange = (event) => {
-    setNotes(event.target.value); // Update the state with the entered notes
+  setNotes(event.target.value); 
   };
 
   const handleStatusChange = (event) => {
-    setStatus(event.target.value); // Update the state with the selected value
+  setStatus(event.target.value);
   };
-  const addProviderClick  = async (event) => {
-    console.log("handleAddProvider triggered");
-    // event.preventDefault();
 
+
+  // API Call Fnc
+  const addProviderClick  = async (event) => {
+  console.log("handleAddProvider triggered");
+
+// ==================================Date format to save in db==================================
+const formattedDOB = selectedDate ? new Date(selectedDate).toISOString().split('T')[0] : null;
+const lisenceExpDateFormat = licenseExpDate ? new Date(licenseExpDate).toISOString().split('T')[0] : null;
+const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toISOString().split('T')[0] : null;
 
    
     const formData = {
       first_name,
       last_name,
-      selectedDate,
+      selectedDate:formattedDOB,
       email,
       phone,
       address,
@@ -197,9 +188,9 @@ const id = open ? 'simple-popover' : undefined;
       companyName,
       selectedGrades,
       licenseExpDateApplicable,
-      licenseExpDate,
+      licenseExpDate:lisenceExpDateFormat,
       petStatus,
-      petsApprovalDate,
+      petsApprovalDate:PetsApprovalDateFormat,
       bilingual,
       ssNumber,
       notes,
@@ -214,17 +205,22 @@ const id = open ? 'simple-popover' : undefined;
         },
       });
 
-      toast.success("Student successfully Saved!", {
+      toast.success("Provider successfully Saved!", {
         position: "top-right", 
         autoClose: 5000,
       });
+       // Navigate to Students page after 5 seconds
+       setTimeout(() => {
+        navigate('/Providers');
+      }, 5000);
+
 
       console.log('Data sent successfully:', response.data);  
     } 
     
     catch (error) {
       toast.error("An error occurred. Please try again.", {
-        position: "top-right", // Correct syntax
+        position: "top-right",
         autoClose: 5000,
       });
 
@@ -302,7 +298,7 @@ const id = open ? 'simple-popover' : undefined;
                   className="stu-pro-input-field"
                   placeholder="Enter phone number"
                   value={phone}
-                  onChange={handleInputChange}
+                  onChange={handleIPhoneNumberChange}
                 />
               </div>
               <div className="col-md-6 student-profile-field">
@@ -375,7 +371,7 @@ const id = open ? 'simple-popover' : undefined;
                 className="stu-pro-input-field"
                 placeholder="Enter Company Name"
                 value={companyName}
-                onChange={handleCompanyNameChange} // Handle input change
+                onChange={handleCompanyNameChange}
               />
             </div>
           </div>
@@ -423,8 +419,8 @@ const id = open ? 'simple-popover' : undefined;
                 <RadioGroup
                   aria-labelledby="license-exp-date-applicable"
                   name="controlled-radio-buttons-group"
-                  value={licenseExpDateApplicable} // Bind the value of the radio group to the state
-                  onChange={handleLicenseExpDateChange} // Handle change for radio buttons
+                  value={licenseExpDateApplicable}
+                  onChange={handleLicenseExpDateChange}
                 >
                   <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
                   <FormControlLabel value="No" control={<Radio />} label="No" />
@@ -497,8 +493,8 @@ const id = open ? 'simple-popover' : undefined;
                     <RadioGroup
                       aria-labelledby="bilingual-radio-group"
                       name="bilingual-radio-group"
-                      value={bilingual} // Set the selected value
-                      onChange={handleBilingualChange} // Handle radio button change
+                      value={bilingual}
+                      onChange={handleBilingualChange}
                     >
                       <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
                       <FormControlLabel value="No" control={<Radio />} label="No" />
@@ -540,8 +536,8 @@ const id = open ? 'simple-popover' : undefined;
                   <RadioGroup
                     aria-labelledby="status-radio-group"
                     name="status-radio-group"
-                    value={status} // Set the selected value
-                    onChange={handleStatusChange} // Handle radio button change
+                    value={status}
+                    onChange={handleStatusChange}
                   >
                     <FormControlLabel value="Active" control={<Radio />} label="Active" />
                     <FormControlLabel value="In-Active" control={<Radio />} label="In-Active" />
@@ -550,8 +546,6 @@ const id = open ? 'simple-popover' : undefined;
             </div>
           </div>
       </div>
-
-        {/* <div className="save-student-btn">Save Provider</div> */}
 
         <div>
               <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
