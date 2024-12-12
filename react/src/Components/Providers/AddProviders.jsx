@@ -15,10 +15,12 @@ import validator from 'email-validator';  // Import the validator // Default imp
 import InputMask from 'react-input-mask';
 import { toast, ToastContainer } from 'react-toastify';
 
+
 const ForwardedInputMask = React.forwardRef((props, ref) => {
   return <InputMask {...props} ref={ref} />;
 });
 const ProviderForm = () => {
+  const [error, setError] = useState('');
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -137,10 +139,24 @@ const handleGradeChange = (grade) => {
   const handleBilingualChange = (event) => {
     setBilingual(event.target.value); // Update the state with selected value
   };
+  
+    const handleSSnumberChange = (event) => {
+      let value = event.target.value;
+      value = value.replace(/[^0-9-]/g, '');
+      if (value.length <= 11) {
+        value = value
+          .replace(/^(\d{3})(\d{1,2})/, '$1-$2')
+          .replace(/^(\d{3}-\d{2})(\d{1,4})/, '$1-$2');
+      }
+      setSSNumer(value);
 
-  const handleSSnumberChange = (event) => {
-    setSSNumer(event.target.value); // Update the state with the entered notes
-  };
+      if (value.match(/^\d{3}-\d{2}-\d{3}$/) || value === '') {
+        setError(''); 
+      } else {
+        setError('Invalid SSN format. Please enter as 111-222-222.');
+      }
+    };
+  
   const handleNotesChange = (event) => {
     setNotes(event.target.value); // Update the state with the entered notes
   };
@@ -503,15 +519,18 @@ const handleGradeChange = (grade) => {
         </div>
 
             <div className="stu-pro-field-div">
-                <div className="col-md-6 student-profile-field attachmentcss">
-                  <label>Social Security Number:</label>
-                  <ForwardedInputMask
-                    mask="999-999-999"
-                    value={ssNumber}
-                    onChange={handleSSnumberChange}
-                    className="stu-pro-input-field"
-                    placeholder="Enter SSN"
-                  />
+                  <div className="col-md-6 student-profile-field attachmentcss">
+                    <label htmlFor="ssn-input">Social Security Number:</label>
+                    <input
+                      id="ssn-input"
+                      type="text"
+                      value={ssNumber}
+                      onChange={handleSSnumberChange}
+                      className="stu-pro-input-field"
+                      placeholder="Enter SSN"
+                      maxLength="10"
+                    />
+                     {error && <p style={{ color: 'red', fontSize: '12px' }}>{error}</p>}
                 </div>
                 <div className="col-md-6 student-profile-field  attachmentcss">
                   <label>Notes:</label>
