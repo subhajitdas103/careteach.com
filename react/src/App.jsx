@@ -5,6 +5,7 @@ import Login from './Components/Login/login';
 import Dashboard from "./Components/Dashboard/Dashboard";
 import Students from "./Components/Students/Students";
 import AddStudent from "./Components/Students/AddStudent";
+import EditStudent from "./Components/Students/EditStudent";
 import Billing from "./Components/Billing/Billing";
 import Providers from "./Components/Providers/Providers";
 import School from "./Components/School/School";
@@ -128,6 +129,15 @@ const App = () => {
               <>
                 <Navbar /> 
                 <AddSchool />
+              </>
+            } 
+          />
+           <Route 
+            path="/EditStudent" 
+            element={
+              <>
+                <Navbar /> 
+                <EditStudent />
               </>
             } 
           />

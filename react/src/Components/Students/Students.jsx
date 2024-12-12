@@ -28,6 +28,12 @@ const Students = () => {
     navigate('/AddStudent');
   };
 
+  const EditStudentClick = () => {
+    navigate('/EditStudent');
+  };
+
+
+  
   const backToDashboard = () => {
     navigate('/dashboard');
   };
@@ -110,7 +116,7 @@ const Students = () => {
                   <td className="col-md-5">{student.school_name}</td>
                   <td className="col-md-2">
                     <div className="status-area">
-                      <div className="student-edit-click">
+                      <div className="student-edit-click" onClick={EditStudentClick}>
                         <i className="fa fa-edit fa-1x fa-icon-img"></i>
                       </div>
                       <button
