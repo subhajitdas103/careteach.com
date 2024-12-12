@@ -17,8 +17,8 @@ Route::get('/Students',[StudentController::class,'fetchStudentData']);
 Route::middleware('auth:sanctum')->group(function () {
     // Protected routes
 });
-
+Route::delete('/DeleteStudent/{id}', [StudentController::class, 'DeleteStudent']);
 Route::post('/addstudent', [StudentController::class,'addstudent']);
 Route::post('/addprovider', [ProviderController::class,'addprovider']);
-
-// Route::match(['get', 'post'], '/addstudent', [StudentController::class, 'addstudent']);
+Route::get('/ViewProviders',[ProviderController::class,'fetchProviderData']);
+Route::delete('/DeleteProvider/{id}', [ProviderController::class, 'deleteProvider']);

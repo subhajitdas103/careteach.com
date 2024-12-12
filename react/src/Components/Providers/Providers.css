@@ -1,4 +1,29 @@
+.cancel-button, .delete-button {
+    width: 40px; /* Adjust the width */
+    height: 40px; /* Adjust the height */
+    border-radius: 50%; /* Makes the button circular */
+    padding: 0; /* Remove any padding */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .cancel-button {
+    font-size: 18px; /* Adjust text size if needed */
+  }
+  
+  .delete-button {
+    font-size: 18px; /* Adjust text size if needed */
+  }
+  
 /* Service Delete button css */
+
+.provider-name-delete-modal{
+    font-weight: bold;
+    font-size: 1.1em;  /* Optional: Adjust size */
+    color: #003870;
+    
+}
 .gradesCSS{
     background-color: white;
     height: 45px;

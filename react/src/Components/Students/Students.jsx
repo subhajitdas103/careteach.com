@@ -1,52 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; // Ensure axios is imported
+import axios from 'axios';
 import "./Students.css";
 import { useNavigate } from "react-router-dom";
-// Students.js
 import { useLocation } from 'react-router-dom';
-const Students  = () => {
+import { Modal, Button } from 'react-bootstrap'; 
+
+const Students = () => {
   const location = useLocation();
   const message = location.state?.message;
 
-
   const navigate = useNavigate();
-  const [data, setData] = useState([]);
-
+  const [data, setData] = useState([]); // Student data
+  const [show, setShow] = useState(false); // Modal visibility
+  const [SelectedStudentToDelete, setSelectedStudentToDelete] = useState(null); 
   useEffect(() => {
-      // Fetch data from API
-      axios.get('api/Students')
-          .then((response) => {
-              setData(response.data);
-              console.log(data);
-          })
-          .catch((error) => {
-              console.error('Error fetching data:', error);
-          });
+    axios.get('api/Students')
+      .then((response) => {
+        setData(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
   }, []);
 
- 
- // Function to navigate to the 'Add Student' page
- const handleAddStudent = () => {
-  navigate('/AddStudent'); // Specify the path you want to navigate to
-  
-};
-const back_to_dashboard = () => {
-  navigate('/dashboard'); // Specify the path you want to navigate to
-};
+  const handleAddStudent = () => {
+    navigate('/AddStudent');
+  };
+
+  const backToDashboard = () => {
+    navigate('/dashboard');
+  };
+
+  const handleClose = () => {
+    setShow(false);
+    setSelectedStudentToDelete(null);
+  };
+
+  const handleShow = (student) => {
+    setSelectedStudentToDelete(student);
+    setShow(true);
+  };
+
+  const confirmDelete = () => {
+    if (SelectedStudentToDelete) {
+      axios.delete(`api/DeleteStudent/${SelectedStudentToDelete.id}`)
+        .then(() => {
+          setData(data.filter(student => student.id !== SelectedStudentToDelete.id));
+          setShow(false);
+          setSelectedStudentToDelete(null);
+        })
+        .catch((error) => {
+          console.error('Error deleting student:', error);
+        });
+    }
+  };
+
   return (
-   
-    <div className="dashboard-container">      
+    <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
           <h3>Students</h3>
-          <div className="" id="" onClick={back_to_dashboard}>
-          <i
-            className="fa fa-backward fc-back-icon"
-            aria-hidden="true"
-            id="back_student_click"
-          ></i>
+          <div onClick={backToDashboard}>
+            <i
+              className="fa fa-backward fc-back-icon"
+              aria-hidden="true"
+              id="back_student_click"
+            ></i>
           </div>
-          
         </div>
       </div>
 
@@ -66,7 +87,7 @@ const back_to_dashboard = () => {
         </div>
       </div>
 
-      <div className="add-student-btn" id="add_student_btn" onClick={handleAddStudent}>
+      <div className="add-student-btn" onClick={handleAddStudent}>
         <i className="fa fa-user-plus add-student-icon"></i>Add a Student
       </div>
 
@@ -80,36 +101,64 @@ const back_to_dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((student, index) => (
-              <tr key={index}>
-                <td className="col-md-5">
-                  <div className="student-name" id="student_details_click">
-                  {`${student.first_name} ${student.last_name}`}
-                  </div>
-                </td>
-                <td className="col-md-5">{student.school_name}</td>
-                <td className="col-md-2">
-                  <div className="status-area">
-                    <div className="student-edit-click" id="student_edit_click">
-                      <i className="fa fa-edit fa-1x fa-icon-img"></i>
+            {data.length > 0 ? (
+              data.map((student, index) => (
+                <tr key={index}>
+                  <td className="col-md-5">
+                    <div className="student-name">{`${student.first_name} ${student.last_name}`}</div>
+                  </td>
+                  <td className="col-md-5">{student.school_name}</td>
+                  <td className="col-md-2">
+                    <div className="status-area">
+                      <div className="student-edit-click">
+                        <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                      </div>
+                      <button
+                        type="button"
+                        className="holiday-delete"
+                        onClick={() => handleShow(student)}
+                      >
+                        <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                      </button>
+                      <div className="assign-pro-btn">Assign Provider</div>
                     </div>
-                    <button
-                      type="button"
-                      id="myBtn"
-                      className="holiday-delete"
-                      data-bs-toggle="modal"
-                      data-bs-target="#deleteModal"
-                    >
-                      <i className="fa fa-trash fa-1x fa-icon-img"></i>
-                    </button>
-                    <div className="assign-pro-btn">Assign Provider</div>
-                  </div>
-                </td>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7">No Students available.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Modal for Student Deletion */}
+      {SelectedStudentToDelete && (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Delete Student</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>
+              Are you sure you want to delete the student{" "}
+              <strong className="student-name-delete-modal">
+                {SelectedStudentToDelete.first_name} {SelectedStudentToDelete.last_name}
+              </strong>
+              ?
+            </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="cancel-button" variant="secondary" onClick={handleClose}>
+            <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
+            </Button>
+            <Button className="delete-button" variant="danger" onClick={confirmDelete}>
+            <i className="fa fa-trash" aria-hidden="true"></i>
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };

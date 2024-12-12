@@ -14,21 +14,14 @@ class StudentController extends Controller
     }
 
 
-    // public function fetchStudentData()
-    // {
-    //     $data = Students::all(); 
-    //     return response()->json($data);
-        
-    // }
     public function fetchStudentData()
 {
     try {
         // $students = Students::all(); 
-        $students = Students::orderBy('id', 'desc')->get();// Fetch all students
+        $students = Students::orderBy('id', 'desc')->get();
         // dd($students);
-        return response()->json($students); // Return data as JSON
+        return response()->json($students);
     } catch (\Exception $e) {
-        // Log the error to Laravel's log file
         \Log::error('Error fetching students: ' . $e->getMessage());
         return response()->json(['error' => 'Error fetching students'], 500);
     }
@@ -68,7 +61,6 @@ public function addstudent(Request $request)
             'services.*.yearlyMandate' => 'required|string|max:255',
                 ]);
 
-      // Process the services and save to the database
         foreach ($validatedData['services'] as $service) {
             StudentServices::create([
                 'service_type' => $service['service_type'] ?? null,
@@ -86,8 +78,6 @@ public function addstudent(Request $request)
             'parent_type' => $validatedData['parent_type'],
         ]);
 
-
-        // Use the validated data to create the student
         $student = Students::create([
             'first_name' => $validatedData['first_name'],
             'last_name' => $validatedData['last_name'],
@@ -99,7 +89,7 @@ public function addstudent(Request $request)
             'disability' => $validatedData['disability'],
             'nyc_id' => $validatedData['nyc_id'],
             'notes_per_hour' => $validatedData['notesPerHour'],
-            'case' => $validatedData['case_v'],  // Save 'case_v' data into 'case' column
+            'case' => $validatedData['case_v'],
             'resulation_invoice' => $validatedData['resolutionInvoice'],
             'status' => $validatedData['status'],
         ]);
@@ -112,7 +102,24 @@ public function addstudent(Request $request)
 }
 
 
+public function DeleteStudent($id)
 
+    {
+        try {
+            // Find the provider by ID
+            $students = Students::find($id);
+            if (!$students) {
+                return response()->json(['message' => 'students not found'], 404);
+            }
+            $students->delete();
+
+            return response()->json(['message' => 'students deleted successfully'], 200);
+        } catch (\Exception $e) {
+            Log::error('Error deleting students: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Error deleting students'], 500);
+        }
+    }
 
 
 }

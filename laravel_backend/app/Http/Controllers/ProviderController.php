@@ -8,25 +8,7 @@ use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\Providers;
 
-// first_name,
-//       last_name,
-//       selectedDate,
-//       email,
-//       phone,
-//       address,
-//       rate,
-//       rateNotes,
-//       selectedform,
-//       companyName,
-//       selectedGrades,
-//       licenseExpDateApplicable,
-//       licenseExpDate,
-//       petStatus,
-//       petsApprovalDate,
-//       bilingual,
-//       ssNumber,
-//       notes,
-//       status
+
 
 class ProviderController extends Controller
 {
@@ -57,11 +39,12 @@ public function addprovider(Request $request)
             
            
                 ]);
-    // $validatedData['selectedDate'] = Carbon::parse($validatedData['selectedDate'])->format('Y-m-d');
-                $validatedData['selectedGrades'] = is_array($validatedData['selectedGrades'])
-    ? implode(',', $validatedData['selectedGrades'])  // Convert array to comma-separated string
-    : $validatedData['selectedGrades'];  // If it's not an array, jus
-        // Use the validated data to create the student
+
+        $validatedData['selectedGrades'] = is_array($validatedData['selectedGrades'])
+        ? implode(',', $validatedData['selectedGrades'])
+        : $validatedData['selectedGrades']; 
+
+
         $Providers = Providers::create([
             'provider_first_name' => $validatedData['first_name'],
             'provider_last_name' => $validatedData['last_name'],
@@ -93,7 +76,35 @@ public function addprovider(Request $request)
 }
 
 
+public function fetchProviderData()
+{
+    try {
 
+        $providers = Providers::orderBy('id', 'desc')->get();
+        // dd($students);
+        return response()->json($providers); 
+    } catch (\Exception $e) {
+        \Log::error('Error fetching Providers: ' . $e->getMessage());
+        return response()->json(['error' => 'Error fetching Providers'], 500);
+    }
+}
 
+public function deleteProvider($id)
 
+    {
+        try {
+            // Find the provider by ID
+            $providers = Providers::find($id);
+            if (!$providers) {
+                return response()->json(['message' => 'Providers not found'], 404);
+            }
+            $providers->delete();
+
+            return response()->json(['message' => 'Providers deleted successfully'], 200);
+        } catch (\Exception $e) {
+            Log::error('Error deleting providers: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Error deleting providers'], 500);
+        }
+    }
 }

@@ -1,16 +1,72 @@
-import React from "react";
+import { React, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import './Providers.css'; // Optional: Add custom styles
+import axios from 'axios';
+import './Providers.css';
+import { Button, Modal } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Providers = () => {
-const navigate = useNavigate();
-const addProvider = () => {
-    navigate('/AddProviders'); // Specify the path you want to navigate to
-    };
+  const [show, setShow] = useState(false);
+  const [selectedProviderToDelete, setSelectedProviderToDelete] = useState(null);
+  const [data, setData] = useState([]);
+
+  const navigate = useNavigate();
+
+  // Close modal
+  const handleClose = () => {
+    setShow(false);
+    setSelectedProviderToDelete(null); // Reset when modal is closed
+  };
+
+  // Show modal for provider deletion
+  const handleShow = (provider) => {
+    setSelectedProviderToDelete(provider);
+    setShow(true);
+  };
+
+  // Handle provider delete action
+  const deleteProvider = (provider) => {
+    setSelectedProviderToDelete(provider);
+    setShow(true);  // Show modal to confirm deletion
+  };
+
+  // Confirm deletion and remove provider
+  const confirmDelete = () => {
+    if (selectedProviderToDelete) {
+      axios.delete(`api/DeleteProvider/${selectedProviderToDelete.id}`)
+        .then((response) => {
+          setData(data.filter(provider => provider.id !== selectedProviderToDelete.id));
+          setShow(false); // Close the modal
+          
+          toast.success("Provider successfully Deleted!", {
+            position: "top-right", 
+            autoClose: 5000,
+          });
+        })
+        .catch((error) => {
+          console.error('Error deleting provider:', error);
+        });
+    }
+  };
+
+  const addProvider = () => {
+    navigate('/AddProviders');
+  };
 
   const backtodashboard = () => {
     navigate('/dashboard');
   };
-   
+// ======================  Fetch data from API=================
+  useEffect(() => {
+    axios.get('api/ViewProviders')
+      .then((response) => {
+        setData(response.data); 
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+// =============================================================
   return (
     <div className="dashbord-container">
       <div className="row dashbord-list">
@@ -19,7 +75,8 @@ const addProvider = () => {
           <i
             className="fa fa-backward fc-back-icon"
             aria-hidden="true"
-            id="back_provider_click" onClick = {backtodashboard}
+            id="back_provider_click"
+            onClick={backtodashboard}
           ></i>
         </div>
       </div>
@@ -40,7 +97,7 @@ const addProvider = () => {
         </div>
       </div>
 
-      <div className="add-student-btn" id="add_provider_btn"  onClick={addProvider}>
+      <div className="add-student-btn" id="add_provider_btn" onClick={addProvider}>
         <i className="fa-brands fa-product-hunt me-1"></i>Add a Provider
       </div>
 
@@ -58,79 +115,71 @@ const addProvider = () => {
             </tr>
           </thead>
           <tbody>
-            {[
-              {
-                firstName: "John",
-                lastName: "Anderson",
-                email: "john.anderson@gmail.com",
-                phone: "100000089",
-                rate: "12",
-                status: "Active",
-              },
-              {
-                firstName: "Sarah",
-                lastName: "Thompson",
-                email: "sarah.thompson@gmail.com",
-                phone: "100000089",
-                rate: "12",
-                status: "Active",
-              },
-              {
-                firstName: "Emily",
-                lastName: "Rodriguez",
-                email: "emily.rodriguez@gmail.com",
-                phone: "100000089",
-                rate: "12",
-                status: "Active",
-              },
-              {
-                firstName: "Michael",
-                lastName: "Brown",
-                email: "michael.brown@gmail.com",
-                phone: "100000089",
-                rate: "12",
-                status: "Active",
-              },
-              {
-                firstName: "Jessica",
-                lastName: "Wilson",
-                email: "jessica.wilson@gmail.com",
-                phone: "100000089",
-                rate: "12",
-                status: "Active",
-              },
-            ].map((provider, index) => (
-              <tr key={index}>
-                <td>{provider.firstName}</td>
-                <td>{provider.lastName}</td>
-                <td>{provider.email}</td>
-                <td>{provider.phone}</td>
-                <td>{provider.rate}</td>
-                <td>{provider.status}</td>
-                <td className="col-md-2">
-                  <div className="status-area">
-                    <div>
-                      <i className="fa fa-edit fa-1x fa-icon-img"></i>
+            {data.length > 0 ? (
+              data.map((provider, index) => (
+                <tr key={index}>
+                  <td>{provider.provider_first_name}</td>
+                  <td>{provider.provider_last_name}</td>
+                  <td>{provider.provider_email}</td>
+                  <td>{provider.provider_phone}</td>
+                  <td>{provider.rate}</td>
+                  <td>{provider.status}</td>
+                  <td className="col-md-2">
+                    <div className="status-area">
+                      <div>
+                        <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                      </div>
+                      <button
+                        type="button"
+                        className="holiday-delete"
+                        onClick={() => deleteProvider(provider)}
+                      >
+                        <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                      </button>
+                      <button
+                        type="button"
+                        className="assign-pro-btn"
+                      >
+                        View Students
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      className="holiday-delete"
-                    >
-                      <i className="fa fa-trash fa-1x fa-icon-img"></i>
-                    </button>
-                    <button
-                      type="button"
-                      className="assign-pro-btn"
-                    >
-                      View Students
-                    </button>
-                  </div>
-                </td>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7">No providers available.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Modal for provider details */}
+      {selectedProviderToDelete && (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Delete Provider</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+          <p>
+            Are you sure you want to delete the provider{" "}
+            <strong className="provider-name-delete-modal">
+              {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
+            </strong>
+            ?
+          </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="cancel-button" variant="secondary" onClick={handleClose}>
+            <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
+            </Button>
+            <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
+            <i className="fa fa-trash" aria-hidden="true"></i>
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };
