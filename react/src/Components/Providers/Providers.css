@@ -1,5 +1,8 @@
 /* Service Delete button css */
-
+.gradesCSS{
+    background-color: white;
+    height: 45px;
+}
 /* end of Service Delete button css */
 .invalid-email {
     border-color: red;

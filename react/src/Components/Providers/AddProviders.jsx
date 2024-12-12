@@ -12,14 +12,13 @@ import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
 // import isEmail from 'react-email-validator';
 import validator from 'email-validator';  // Import the validator // Default import
-import InputMask from 'react-input-mask';
+// import InputMask from 'react-input-mask';
 import { toast, ToastContainer } from 'react-toastify';
+import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/material';
 
 
-const ForwardedInputMask = React.forwardRef((props, ref) => {
-  return <InputMask {...props} ref={ref} />;
-});
 const ProviderForm = () => {
+  const [anchorEl, setAnchorEl] = useState(null); 
   const [error, setError] = useState('');
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -32,8 +31,9 @@ const ProviderForm = () => {
   const [rateNotes, setRateNotes] = useState('');
   const [selectedform, setForm] = useState('F1');
   const [companyName, setCompanyName] = useState('');
-  const [selectedGrade, setSelectedGrade] = useState('Choose Grades'); 
-  const [grades, setGrades] = useState([]);
+  // const [selectedGrade, setSelectedGrade] = useState('Choose Grades'); 
+  const [selectedGrades, setSelectedGrades] = useState([]);
+  // const [grades, setGrades] = useState([]);
   const [licenseExpDateApplicable, setLicenseExpDateApplicable] = useState('Yes');
   const [licenseExpDate, setLicenseExpDate] = useState(null);
   const [petStatus, setPetStatus] = useState('Choose Pets Status');
@@ -110,10 +110,24 @@ const handleFormChange = (e) => {
   setForm(e.target.value); // Update the selected form value (F1 or F2)
 };
 
-const handleGradeChange = (grade) => {
-  setSelectedGrade(grade); // Set the selected grade to state
-  setGrades([...grades, grade]); // Optionally, you can store selected grades in an array
+const handleGradeChange = (event) => {
+  const grade = event.target.name;
+  setSelectedGrades((prevGrades) =>
+    prevGrades.includes(grade)
+      ? prevGrades.filter((item) => item !== grade)
+      : [...prevGrades, grade]
+  );
 };
+const handleDropdownClick = (event) => {
+  setAnchorEl(event.currentTarget); // Open dropdown
+};
+
+const handleCloseDropdown = () => {
+  setAnchorEl(null); // Close dropdown
+};
+
+const open = Boolean(anchorEl); // Check if dropdown is open
+const id = open ? 'simple-popover' : undefined;
 
 
 
@@ -181,16 +195,15 @@ const handleGradeChange = (grade) => {
       rateNotes,
       selectedform,
       companyName,
-      grades,
+      selectedGrades,
       licenseExpDateApplicable,
       licenseExpDate,
       petStatus,
       petsApprovalDate,
       bilingual,
       ssNumber,
-      notes
-
-
+      notes,
+      status
     };
     console.log('Form data:', formData);
 
@@ -368,64 +381,40 @@ const handleGradeChange = (grade) => {
           </div>
 
 
-          <div className="stu-pro-field-div">
-            <div className="col-md-6 student-profile-field">
-              <label>Grades approved for:</label>
-              <div className="dropdown">
-                <button
-                  className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-                  type="button"
-                  id="dropdownMenuButton"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {selectedGrade}
-                </button>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleGradeChange("A")}
-                    >
-                      A
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleGradeChange("AA")}
-                    >
-                      AA
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleGradeChange("C")}
-                    >
-                      C
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleGradeChange("A+")}
-                    >
-                      A+
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handleGradeChange("B+")}
-                    >
-                      B+
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
+  <div className="stu-pro-field-div">
+      <div className="col-md-6 student-profile-field">
+          <label>Grades Approved for:</label>
+          <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
+            {selectedGrades.length > 0 ? selectedGrades.join(', ') : 'Choose Grades'}
+          </Button>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleCloseDropdown}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <List>
+              {['A', 'B', 'C'].map((grade) => (
+                <ListItem key={grade}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={selectedGrades.includes(grade)}
+                        onChange={handleGradeChange}
+                        name={grade}
+                      />
+                    }
+                    label={grade}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+      </div>
             
 
             <div className="col-md-6 student-profile-field">

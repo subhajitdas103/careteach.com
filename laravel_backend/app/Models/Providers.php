@@ -12,7 +12,7 @@ class Providers extends Model
    
        
     
-        protected $fillable = ['provider_first_name', 'provider_last_name'];
+        protected $fillable = ['provider_first_name', 'provider_last_name','provider_dob','provider_email','provider_phone','provider_address','rate','rate_notes','form','company_name','grades_approved','license_exp_date_applicable','license_exp_date','pets_status','pets_approval_date','bilingual','ss_number','notes','status'];
 
 
 }
