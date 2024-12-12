@@ -28,9 +28,11 @@ const Students = () => {
     navigate('/AddStudent');
   };
 
-  const EditStudentClick = () => {
-    navigate('/EditStudent');
+  const EditStudentClick = (id) => {
+    // alert(studentId);
+    navigate(`/EditStudent/${id}`);
   };
+  
 
 
   
@@ -116,7 +118,7 @@ const Students = () => {
                   <td className="col-md-5">{student.school_name}</td>
                   <td className="col-md-2">
                     <div className="status-area">
-                      <div className="student-edit-click" onClick={EditStudentClick}>
+                      <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
                         <i className="fa fa-edit fa-1x fa-icon-img"></i>
                       </div>
                       <button
@@ -148,7 +150,7 @@ const Students = () => {
           </Modal.Header>
           <Modal.Body>
             <p>
-              Are you sure you want to delete the student{" "}
+              Are you sure you want to delete this Student-{" "}
               <strong className="student-name-delete-modal">
                 {SelectedStudentToDelete.first_name} {SelectedStudentToDelete.last_name}
               </strong>

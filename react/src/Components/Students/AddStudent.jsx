@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
 
-  const AddStudent = () => {
+  const EditStudent = () => {
 
   
   const navigate = useNavigate();
@@ -768,5 +768,5 @@ const removeService = (index) => {
     );
   };
 
-export default AddStudent;
+export default EditStudent;
 

@@ -121,5 +121,19 @@ public function DeleteStudent($id)
         }
     }
 
+    public function fetchStudentById($id)
+{
+    // Find the student by ID
+    $student = Students::find($id);
 
+    // Check if the student was found
+    if ($student) {
+        return response()->json($student);  // Return the student data as JSON
+    } else {
+        // Return a 404 error if student is not found
+        return response()->json(['error' => 'Student not found'], 404);
+    }
+}
+    
+    
 }

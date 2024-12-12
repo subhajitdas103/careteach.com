@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { useParams } from 'react-router-dom';
 import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
 // import { useForm } from 'react-hook-form'; // Import useForm
@@ -19,7 +19,9 @@ import axios from "axios";
 // import React, { useState } from 'react';
 
   const AddStudent = () => {
-
+    const { id } = useParams();
+  
+    const [student, setStudent] = useState(null);
   
   const navigate = useNavigate();
 
@@ -27,12 +29,16 @@ import axios from "axios";
     const backtostudent = () => {
       navigate('/Students'); 
     };
+
+
+    
+   
   // ==========================Clone Service Div====================================
   const [formDataList, setFormDataList] = useState([
     { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' , isClone: false}
   ]);
 
-
+  // Function to handle changes in form inputs (e.g., Start Date, End Date)
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index][field] = value;
@@ -48,6 +54,8 @@ import axios from "axios";
     };
     setFormDataList(updatedFormDataList);
   };
+
+  
 
   // Function to add a new service (clone the form)
   const addService = () => {
@@ -80,6 +88,7 @@ const removeService = (index) => {
     const [nyc_id, setNYC] = useState('');
     const [notesPerHour, setNotesPerHour] = useState('');
     const [case_v, setCase] = useState('');
+    // const [case_v, setCase] = useState(student.case || '');
     const [status, setStatus] = useState("active");  // Set 'active' as the default value
     const resolutionInvoiceValue = resolutionInvoice ? 'yes' : 'no';
 
@@ -165,16 +174,31 @@ const removeService = (index) => {
       setNYC(value); // Update state if input is valid
     }
     };
-    const handlenotesPerHour = (event) => {
-      const value = event.target.value;
-      // Allow only numeric input (whole numbers)
-  if (/^\d+$/.test(value) || value === "") {
-    setNotesPerHour(value); // Update state if input is valid
-  }
-    };
-    const handleCase = (event) => {
-      setCase(event.target.value);
-    };
+        const handlenotesPerHour = (event) => {
+        const value = event.target.value;
+        if (/^\d+$/.test(value) || value === "") {
+        setNotesPerHour(value); // Update state if input is valid
+        }
+            };
+
+        useEffect(() => {
+            if (student) {
+              // Only set case_v if it exists in student
+              if (student.case) {
+                setCase(student.case);
+              }
+              // Only set notesPerHour if it exists in student
+              if (student.notes_per_hour) {
+                setNotesPerHour(student.notes_per_hour);
+              }
+            }
+          }, [student])// This will run every time the 'student' prop changes
+    
+      const handleCase = (e) => {
+        setCase(e.target.value); // Update state when input changes
+      };
+
+
     const handleGradeChange = (selectedGrade) => {
       setGrade(selectedGrade);
       // setSchoolNameError(''); 
@@ -309,6 +333,27 @@ const removeService = (index) => {
       }
     }
 
+    // ======================================
+
+    const fetchStudentDetails = async () => {
+        try {
+          const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
+          const data = await response.json();
+          setStudent(data);
+          console.log(data);
+          
+        } catch (error) {
+          console.error('Error fetching student details:', error);
+        }
+      };
+    
+      useEffect(() => {
+        fetchStudentDetails();
+      }, [id]);
+    
+      if (!student) {
+        return <div>Loading...</div>;
+      }
   
     return (
     <div className="dashboard-container">
@@ -329,7 +374,7 @@ const removeService = (index) => {
                   type="text"  
                   name="firstName"
                   className="stu-pro-input-field"
-                  placeholder="Enter First Name" value={first_name} onChange={handleFirstNameChange}/>
+                  placeholder="Enter First Name" value={student.first_name} onChange={handleFirstNameChange}/>
                   {firstNameError && <span>{firstNameError}</span>}
               </div>
 
@@ -339,7 +384,7 @@ const removeService = (index) => {
                   type="text"
                   name="lastName"
                   className="stu-pro-input-field"
-                  placeholder="Enter Last Name"  value={last_name} onChange={handleLastNameChange}
+                  placeholder="Enter Last Name"  value={student.last_name} onChange={handleLastNameChange}
                 />
                 {lastNameError && <span>{lastNameError}</span>}
               </div>
@@ -352,7 +397,7 @@ const removeService = (index) => {
                   type="text"
                   name="schoolName"
                   className="stu-pro-input-field"
-                  placeholder="Enter a School Name"  value={school_name} onChange={handleSchoolNameChange}
+                  placeholder="Enter a School Name"  value={student.school_name} onChange={handleSchoolNameChange}
                 />
                 {SchoolNameError && <span>{SchoolNameError}</span>}
               </div>
@@ -366,7 +411,7 @@ const removeService = (index) => {
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {grade || "Choose Grade"}
+                      {student.grade || "Choose Grade"}
                     </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -404,7 +449,7 @@ const removeService = (index) => {
                 rows="6"
                 cols="50"
                 className="text-field stu-pro-input-field"
-                placeholder="Enter home address"  value={home_address} onChange={handleHomeAddress}
+                placeholder="Enter home address"  value={student.home_address} onChange={handleHomeAddress}
               ></textarea>
               {HomeNameError && <span>{HomeNameError}</span>}
             </div>
@@ -415,7 +460,7 @@ const removeService = (index) => {
                 type="text"
                 name="doeRate"
                 className="stu-pro-input-field"
-                placeholder="Enter Rate"  value={doe_rate} onChange={handelDoe_rate}
+                placeholder="Enter Rate"  value={student.doe_rate} onChange={handelDoe_rate}
               />
               {DOEError && <span>{DOEError}</span>}
             </div>
@@ -431,7 +476,7 @@ const removeService = (index) => {
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {iep_doc || "Choose IEP Document"}
+                      {student.iep_doc || "Choose IEP Document"}
                     </button>
                   <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -471,7 +516,7 @@ const removeService = (index) => {
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {disability || "Choose"}
+                      {student.disability || "Choose"}
                     </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -508,7 +553,7 @@ const removeService = (index) => {
                 type="text"
                 name="nycId"
                 className="stu-pro-input-field"
-                placeholder="Enter NYC ID"  value={nyc_id} onChange={handelNycID}
+                placeholder="Enter NYC ID"  value={student.nyc_id} onChange={handelNycID}
               />
             </div>
 
@@ -682,16 +727,17 @@ const removeService = (index) => {
                     </div>
                   </div>
 
-                  <div className="col-md-6 student-profile-field widthcss">
-                    <label>Start Date:</label>
-                    <DatePicker
-                      className=""
-                      value={formData.startDate}
-                      placeholder="Enter Start Date"
-                      onChange={(value) => handleInputChange(index, 'startDate', value)}
-                      style={{ width: '100%'}}  // Optional: Set width to match the input field's size
-                    />
-                  </div>
+                    <div className="col-md-6 student-profile-field widthcss">
+                        <label>Start Date:</label>
+                        <DatePicker
+                            className=""
+                            value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
+                            placeholder="Enter Start Date"
+                            onChange={(value) => handleInputChange(index, 'startDate', value)}  // Handle Date object change
+                            style={{ width: '100%' }}  // Optional: Set width to match the input field's size
+                        />
+                    </div>
+
 
 
                   {/* -------Delete Button of services----------- */}
@@ -715,16 +761,17 @@ const removeService = (index) => {
                 </div>
                 
                 <div className="stu-pro-field-div">
-                  <div className="col-md-6 student-profile-field widthcss">
-                    <label>End Date:</label>
-                    <DatePicker
-                      className=""
-                      value={formData.endDate}
-                      placeholder="Enter End Date"
-                      onChange={(value) => handleInputChange(index, 'endDate', value)}
-                      style={{ width: '100%', height: '45px' }}  // Added height and width
-                    />
-                  </div>
+                    <div className="col-md-6 student-profile-field widthcss">
+                        <label>End Date:</label>
+                        <DatePicker
+                            className=""
+                            value={formData.endDate ? new Date(formData.endDate) : null}  // Convert string to Date object if needed
+                            placeholder="Enter End Date"
+                            onChange={(value) => handleInputChange(index, 'endDate', value)}  // Handle Date object change
+                            style={{ width: '100%', height: '45px' }}  // Optional: Set height and width
+                        />
+                    </div>
+
 
                   <div className="col-md-6 student-profile-field widthcss">
                     <label>Weekly Mandate:</label>
@@ -766,6 +813,8 @@ const removeService = (index) => {
     </div>
   </div>
     );
+
+    
   };
 
 export default AddStudent;

@@ -132,8 +132,8 @@ const App = () => {
               </>
             } 
           />
-           <Route 
-            path="/EditStudent" 
+          <Route 
+            path="/EditStudent/:id" 
             element={
               <>
                 <Navbar /> 
@@ -141,6 +141,7 @@ const App = () => {
               </>
             } 
           />
+
       
       </Routes>
          
