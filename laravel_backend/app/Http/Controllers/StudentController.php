@@ -59,8 +59,17 @@ public function addstudent(Request $request)
             'services.*.endDate' => 'required|string|max:255',
             'services.*.weeklyMandate' => 'required|string|max:255',
             'services.*.yearlyMandate' => 'required|string|max:255',
-                ]);
+        ]);
 
+        // Create parent record first
+        $parents = Parents::create([
+            'parent_name' => $validatedData['parent_name'],
+            'parent_email' => $validatedData['parent_email'],
+            'ph_no' => $validatedData['parent_phnumber'],
+            'parent_type' => $validatedData['parent_type'],
+        ]);
+
+        // Create services records
         foreach ($validatedData['services'] as $service) {
             StudentServices::create([
                 'service_type' => $service['service_type'] ?? null,
@@ -70,14 +79,8 @@ public function addstudent(Request $request)
                 'yearly_mandate' => $service['yearlyMandate'],
             ]);
         }
-        // dd($StudentServices);
-        $parents = Parents::create([
-            'parent_name' => $validatedData['parent_name'],
-            'parent_email' => $validatedData['parent_email'],
-            'ph_no' => $validatedData['parent_phnumber'],
-            'parent_type' => $validatedData['parent_type'],
-        ]);
 
+        // Now create student record with the parent_id
         $student = Students::create([
             'first_name' => $validatedData['first_name'],
             'last_name' => $validatedData['last_name'],
@@ -92,6 +95,7 @@ public function addstudent(Request $request)
             'case' => $validatedData['case_v'],
             'resulation_invoice' => $validatedData['resolutionInvoice'],
             'status' => $validatedData['status'],
+            'parent_id' => $parents->id, // Use the parent ID here
         ]);
 
         return response()->json(['message' => 'Student data saved successfully!'], 201);
@@ -100,6 +104,8 @@ public function addstudent(Request $request)
         return response()->json(['error' => 'Internal Server Error'], 500);
     }
 }
+
+
 
 
 public function DeleteStudent($id)
@@ -121,19 +127,47 @@ public function DeleteStudent($id)
         }
     }
 
-    public function fetchStudentById($id)
+//     public function fetchStudentById($id)
+// {
+//     // Find the student by ID
+//     $student = Students::find($id);
+//     // $student = Students::with('Parents')->find($id);
+
+//     // Check if the student was found
+//     if ($student) {
+//         return response()->json($student);  // Return the student data as JSON
+//     } else {
+//         // Return a 404 error if student is not found
+//         return response()->json(['error' => 'Student not found'], 404);
+//     }
+// }
+    
+public function fetchStudentById($id)
 {
     // Find the student by ID
     $student = Students::find($id);
 
-    // Check if the student was found
     if ($student) {
-        return response()->json($student);  // Return the student data as JSON
+        // Convert the student model to an array
+        // $studentData = $student->toArray();
+
+        // Check if the parent_id is not null
+        $parent = null;
+        if ($student->parent_id !== null) {
+            $parent = Parents::find($student->parent_id);
+        }
+
+        // Combine student and parent details
+        $response = [
+            'student' => $student,
+            'parent' => $parent
+        ];
+
+        return response()->json($response);
     } else {
-        // Return a 404 error if student is not found
         return response()->json(['error' => 'Student not found'], 404);
     }
 }
-    
-    
+
+
 }

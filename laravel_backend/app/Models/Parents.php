@@ -21,6 +21,10 @@ class Parents extends Model
             'parent_name' , 'parent_email' ,'parent_type', 'ph_no'
         ];
     
-    
+    // In Student.php model
+public function parent() {
+    return $this->belongsTo(Parent::class);  // Adjust the model name if necessary
+}
+
 
 }

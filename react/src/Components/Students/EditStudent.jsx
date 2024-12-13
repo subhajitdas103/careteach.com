@@ -22,7 +22,8 @@ import axios from "axios";
     const { id } = useParams();
   
     const [student, setStudent] = useState(null);
-  
+    const [parent, setParentData] = useState(null);
+
   const navigate = useNavigate();
 
   //==============================================================
@@ -77,19 +78,21 @@ const removeService = (index) => {
   const handleCheckboxChange = (e) => {
     setResolutionInvoice(e.target.checked);
   };
-    const [first_name, setFirstName] = useState('');
-    const [last_name, setLastName] = useState('');
-    const [grade, setGrade] = useState('');
-    const [school_name, setSchoolName] = useState('');
-    const [home_address, setHomeaddress] = useState('');
-    const [doe_rate, setDOE] = useState('');
-    const [iep_doc, setIEP] = useState('');
-    const [disability, setDisability] = useState('');
-    const [nyc_id, setNYC] = useState('');
-    const [notesPerHour, setNotesPerHour] = useState('');
-    const [case_v, setCase] = useState('');
+    
+    const [first_name, setFirstName] = useState(student?.first_name || '');
+
+    const [last_name, setLastName] = useState(student?.last_name || '');
+    const [grade, setGrade] = useState("");
+    const [school_name, setSchoolName] = useState(student?.school_name || '');
+    const [home_address, setHomeaddress] = useState(student?.home_address || '');
+    const [doe_rate, setDOE] = useState(student?.doe_rate || '');
+    const [iep_doc, setIEP] = useState("");
+    const [disability, setDisability] = useState("");
+    const [nyc_id, setNYC] = useState(student?.nyc_id || '');
+    const [notesPerHour, setNotesPerHour] = useState(student?.notesPerHour || '');
+    const [case_v, setCase] = useState(student?.case_v || '');
     // const [case_v, setCase] = useState(student.case || '');
-    const [status, setStatus] = useState("active");  // Set 'active' as the default value
+    const [status, setStatus] = useState("");  // Set 'active' as the default value
     const resolutionInvoiceValue = resolutionInvoice ? 'yes' : 'no';
 
 
@@ -118,33 +121,65 @@ const removeService = (index) => {
   const handleParentTypeChange = (selectedParent) => {
     setParentType(selectedParent);
   };
+    // =================Status===================
 
+
+    useEffect(() => {
+      if (student && student.status) {
+        setStatus(student.status); // Set initial status from student data
+      }
+    }, [student]);
 
     const handleRadioChange = (event) => {
       setStatus(event.target.value);
     };
+    // ================First Name================
+    useEffect(() => {
+      if (student && student.first_name) {
+        setFirstName(student.first_name);
+      }
+    }, [student]);
     
 
     const handleFirstNameChange = (e) => {
       setFirstName(e.target.value);
       if (e.target.value) {
-        setFirstNameError('');  // Clear the error as soon as the user types something
+        setFirstNameError(''); 
       }
     };
+  // =======================Last Name=======================
+    useEffect(() => {
+    if (student && student.last_name) {
+      setLastName(student.last_name);
+    }
+    }, [student]);
 
-    const handleLastNameChange = (event) => {
-      setLastName(event.target.value);
-      if (event.target.value) {
-        setLastNameError(''); // Clear the error as soon as the user types something
+      const handleLastNameChange = (event) => {
+        setLastName(event.target.value);
+        if (event.target.value) {
+          setLastNameError('');
+        }
+      };
+    // =================School=============================
+    useEffect(() => {
+      if (student && student.school_name) {
+        setSchoolName(student.school_name);
       }
-    };
+    }, [student]);
+    
+
     const handleSchoolNameChange = (event) => {
       setSchoolName(event.target.value);
       if (event.target.value) {
-        setSchoolNameError('');  // Clear the error as soon as the user types something
+        setSchoolNameError('');
       }
     };
-
+    // ====================Home Address=====================
+    useEffect(() => {
+      if (student && student.home_address) {
+        setHomeaddress(student.home_address);
+      }
+    }, [student]);
     const handleHomeAddress = (event) => {
       setHomeaddress(event.target.value);
       if (event.target.value) {
@@ -152,20 +187,71 @@ const removeService = (index) => {
       }
     };
 
+    // =====================Grade=======================
+    useEffect(() => {
+      if (student && student.grade) {
+        setGrade(student.grade);  // Update state when student.grade changes
+      }
+    }, [student]); // Dependency on both student and grade to keep the state synced
 
+    
+    const handleGradeChange = (selectedGrade) => {
+      setGrade(selectedGrade);
+        setLastNameError(''); 
+    };
+
+    // ================IEP Doc=============
+    useEffect(() => {
+      if (student && student.iep_doc) {
+        setIEP(student.iep_doc); 
+      }
+    }, [student]); 
+
+    
+  // Handle grade change
+  const handelIEP = (selectedIEP) => {
+    setIEP(selectedIEP);
+
+  };
+
+  // ============Clasification of Disability ============
+  useEffect(() => {
+    if (student && student.disability) {
+      setDisability(student.disability); 
+    }
+  }, [student]); 
+
+  const handelDisability = (selectedDisability) => {
+    setDisability(selectedDisability);
+    setLastNameError('');
+  };
+
+    // ===============DOE Rate==================
+
+    useEffect(() => {
+      if (student && student.doe_rate) {
+        setDOE(student.doe_rate);
+      }
+    }, [student]);
+    
 
     const handelDoe_rate = (event) => {
     const value = event.target.value;
-    
-    // Allow only numeric input (whole numbers)
+ 
     if (/^\d+$/.test(value) || value === "") {
-      setDOE(value); // Update state if input is valid
+      setDOE(value); 
     }
 
     if (event.target.value) {
-      setDOEError('');  // Clear the error as soon as the user types something
+      setDOEError('');
     }
   };
+// =================NYC ID==================================
+useEffect(() => {
+  if (student && student.nyc_id) {
+    setNYC(student.nyc_id);
+  }
+}, [student]);
 
     const handelNycID = (event) => {
       const value = event.target.value;
@@ -174,6 +260,8 @@ const removeService = (index) => {
       setNYC(value); // Update state if input is valid
     }
     };
+
+    // ==================Notes Per Hour=======================
         const handlenotesPerHour = (event) => {
         const value = event.target.value;
         if (/^\d+$/.test(value) || value === "") {
@@ -192,30 +280,18 @@ const removeService = (index) => {
                 setNotesPerHour(student.notes_per_hour);
               }
             }
-          }, [student])// This will run every time the 'student' prop changes
-    
-      const handleCase = (e) => {
-        setCase(e.target.value); // Update state when input changes
-      };
+          }, [student])
+
+  // =====================Case==========================
+          const handleCase = (e) => {
+          setCase(e.target.value); // Update state when input changes
+         };
 
 
-    const handleGradeChange = (selectedGrade) => {
-      setGrade(selectedGrade);
-      // setSchoolNameError(''); 
-      // if (event.target.value) {
-        setLastNameError(''); // Clear the error as soon as the user types something
-      // }
-    };
+   
 
-    const handelDisability = (selectedDisability) => {
-      setDisability(selectedDisability);
-      setLastNameError('');
-    };
-    // Handle grade change
-    const handelIEP = (selectedIEP) => {
-      setIEP(selectedIEP);
-
-    };
+   
+  
   // ===================Validation===============================
 
   const [firstNameError, setFirstNameError] = useState('');
@@ -276,8 +352,8 @@ const removeService = (index) => {
   
     const handleAddStudent   = async (event) => {
       console.log("handleAddStudent triggered");
-      event.preventDefault();
-      if (!validateForm()) return; 
+      // event.preventDefault();
+      // if (!validateForm()) return; 
 
      
       const formData = {
@@ -301,7 +377,7 @@ const removeService = (index) => {
         // Add formDataList here to send the dynamic fields
         services: formDataList, // This includes all the dynamically added service forms
       };
-      console.log('Form data:', formData);
+      // console.log('Form data:', formData);
 
       try {
         const response = await axios.post('/api/addstudent', JSON.stringify(formData), {
@@ -333,13 +409,25 @@ const removeService = (index) => {
       }
     }
 
-    // ======================================
+    // =============Detch Student Detials=========================
 
     const fetchStudentDetails = async () => {
         try {
           const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
           const data = await response.json();
-          setStudent(data);
+         
+
+
+
+          if (data.student) {
+            setStudent(data.student); // Store student data
+            // setFirstName(data.student.first_name); // Set first_name from student data
+          }
+    
+          // Check if parent data is available
+          if (data.parent) {
+            setParentData(data.parent); // Store parent data if needed
+          }
           console.log(data);
           
         } catch (error) {
@@ -354,7 +442,7 @@ const removeService = (index) => {
       if (!student) {
         return <div>Loading...</div>;
       }
-  
+  // ======================================================
     return (
     <div className="dashboard-container">
             <div className="row dashboard-list">
@@ -374,7 +462,7 @@ const removeService = (index) => {
                   type="text"  
                   name="firstName"
                   className="stu-pro-input-field"
-                  placeholder="Enter First Name" value={student.first_name} onChange={handleFirstNameChange}/>
+                  placeholder="Enter First Name" value={first_name} onChange={handleFirstNameChange}/>
                   {firstNameError && <span>{firstNameError}</span>}
               </div>
 
@@ -384,7 +472,7 @@ const removeService = (index) => {
                   type="text"
                   name="lastName"
                   className="stu-pro-input-field"
-                  placeholder="Enter Last Name"  value={student.last_name} onChange={handleLastNameChange}
+                  placeholder="Enter Last Name"  value={last_name} onChange={handleLastNameChange}
                 />
                 {lastNameError && <span>{lastNameError}</span>}
               </div>
@@ -397,7 +485,7 @@ const removeService = (index) => {
                   type="text"
                   name="schoolName"
                   className="stu-pro-input-field"
-                  placeholder="Enter a School Name"  value={student.school_name} onChange={handleSchoolNameChange}
+                  placeholder="Enter a School Name"  value={school_name} onChange={handleSchoolNameChange}
                 />
                 {SchoolNameError && <span>{SchoolNameError}</span>}
               </div>
@@ -411,7 +499,7 @@ const removeService = (index) => {
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {student.grade || "Choose Grade"}
+                      {grade || "Choose Grade"}
                     </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -449,7 +537,7 @@ const removeService = (index) => {
                 rows="6"
                 cols="50"
                 className="text-field stu-pro-input-field"
-                placeholder="Enter home address"  value={student.home_address} onChange={handleHomeAddress}
+                placeholder="Enter home address"  value={home_address} onChange={handleHomeAddress}
               ></textarea>
               {HomeNameError && <span>{HomeNameError}</span>}
             </div>
@@ -460,7 +548,7 @@ const removeService = (index) => {
                 type="text"
                 name="doeRate"
                 className="stu-pro-input-field"
-                placeholder="Enter Rate"  value={student.doe_rate} onChange={handelDoe_rate}
+                placeholder="Enter Rate"  value={doe_rate} onChange={handelDoe_rate}
               />
               {DOEError && <span>{DOEError}</span>}
             </div>
@@ -476,7 +564,7 @@ const removeService = (index) => {
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {student.iep_doc || "Choose IEP Document"}
+                      {iep_doc || "Choose IEP Document"}
                     </button>
                   <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -516,7 +604,7 @@ const removeService = (index) => {
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {student.disability || "Choose"}
+                      {disability || "Choose"}
                     </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -553,7 +641,7 @@ const removeService = (index) => {
                 type="text"
                 name="nycId"
                 className="stu-pro-input-field"
-                placeholder="Enter NYC ID"  value={student.nyc_id} onChange={handelNycID}
+                placeholder="Enter NYC ID"  value={nyc_id} onChange={handelNycID}
               />
             </div>
 
@@ -600,7 +688,8 @@ const removeService = (index) => {
                   id="inactive"
                   name="status"
                   value="inactive"
-                  onChange={handleRadioChange}  // Update onChange handler
+                  onChange={handleRadioChange}  
+                  checked={status === 'inactive'} // Update onChange handler
                 />
                 <label>Inactive</label>
               </div>
