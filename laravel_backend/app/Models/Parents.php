@@ -22,9 +22,9 @@ class Parents extends Model
         ];
     
     // In Student.php model
-public function parent() {
-    return $this->belongsTo(Parent::class);  // Adjust the model name if necessary
-}
+// public function parent() {
+//     return $this->belongsTo(Parent::class);  // Adjust the model name if necessary
+// }
 
 
 }

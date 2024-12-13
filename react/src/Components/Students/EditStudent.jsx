@@ -97,27 +97,49 @@ const removeService = (index) => {
 
 
     // ------------------Parent---------
-    const [parent_name, setParent] = useState('');
-    const [parent_email, setParentEmail] = useState('');
-    const [parent_type, setParentType] = useState('');
-    const [parent_phnumber, setParentPH] = useState('');
+    const [parent_name, setParent] = useState(parent?.parent_name || '');
+    const [parent_email, setParentEmail] = useState(parent?.parent_email || '');
+    const [parent_type, setParentType] = useState(parent?.parent_type || '');
+    const [parent_phnumber, setParentPH] = useState("");
   // ---------------------Parent END------------------------
 
-
+// =========Parent Name ============
+  useEffect(() => {
+    if (parent && parent.parent_name) {
+      setParent(parent.parent_name); 
+    }
+  }, [parent]);
 
     const handleParentname = (event) => {
       setParent(event.target.value);
     };
 
+// ==============Parent Email=================
+useEffect(() => {
+  if (parent && parent.parent_email) {
+    setParentEmail(parent.parent_email); 
+  }
+}, [parent]);
 
     const handleParentEmail = (event) => {
       setParentEmail(event.target.value);
     };
+// ===============Parent PH Number========================
+useEffect(() => {
+  if (parent && parent.ph_no) {
+    setParentPH(parent.ph_no); 
+  }
+}, [parent]);
 
     const handleParentPHnumber = (event) => {
       setParentPH(event.target.value);
     };
-
+// ==============Parent Type==========
+    useEffect(() => {
+      if (parent && parent.parent_type) {
+        setParentType(parent.parent_type); 
+      }
+    }, [parent]);
   const handleParentTypeChange = (selectedParent) => {
     setParentType(selectedParent);
   };
@@ -416,17 +438,11 @@ useEffect(() => {
           const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
           const data = await response.json();
          
-
-
-
           if (data.student) {
-            setStudent(data.student); // Store student data
-            // setFirstName(data.student.first_name); // Set first_name from student data
+            setStudent(data.student);
           }
-    
-          // Check if parent data is available
           if (data.parent) {
-            setParentData(data.parent); // Store parent data if needed
+            setParentData(data.parent);
           }
           console.log(data);
           
