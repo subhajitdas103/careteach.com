@@ -124,25 +124,27 @@ public function DeleteStudent($id)
     }
 
 
-public function fetchStudentById($id)
-{
-
-    $student = Students::find($id);
-
-    if ($student) {
-
+    public function fetchStudentById($id)
+    {
+        $student = Students::find($id);
+    
+        if ($student) {
             $parent = Parents::find($student->parent_id);
-        
-        $response = [
-            'student' => $student,
-            'parent' => $parent
-        ];
+ 
+            $StudentServices = StudentServices::where('student_id', $student->id)->get();
 
-        return response()->json($response);
-    } else {
-        return response()->json(['error' => 'Student not found'], 404);
+            $response = [
+                'student' => $student,
+                'parent' => $parent,
+                'StudentServices' => $StudentServices
+            ];
+    
+            return response()->json($response);
+        } else {
+            return response()->json(['error' => 'Student not found'], 404);
+        }
     }
-}
+    
 
 
 }

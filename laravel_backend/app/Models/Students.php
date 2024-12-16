@@ -22,9 +22,9 @@ class Students extends Model
             'doe_rate', 'iep_doc', 'disability', 'nyc_id', 'notes_per_hour', 'case' ,'resulation_invoice','status' , 'parent_id'
         ];
     
-        public function parent()
-        {
-            return $this->belongsTo(Parents::class, 'parent_id', 'id');
-        }
+        // public function parent()
+        // {
+        //     return $this->belongsTo(Parents::class, 'parent_id', 'id');
+        // }
 
 }

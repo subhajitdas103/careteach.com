@@ -23,7 +23,8 @@ import axios from "axios";
   
     const [student, setStudent] = useState(null);
     const [parent, setParentData] = useState(null);
-
+    const [StudentServices, setStudentServices] = useState(null);
+  
   const navigate = useNavigate();
 
   //==============================================================
@@ -35,30 +36,43 @@ import axios from "axios";
     
    
   // ==========================Clone Service Div====================================
+  //  const [studentServices, setStudentServices] = useState([]);
   const [formDataList, setFormDataList] = useState([
-    { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' , isClone: false}
+    { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isClone: false }
   ]);
+  useEffect(() => {
+    if (StudentServices && StudentServices.length > 0) {
+      const updatedFormDataList = StudentServices.map(service => ({
+        service_type: service.service_type || '',
+        startDate: service.start_date || '',
+        endDate: service.end_date || '',
+        weeklyMandate: service.weekly_mandate || '',
+        yearlyMandate: service.yearly_mandate || '',
+        isClone: false
+      }));
+      setFormDataList(updatedFormDataList);
+    }
+  }, [StudentServices]);
+  
+  // const [formDataList, setFormDataList] = useState([
+  //   { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' , isClone: false}
+  // ]);
 
-  // Function to handle changes in form inputs (e.g., Start Date, End Date)
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
   };
 
-  // Function to handle the service type change (Male or Fe-Male)
   const handleServiceTypeChange = (index, type) => {
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index] = {
-      ...updatedFormDataList[index], // Preserve the other fields
-      service_type: type,            // Update the service_type value
+      ...updatedFormDataList[index],
+      service_type: type,
     };
     setFormDataList(updatedFormDataList);
   };
 
-  
-
-  // Function to add a new service (clone the form)
   const addService = () => {
     setFormDataList([
       ...formDataList,
@@ -66,7 +80,6 @@ import axios from "axios";
     ]);
   };
 
-  // Function to remove a service (form)
 const removeService = (index) => {
   const updatedFormDataList = formDataList.filter((_, i) => i !== index);
   setFormDataList(updatedFormDataList);
@@ -434,30 +447,34 @@ useEffect(() => {
     // =============Detch Student Detials=========================
 
     const fetchStudentDetails = async () => {
-        try {
-          const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
-          const data = await response.json();
-         
-          if (data.student) {
-            setStudent(data.student);
-          }
-          if (data.parent) {
-            setParentData(data.parent);
-          }
-          console.log(data);
-          
-        } catch (error) {
-          console.error('Error fetching student details:', error);
+      try {
+        const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
+        const data = await response.json();
+    
+        if (data.student) {
+          setStudent(data.student);
         }
-      };
+        if (data.parent) {
+          setParentData(data.parent);
+        }
+        if (data.StudentServices) {
+          setStudentServices(data.StudentServices);
+        }
     
-      useEffect(() => {
-        fetchStudentDetails();
-      }, [id]);
-    
-      if (!student) {
-        return <div>Loading...</div>;
+        console.log(data); // For debugging
+      } catch (error) {
+        console.error('Error fetching student details:', error);
       }
+    };
+    
+    useEffect(() => {
+      fetchStudentDetails();
+    }, [id]); // Fetch when `id` changes
+    
+    // if (!student || !parentData || !StudentServices) {
+    //   return <div>Loading...</div>; // Show loading until all data is fetched
+    // }
+    
   // ======================================================
     return (
     <div className="dashboard-container">

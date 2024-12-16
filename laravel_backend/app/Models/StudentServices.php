@@ -12,7 +12,7 @@ class StudentServices extends Model
 
 
         protected $fillable = [
-            'service_type' , 'start_date' ,'end_date', 'weekly_mandate' ,'yearly_mandate'
+            'service_type' , 'start_date' ,'end_date', 'weekly_mandate' ,'yearly_mandate' ,'student_id'
         ];
     
     

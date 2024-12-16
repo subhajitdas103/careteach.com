@@ -18,7 +18,7 @@ class Parents extends Model
     // ];
    
         protected $fillable = [
-            'parent_name' , 'parent_email' ,'parent_type', 'ph_no'
+            'parent_name' , 'parent_email' ,'parent_type', 'ph_no' 
         ];
     
     // In Student.php model
