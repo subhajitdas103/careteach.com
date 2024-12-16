@@ -54,9 +54,6 @@ import axios from "axios";
     }
   }, [StudentServices]);
   
-  // const [formDataList, setFormDataList] = useState([
-  //   { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' , isClone: false}
-  // ]);
 
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];

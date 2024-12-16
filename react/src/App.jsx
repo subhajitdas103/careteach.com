@@ -46,7 +46,7 @@ const App = () => {
             </>
           } 
           />
-          <Route 
+          {/* <Route 
             path="/AddStudent" 
             element={
               <>
@@ -54,7 +54,7 @@ const App = () => {
                 <AddStudent />
               </>
             } 
-          />
+          /> */}
            <Route 
             path="/Billing" 
             element={
@@ -129,6 +129,15 @@ const App = () => {
               <>
                 <Navbar /> 
                 <AddSchool />
+              </>
+            } 
+          />
+           <Route 
+            path="/AddStudent/" 
+            element={
+              <>
+                <Navbar /> 
+                <AddStudent />
               </>
             } 
           />

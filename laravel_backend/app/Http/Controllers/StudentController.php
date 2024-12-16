@@ -68,15 +68,7 @@ public function addstudent(Request $request)
             'parent_type' => $validatedData['parent_type'],
         ]);
 
-        foreach ($validatedData['services'] as $service) {
-            StudentServices::create([
-                'service_type' => $service['service_type'] ?? null,
-                'start_date' => $service['startDate'],
-                'end_date' => $service['endDate'],
-                'weekly_mandate' => $service['weeklyMandate'],
-                'yearly_mandate' => $service['yearlyMandate'],
-            ]);
-        }
+       
 
         $student = Students::create([
             'first_name' => $validatedData['first_name'],
@@ -94,7 +86,16 @@ public function addstudent(Request $request)
             'status' => $validatedData['status'],
             'parent_id' => $parents->id, // Use the parent ID here
         ]);
-
+        foreach ($validatedData['services'] as $service) {
+            StudentServices::create([
+                'service_type' => $service['service_type'] ?? null,
+                'start_date' => $service['startDate'],
+                'end_date' => $service['endDate'],
+                'weekly_mandate' => $service['weeklyMandate'],
+                'yearly_mandate' => $service['yearlyMandate'],
+                'student_id' => $student->id, // Use the parent ID here
+            ]);
+        }
         return response()->json(['message' => 'Student data saved successfully!'], 201);
     } catch (\Exception $e) {
         \Log::error('Error saving student data: ' . $e->getMessage());
