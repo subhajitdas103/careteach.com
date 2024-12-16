@@ -1,3 +1,9 @@
+
+/* LOcation and service type dropdown */
+.lctDropdown{
+    display: flex ;
+}
+
 /* ------------------Modal CSS------------------- */
 .cancel-button, .delete-button {
     width: 40px; /* Adjust the width */

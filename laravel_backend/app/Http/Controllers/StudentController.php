@@ -41,7 +41,7 @@ public function addstudent(Request $request)
             'doe_rate' => 'nullable|string|max:255',
             'iep_doc' => 'nullable|string|max:255',
             'disability' => 'nullable|string|max:255',
-            'nyc_id' => 'nullable|string|max:255',
+            'nyc_id' => 'nullable|string|max:255', // Removed the 'exists' rule for nyc_id validation
             'notesPerHour' => 'nullable|numeric',
             'case_v' => 'nullable|string|max:255',
             'resolutionInvoice' => 'nullable|boolean',
@@ -61,47 +61,61 @@ public function addstudent(Request $request)
             'services.*.yearlyMandate' => 'required|string|max:255',
         ]);
 
-        $parents = Parents::create([
-            'parent_name' => $validatedData['parent_name'],
-            'parent_email' => $validatedData['parent_email'],
-            'ph_no' => $validatedData['parent_phnumber'],
-            'parent_type' => $validatedData['parent_type'],
-        ]);
+        // Find or create parent
+        $parents = Parents::updateOrCreate(
+            ['parent_email' => $validatedData['parent_email']], // Check by unique key (email)
+            [
+                'parent_name' => $validatedData['parent_name'],
+                'ph_no' => $validatedData['parent_phnumber'],
+                'parent_type' => $validatedData['parent_type'],
+            ]
+        );
 
-       
+        // Find or create student
+        $student = Students::updateOrCreate(
+            ['nyc_id' => $validatedData['nyc_id'] ?? null], // Use a unique identifier (nyc_id)
+            [
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
+                'grade' => $validatedData['grade'],
+                'school_name' => $validatedData['school_name'],
+                'home_address' => $validatedData['home_address'],
+                'doe_rate' => $validatedData['doe_rate'],
+                'iep_doc' => $validatedData['iep_doc'],
+                'disability' => $validatedData['disability'],
+                'notes_per_hour' => $validatedData['notesPerHour'],
+                'case' => $validatedData['case_v'],
+                'resulation_invoice' => $validatedData['resolutionInvoice'],
+                'status' => $validatedData['status'],
+                'parent_id' => $parents->id,
+            ]
+        );
 
-        $student = Students::create([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'grade' => $validatedData['grade'],
-            'school_name' => $validatedData['school_name'],
-            'home_address' => $validatedData['home_address'],
-            'doe_rate' => $validatedData['doe_rate'],
-            'iep_doc' => $validatedData['iep_doc'],
-            'disability' => $validatedData['disability'],
-            'nyc_id' => $validatedData['nyc_id'],
-            'notes_per_hour' => $validatedData['notesPerHour'],
-            'case' => $validatedData['case_v'],
-            'resulation_invoice' => $validatedData['resolutionInvoice'],
-            'status' => $validatedData['status'],
-            'parent_id' => $parents->id, // Use the parent ID here
-        ]);
+        // Update or create services
         foreach ($validatedData['services'] as $service) {
-            StudentServices::create([
-                'service_type' => $service['service_type'] ?? null,
-                'start_date' => $service['startDate'],
-                'end_date' => $service['endDate'],
-                'weekly_mandate' => $service['weeklyMandate'],
-                'yearly_mandate' => $service['yearlyMandate'],
-                'student_id' => $student->id, // Use the parent ID here
-            ]);
+            StudentServices::updateOrCreate(
+                // [
+                //    
+                //      // Assuming startDate is unique for each service
+                // ],
+                [
+                    'service_type' => $service['service_type'] ?? null,
+                    'start_date' => $service['startDate'],
+                    'end_date' => $service['endDate'],
+                    'weekly_mandate' => $service['weeklyMandate'],
+                    'yearly_mandate' => $service['yearlyMandate'],
+                    'student_id' => $student->id,
+                ]
+            );
         }
-        return response()->json(['message' => 'Student data saved successfully!'], 201);
+
+        return response()->json(['message' => 'Student data saved/updated successfully!'], 200);
     } catch (\Exception $e) {
-        \Log::error('Error saving student data: ' . $e->getMessage());
+        \Log::error('Error saving/updating student data: ' . $e->getMessage());
         return response()->json(['error' => 'Internal Server Error'], 500);
     }
 }
+
 
 
 

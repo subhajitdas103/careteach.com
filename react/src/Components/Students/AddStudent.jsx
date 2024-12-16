@@ -7,7 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { faSquareMinus } from '@fortawesome/free-solid-svg-icons';
+import { IconButton, Tooltip } from '@mui/material';
 import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
 // import { useForm } from 'react-hook-form'; // Import useForm
@@ -652,6 +653,23 @@ const removeService = (index) => {
             {formDataList.map((formData, index) => (
               <div key={index} id="profileContainer" className="stu-profile-div">
                 <div className="stu-pro-field-div">
+                {  formData.isClone && (
+                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-1rem', marginTop: '-7rem' }}>
+                      <Tooltip title="Remove Service" arrow>
+                        <IconButton
+                          onClick={() => removeService(index)} // Call removeService when clicked
+                          style={{
+                            background: 'none',
+                            padding: '0',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faSquareMinus} />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
+                    )
+                  }
                   <div className="col-md-6 student-profile-field widthcss">
                     <label>Service Type:</label>
                     <div className="dropdown">
@@ -692,26 +710,6 @@ const removeService = (index) => {
                       style={{ width: '100%'}}  // Optional: Set width to match the input field's size
                     />
                   </div>
-
-
-                  {/* -------Delete Button of services----------- */}
-                  {  formData.isClone && (
-                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-2rem', marginTop: '-5rem' }}>
-                        <button
-                          style={{
-                            marginRight: '1rem',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => removeService(index)} // Call removeService when clicked
-                        >
-                          <FontAwesomeIcon icon={faTrash} style={{ fontSize: '1.5rem' }} />
-                        </button>
-                      </div>
-                    )
-                  }
-                {/* ----End---Delete Button of services----------- */}
                 </div>
                 
                 <div className="stu-pro-field-div">

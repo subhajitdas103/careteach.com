@@ -1,19 +1,15 @@
 import React, { useState , useEffect } from 'react';
-import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
 import "./Students.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSquareMinus } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams } from 'react-router-dom';
-import 'rsuite/styles/index.less'; // Import RSuite styles
+import 'rsuite/styles/index.less';
 import { DatePicker } from 'rsuite';
-// import { useForm } from 'react-hook-form'; // Import useForm
-// import { useForm } from "react-hook-form";
-// import Dropdown from "react-bootstrap/Dropdown";
-
+import { IconButton, Tooltip } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
@@ -36,9 +32,9 @@ import axios from "axios";
     
    
   // ==========================Clone Service Div====================================
-  //  const [studentServices, setStudentServices] = useState([]);
+
   const [formDataList, setFormDataList] = useState([
-    { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isClone: false }
+    { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: ''}
   ]);
   useEffect(() => {
     if (StudentServices && StudentServices.length > 0) {
@@ -48,7 +44,6 @@ import axios from "axios";
         endDate: service.end_date || '',
         weeklyMandate: service.weekly_mandate || '',
         yearlyMandate: service.yearly_mandate || '',
-        isClone: false
       }));
       setFormDataList(updatedFormDataList);
     }
@@ -73,16 +68,18 @@ import axios from "axios";
   const addService = () => {
     setFormDataList([
       ...formDataList,
-      { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' ,  isClone: true}
+      { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' }
     ]);
   };
 
 const removeService = (index) => {
+  if (formDataList.length > 1) {
   const updatedFormDataList = formDataList.filter((_, i) => i !== index);
   setFormDataList(updatedFormDataList);
+  }
 };
   // ===================================================================
-  // const [isSubmitted, setIsSubmitted] = useState(false);
+
   const [resolutionInvoice, setResolutionInvoice] = useState(false);
 
   const handleCheckboxChange = (e) => {
@@ -101,8 +98,7 @@ const removeService = (index) => {
     const [nyc_id, setNYC] = useState(student?.nyc_id || '');
     const [notesPerHour, setNotesPerHour] = useState(student?.notesPerHour || '');
     const [case_v, setCase] = useState(student?.case_v || '');
-    // const [case_v, setCase] = useState(student.case || '');
-    const [status, setStatus] = useState("");  // Set 'active' as the default value
+    const [status, setStatus] = useState("");
     const resolutionInvoiceValue = resolutionInvoice ? 'yes' : 'no';
 
 
@@ -419,7 +415,7 @@ useEffect(() => {
         });
 
 
-       toast.success("Student successfully Saved!", {
+       toast.success("Student successfully Updated!", {
         position: "top-right", 
         autoClose: 5000,
       });
@@ -813,9 +809,29 @@ useEffect(() => {
         </div>
         {/* --------------------------------Services---------------------------------- */}
           <div className="row dashboard-list personal-profile">
+            
             {formDataList.map((formData, index) => (
               <div key={index} id="profileContainer" className="stu-profile-div">
+                
                 <div className="stu-pro-field-div">
+                  
+                <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-1rem', marginTop: '-7rem' }}>
+                  <Tooltip title= "Remove Service"  arrow>
+                    <IconButton
+                      onClick={() => removeService(index)}
+                      style={{
+                        background: 'none',
+                        padding: '0',
+                        cursor: 'pointer',
+                        cursor: formDataList.length > 1 || index === formDataList.length - 1 ? 'pointer' : 'allowed',
+                      }}
+                       disabled={formDataList.length <= 1 && index === formDataList.length - 1}
+                    >
+                      <FontAwesomeIcon icon={faSquareMinus} />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+                    
                   <div className="col-md-6 student-profile-field widthcss">
                     <label>Service Type:</label>
                     <div className="dropdown">
@@ -860,22 +876,7 @@ useEffect(() => {
 
 
                   {/* -------Delete Button of services----------- */}
-                  {  formData.isClone && (
-                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-2rem', marginTop: '-5rem' }}>
-                        <button
-                          style={{
-                            marginRight: '1rem',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => removeService(index)} // Call removeService when clicked
-                        >
-                          <FontAwesomeIcon icon={faTrash} style={{ fontSize: '1.5rem' }} />
-                        </button>
-                      </div>
-                    )
-                  }
+                  
                 {/* ----End---Delete Button of services----------- */}
                 </div>
                 
