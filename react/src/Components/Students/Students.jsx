@@ -5,25 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 import { Button } from 'react-bootstrap'; 
 import Modal from 'react-bootstrap/Modal';
-// import { DatePicker } from 'rsuite';
-// import DatePicker from 'react-datepicker';  // If you meant to use react-datepicker
-// import 'react-datepicker/dist/react-datepicker.css';  // Ensure CSS is also imported
-
-// import TextField from '@mui/material/TextField';
-// import FormControl from '@mui/material/FormControl';
-// import InputLabel from '@mui/material/InputLabel';
-// import Select from '@mui/material/Select';
-// import MenuItem from '@mui/material/MenuItem';
-import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
-import Box from '@mui/material/Box';
-import { TextField, FormControl, InputLabel, Select, MenuItem} from '@mui/material';
-// import { DatePicker } from '@mui/x-date-pickers';
-// import { LocalizationProvider } from '@mui/x-date-pickers';
-// import AdapterDateFns from '@mui/x-date-pickers/AdapterDateFns';
-
+import { DatePicker } from 'rsuite';
+import 'rsuite/dist/rsuite.min.css';
+import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const Students = () => {
+
   const location = useLocation();
   const message = location.state?.message;
 
@@ -31,6 +18,7 @@ const Students = () => {
   const [data, setData] = useState([]); // Student data
   const [show, setShow] = useState(false); // Modal visibility
   const [SelectedStudentToDelete, setSelectedStudentToDelete] = useState(null); 
+
   useEffect(() => {
     axios.get('api/Students')
       .then((response) => {
@@ -47,13 +35,9 @@ const Students = () => {
   };
 
   const EditStudentClick = (id) => {
-    // alert(studentId);
     navigate(`/EditStudent/${id}`);
   };
-  
 
-
-  
   const backToDashboard = () => {
     navigate('/dashboard');
   };
@@ -81,24 +65,111 @@ const Students = () => {
         });
     }
   };
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const OpenModalAssignProvider = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-  // closeButton
-  // const OpenModalAssignProvider = () => {
-  //   alert("studentId");
-  // };
+ const [studentDetails, setStudent] = useState(null);
+  const [StudentServices, setStudentServices] = useState([]);
+  const [Parents, setParentsDetails] = useState(null);
+  const OpenModalAssignProvider = (id) => {
+    console.log('Student ID passed:', id); // Log the ID to the console
+    // alert(id); // Show the ID in an alert
+    setSelectedStudentId(id); // Store the selected student ID
+    setIsModalOpen(true); // Open the modal
+  };
+
+
+
+  // Show service Type in Assign Service 
+  // const [StudentServices, setStudentServicesShow] = useState([]);
+  const [selectedService, setSelectedService] = useState('');
+  useEffect(() => {
+    if (data.StudentServices) {
+      setStudentServicesShow(data.StudentServices);
+    }
+  }, [data]);
+
+  const handleChange = (event) => {
+    setSelectedService(event.target.value);
+  };
+  // alert(id);
+  // ====================================================
+const fetchStudentDetails = async () => {
+  if (!selectedStudentId) return;
+      try {
+        const response = await fetch(`/api/StudentDataFetchAsID/${selectedStudentId}`);
+        const data = await response.json();
+        console.log("API Response 2:", data); 
+    
+        if (data.studentDetails) {
+          setStudent(data.studentDetails);
+        }
+        if (data.Parents) {
+          setParentsDetails(data.Parents);
+        }
+        if (data.StudentServices) {
+          setStudentServices(data.StudentServices);
+        }
+    
+        console.log(data); // For debugging
+      } catch (error) {
+        console.error('Error fetching student details:', error);
+      }
+    };
+    
+    useEffect(() => {
+      fetchStudentDetails();
+    }, [selectedStudentId]); // Fetch when `id` changes
+    
+
+  // -------------------------------------
+
+ 
+
+
+
+
+
+  // Fetch provider data
+  const [providerdata, setProviderData] = useState([]);
+  const [selectedProvider, setSelectedProvider] = useState("");
+  useEffect(() => {
+    axios
+      .get("api/ViewProviders")
+      .then((response) => {
+        console.log("API Response:", response.data);
+        const formattedData = response.data.map((provider) => ({
+          id: provider.id,
+          name: `${provider.provider_first_name} ${provider.provider_last_name}`,
+          rate: `${provider.rate}`,
+        }));
+        setProviderData(formattedData);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setProviderData([]);
+      });
+  }, []);
+
+  const handelChangeProvider = (event) => {
+    setSelectedProvider(event.target.value);
+    console.log("Selected Provider:", event.target.value);
+  };
+
+  // Rate and other fields
+  const [inputRate, setInputRate] = useState("");
+  const handleRateChange = (e) => {
+    setInputRate(e.target.value);
+  };
+// =====================Fetch Service type==================================
+
   return (
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
           <h3>Students</h3>
           <div onClick={backToDashboard}>
-            <i
-              className="fa fa-backward fc-back-icon"
-              aria-hidden="true"
-              id="back_student_click"
-            ></i>
+            <i className="fa fa-backward fc-back-icon" aria-hidden="true" id="back_student_click"></i>
           </div>
         </div>
       </div>
@@ -106,12 +177,7 @@ const Students = () => {
       <div className="row col-md-12 form-grouptop_search topnav">
         <div className="search-container">
           <form className="search-bar dashboard-list">
-            <input
-              type="text"
-              name="search"
-              className="search-field"
-              placeholder="Search for student"
-            />
+            <input type="text" name="search" className="search-field" placeholder="Search for student" />
             <button type="submit" className="fa-search-icon">
               <i className="fa fa-search"></i>
             </button>
@@ -145,19 +211,14 @@ const Students = () => {
                       <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
                         <i className="fa fa-edit fa-1x fa-icon-img"></i>
                       </div>
-                      <button
-                        type="button"
-                        className="holiday-delete"
-                        onClick={() => handleShow(student)}
-                      >
+                      <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
                         <i className="fa fa-trash fa-1x fa-icon-img"></i>
                       </button>
 
-                      <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff'}} onClick={OpenModalAssignProvider}>
+                      <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff'}} onClick={() => OpenModalAssignProvider(student.id)} // ✅ Correct usage
+                      >
                         <div className="assign-pro-btn">Assign Provider</div>
                       </button>
-
-                      
                     </div>
                   </td>
                 </tr>
@@ -188,150 +249,146 @@ const Students = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button className="cancel-button" variant="secondary" onClick={handleClose}>
-            <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
+              <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
             </Button>
             <Button className="delete-button" variant="danger" onClick={confirmDelete}>
-            <i className="fa fa-trash" aria-hidden="true"></i>
+              <i className="fa fa-trash" aria-hidden="true"></i>
             </Button>
           </Modal.Footer>
         </Modal>
       )}
-{/* -------------------Modal Open---------------- */}
-{isModalOpen && (
-<div
-    className="modal show"
-    style={{
-      display: 'block',
-      background: 'rgba(0, 0, 0, 0.5)',
-    }}
-  >
-    <Modal.Dialog>
-      <Modal.Header closeButton>
-        <Modal.Title>Modal title</Modal.Title>
-      </Modal.Header>
 
-      <Modal.Body>
-        {/* First FormControl (Select Provider) */}
-      <div className="form-row">
-          <div className="col-12 col-md-12">
-            <FormControl fullWidth style={{ marginBottom: '16px' }}>
-              <InputLabel id="demo-simple-select-label">Select Provider</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                label="Select Provider"
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+      {/* Modal for Assigning Provider */}
+      {isModalOpen && (
+        <div className="modal show" style={{ display: 'block', background: 'rgba(0, 0, 0, 0.5)' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton>
+              <Modal.Title>Assign Provider</Modal.Title>
+            </Modal.Header>
 
-          {/* TextField for Rate */}
-          <div className="col-12">
-            <TextField
-              id="outlined-basic"
-              label="Rate"
-              variant="outlined"
-              fullWidth
-              style={{ marginBottom: '16px' }}
-            />
-          </div>
+            <Modal.Body>
+              <div className="form-row">
+                <div className="col-12 col-md-12">
+                  <FormControl fullWidth style={{ marginBottom: "16px" }}>
+                    <InputLabel id="provider-select-label">Select Provider</InputLabel>
+                    <Select
+                      labelId="provider-select-label"
+                      id="provider-select"
+                      value={selectedProvider}
+                      onChange={(e) => setSelectedProvider(e.target.value)}
+                    >
+                      {providerdata?.length > 0 ? (
+                        providerdata.map((provider) => (
+                          <MenuItem key={provider.id} value={provider.id}>
+                            {provider.name}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem disabled>No Providers Available</MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                </div>
 
-        <div className="col-12 lctDropdown">
-          <div className="col-6" style={{ paddingRight: '5px' }}>
-            <FormControl fullWidth style={{ marginBottom: '16px' }}>
-              <InputLabel id="demo-simple-select-label-2">Location</InputLabel>
-              <Select
-                labelId="demo-simple-select-label-2"
-                id="demo-simple-select-2"
-                label="Location"
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+                {/* TextField for Rate */}
+                <div className="col-12">
+                  <TextField
+                    id="rate-input"
+                    label="Rate"
+                    variant="outlined"
+                    fullWidth
+                    value={inputRate}
+                    onChange={handleRateChange}
+                    style={{ marginBottom: "16px" }}
+                    placeholder= "Enter rate"
+                  />
+                  
+                </div>
 
-          <div className="col-6" style={{ paddingLeft: '5px' }}>
-            <FormControl fullWidth style={{ marginBottom: '16px' }}>
-              <InputLabel id="demo-simple-select-label-3">Service Type</InputLabel>
-              <Select
-                labelId="demo-simple-select-label-3"
-                id="demo-simple-select-3"
-                label="Service Type"
-              >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+                {/* Dropdowns for Location and Service Type */}
+                <div className="col-12 lctDropdown">
+                  <div className="col-6" style={{ paddingRight: '5px' }}>
+                    <FormControl fullWidth style={{ marginBottom: '16px' }}>
+                      <InputLabel id="demo-simple-select-label-2">Location</InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label-2"
+                        id="demo-simple-select-2"
+                        label="Location"
+                      >
+                        <MenuItem value={10}>Ten</MenuItem>
+                        <MenuItem value={20}>Twenty</MenuItem>
+                        <MenuItem value={30}>Thirty</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </div>
+
+                  <div className="col-6" style={{ paddingLeft: '5px' }}>
+                  <FormControl fullWidth style={{ marginBottom: '16px' }}>
+                    <InputLabel id="demo-simple-select-label-2">Location</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label-2"
+                      id="demo-simple-select-2"
+                      value={selectedService}
+                      onChange={handleChange}
+                      label="Location"
+                    >
+                      {StudentServices.length > 0 ? (
+                        StudentServices.map((service) => (
+                          <MenuItem key={service.id} value={service.service_type}>
+                            {service.service_type}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem value="">No services available</MenuItem>
+                      )}
+                    </Select>
+                 </FormControl>
+                  </div>
+                </div>
+
+                {/* TextFields for Weekly and Yearly Hours */}
+                <div className="col-12 lctDropdown">
+                  <div className="col-6" style={{ paddingRight: '5px' }}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Weekly Hours"
+                      variant="outlined"
+                      fullWidth
+                      style={{ marginBottom: '16px' }}
+                    />
+                  </div>
+                  <div className="col-6" style={{ paddingLeft: '5px' }}>
+                    <TextField
+                      id="outlined-basic"
+                      label="Yearly Hours"
+                      variant="outlined"
+                      fullWidth
+                      style={{ marginBottom: '16px' }}
+                    />
+                  </div>
+                </div>
+
+                {/* DatePickers */}
+                <div className="col-12 lctDropdown">
+                  <div className="col-6" style={{ paddingRight: '4px' }}>
+                    <DatePicker placeholder="Select a date" />
+                  </div>
+                  <div className="col-6" style={{ paddingLeft: '5px' }}>
+                    <DatePicker placeholder="Select a date" />
+                  </div>
+                </div>
+              </div>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="secondary" onClick={closeModal}>Close</Button>
+              <Button variant="primary">Save changes</Button>
+            </Modal.Footer>
+          </Modal.Dialog>
         </div>
-          <div className="col-12 lctDropdown" >
-            <div className="col-6" style={{ paddingRight: '5px' }}>
-              <TextField
-                id="outlined-basic"
-                label="Weekly Hours"
-                variant="outlined"
-                fullWidth
-                style={{ marginBottom: '16px' }}
-              />
-            </div>
-            <div className="col-6" style={{ paddingLeft: '5px' }}>
-              <TextField
-                id="outlined-basic"
-                label="Yearly Hours"
-                variant="outlined"
-                fullWidth
-                style={{ marginBottom: '16px' }}
-              />
-            </div>
-          </div>
-          <div className="stu-pro-field-div">
-            <div className="col-md-6 student-profile-field">
-              <label htmlFor="startDate">Start Date</label>
-              <input
-                type="date"
-                id="startDate"
-                className="custom-datepicker"
-                placeholder="Enter start date"
-              />
-            </div>
-
-            <div className="col-md-6 student-profile-field">
-              <label htmlFor="endDate">End Date</label>
-              <input
-                type="date"
-                id="endDate"
-                className="custom-datepicker"
-                placeholder="Enter end date"
-              />
-            </div>
-          </div>
-         
-      <div>
-      
-    </div>     
-       
-          
-</div>
-      </Modal.Body>
-
-      <Modal.Footer>
-        <Button variant="secondary" onClick={closeModal}>Close</Button>
-        <Button variant="primary">Save changes</Button>
-      </Modal.Footer>
-    </Modal.Dialog>
-  </div>
-)}
-
-
-{/* -----------------Modal Close----------- */}
-</div>
+      )}
+    </div>
   );
-};
+}
 
 export default Students;

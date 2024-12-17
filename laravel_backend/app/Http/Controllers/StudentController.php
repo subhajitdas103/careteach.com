@@ -91,22 +91,43 @@ public function addstudent(Request $request)
             ]
         );
 
-        // Update or create services
         foreach ($validatedData['services'] as $service) {
-            StudentServices::updateOrCreate(
-                // [
-                //    
-                //      // Assuming startDate is unique for each service
-                // ],
-                [
-                    'service_type' => $service['service_type'] ?? null,
+            // Check if a matching service exists for the given student
+            $existingService = StudentServices::where('student_id', $student->id)
+                ->where('service_type', $service['service_type'])
+                ->where('start_date', $service['startDate'])
+                ->where('end_date', $service['endDate'])
+                ->first();
+        
+            if ($existingService) {
+                // If the service exists, check if the mandates are different
+                $updateNeeded = false;
+        
+                if ($existingService->weekly_mandate !== $service['weeklyMandate']) {
+                    $existingService->weekly_mandate = $service['weeklyMandate'];
+                    $updateNeeded = true;
+                }
+        
+                if ($existingService->yearly_mandate !== $service['yearlyMandate']) {
+                    $existingService->yearly_mandate = $service['yearlyMandate'];
+                    $updateNeeded = true;
+                }
+        
+                // Only update the service if there are changes in the data
+                if ($updateNeeded) {
+                    $existingService->save();  // Save the updated service
+                }
+            } else {
+                // If no matching service exists, insert a new one
+                StudentServices::create([
+                    'student_id' => $student->id,  // Link to the student
+                    'service_type' => $service['service_type'],
                     'start_date' => $service['startDate'],
                     'end_date' => $service['endDate'],
                     'weekly_mandate' => $service['weeklyMandate'],
                     'yearly_mandate' => $service['yearlyMandate'],
-                    'student_id' => $student->id,
-                ]
-            );
+                ]);
+            }
         }
 
         return response()->json(['message' => 'Student data saved/updated successfully!'], 200);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar/Navbar";
 import Login from './Components/Login/login';
 import Dashboard from "./Components/Dashboard/Dashboard";
@@ -14,10 +14,18 @@ import Holidays from "./Components/Holidays/Holidays";
 import AddHoliday from "./Components/Holidays/AddHoliday";
 import AddProviders from "./Components/Providers/AddProviders";
 import AddSchool from "./Components/School/AddSchool";
+// import Students from "./Components/School/AddSchool";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-// import ProtectedRoute from "./Components/ProtectedRoute";
-// import Navbar from './Components/Navbar';
+
+// Higher-Order Component to wrap routes with Navbar
+const WithNavbar = ({ component: Component }) => (
+  <>
+    <Navbar />
+    <Component />
+  </>
+);
+
 const App = () => {
   return (
     <Router>
@@ -25,157 +33,22 @@ const App = () => {
         {/* Route for Login */}
         <Route path="/" element={<Login />} />
       
-        {/* Route for Dashboard */}
-        <Route 
-          path="/Dashboard" 
-          element={
-            <>
-              <Navbar /> {/* Add the Navbar here */}
-             
-              <Dashboard />
-            </>
-          } 
-          
-        />
-        <Route 
-          path="/Students" 
-          element={
-            <>
-              <Navbar /> 
-              <Students />
-            </>
-          } 
-          />
-          {/* <Route 
-            path="/AddStudent" 
-            element={
-              <>
-                <Navbar /> 
-                <AddStudent />
-              </>
-            } 
-          /> */}
-           <Route 
-            path="/Billing" 
-            element={
-              <>
-                <Navbar /> 
-                <Billing />
-              </>
-            } 
-          />
-          <Route 
-            path="/Providers" 
-            element={
-              <>
-                <Navbar /> 
-                <Providers />
-              </>
-            } 
-          />
-          <Route 
-            path="/School" 
-            element={
-              <>
-                <Navbar /> 
-                <School />
-              </>
-            } 
-          />
-
-          <Route 
-            path="/Holidays" 
-            element={
-              <>
-                <Navbar /> 
-                <Holidays />
-              </>
-            } 
-          />
-             <Route 
-            path="/AddHoliday" 
-            element={
-              <>
-                <Navbar /> 
-                <AddHoliday />
-              </>
-            } 
-          />
-          
-      <Route 
-        path="/Calendar" 
-        element={
-            <>
-            <Navbar />
-            <div style={{ marginTop: '0px' , position: 'static' }}> 
-              <Calendar />
-            </div>
-        </>
-        
-          } 
-        />
-         <Route 
-            path="/AddProviders" 
-            element={
-              <>
-                <Navbar /> 
-                <AddProviders />
-              </>
-            } 
-          />
-          <Route 
-            path="/AddSchool" 
-            element={
-              <>
-                <Navbar /> 
-                <AddSchool />
-              </>
-            } 
-          />
-           <Route 
-            path="/AddStudent/" 
-            element={
-              <>
-                <Navbar /> 
-                <AddStudent />
-              </>
-            } 
-          />
-          <Route 
-            path="/EditStudent/:id" 
-            element={
-              <>
-                <Navbar /> 
-                <EditStudent />
-              </>
-            } 
-          />
-
-      
+        {/* Routes for pages that include Navbar */}
+        <Route path="/Dashboard" element={<WithNavbar component={Dashboard} />} />
+        <Route path="/Students" element={<WithNavbar component={Students} />} />
+        <Route path="/Billing" element={<WithNavbar component={Billing} />} />
+        <Route path="/Providers" element={<WithNavbar component={Providers} />} />
+        <Route path="/School" element={<WithNavbar component={School} />} />
+        <Route path="/Holidays" element={<WithNavbar component={Holidays} />} />
+        <Route path="/AddHoliday" element={<WithNavbar component={AddHoliday} />} />
+        <Route path="/Calendar" element={<WithNavbar component={Calendar} />} />
+        <Route path="/AddProviders" element={<WithNavbar component={AddProviders} />} />
+        <Route path="/AddSchool" element={<WithNavbar component={AddSchool} />} />
+        <Route path="/AddStudent" element={<WithNavbar component={AddStudent} />} />
+        <Route path="/EditStudent/:id" element={<WithNavbar component={EditStudent} />} />
       </Routes>
-         
     </Router>
   );
 };
 
 export default App;
-
-// const App = () => {
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<Login />} />
-//         <Route
-//           path="/dashboard"
-//           element={
-//             <ProtectedRoute>
-//               <Dashboard />
-//             </ProtectedRoute>
-//           }
-//         />
-//       </Routes>
-//     </Router>
-//   );
-// };
-
-// export default App;

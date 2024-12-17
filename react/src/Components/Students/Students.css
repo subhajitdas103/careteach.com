@@ -1,4 +1,26 @@
+/* For Assign Provider , Select Service  */
+.css-113d811-MuiFormLabel-root-MuiInputLabel-root{
+    background-color: white !important;
+}
 
+/* Date picker in Assign Provider Modal  */
+
+.rs-picker-popup {
+    position: absolute;
+    text-align: left;
+    z-index: 1055 !important;
+    border-radius: 6px;
+    background-color: var(--rs-bg-overlay);
+    box-shadow: var(--rs-shadow-overlay);
+    overflow: hidden;
+    transition: none;
+    display: flex;
+    flex-direction: column;
+    padding: 6px 0;
+}
+.rs-picker-cleanable{
+    width: 100% !important;
+}
 /* LOcation and service type dropdown */
 .lctDropdown{
     display: flex ;
