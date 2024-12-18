@@ -1,3 +1,13 @@
+.navbar{
+    --bs-navbar-padding-y:0px !important;
+}
+.nav-title-logo h2{
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    color: #007fc7;
+    margin: -40px 0 10px 116px;
+}
 .nav{
     display: flex;
     justify-content: space-between;
@@ -17,6 +27,13 @@
     list-style: none;
     font-size: 18px;
     gap: 45px;
+    height: 0px !important;
+    background: #fff;
+    margin-left: 0px;
+    display: flex
+;
+    justify-content: space-between;
+    border-bottom: 1px solid #D9DEE4;
 }
 .nav-contact{
     border-radius: 50px;

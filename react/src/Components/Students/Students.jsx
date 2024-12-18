@@ -161,8 +161,49 @@ const fetchStudentDetails = async () => {
   const handleRateChange = (e) => {
     setInputRate(e.target.value);
   };
-// =====================Fetch Service type==================================
+// ===================== Add to DB Assign Provider Data ==================================
+  const [selectedAssignProvider , setSelectedAssignProvider] = useState("");
+  const [inputRateAssignProvider, setInputRateAssignProvider ] = useState("");
+  const [selectedAssignProviderLocation , setSelectedAssignProviderLocation] = useState("");
+  const [selectedAssignProviderService , setSelectedAssignProviderService  ] = useState("");
+  const [inputWklyHoursAssignProvider , setinputWklyHoursAssignProvider  ] = useState("");
+  const [inputYearlyHoursAssignProvider , setinputYearlyHoursAssignProvider  ] = useState("");
+  const [AssignProviderstartDate , setAssignProviderStartDate] = useState(null);
+  const [AssignProviderendDate, setAssignProviderEndDate ] = useState(null);
 
+
+  const handelAssignProviderData = async () => {
+  console.log("handleAssignProvider triggered");
+
+  // Populate formData with state values
+  const formData = {
+    selectedAssignProvider,
+    inputRateAssignProvider,
+    selectedAssignProviderLocation,
+    selectedAssignProviderService,
+    inputWklyHoursAssignProvider,
+    inputYearlyHoursAssignProvider,
+    AssignProviderstartDate,
+    AssignProviderendDate,
+  };
+
+  console.log('Form data:', formData);
+
+  try {
+    const response = await axios.post('/api/AssignProvider', JSON.stringify(formData), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('Data sent successfully:', response.data);
+  } catch (error) {
+    // toast.error("An error occurred. Please try again.");
+    console.error('There was an error sending data:', error.response?.data || error.message);
+  }
+};
+
+  
   return (
     <div className="dashboard-container">
       <div className="row dashboard-list">
@@ -260,77 +301,71 @@ const fetchStudentDetails = async () => {
 
       {/* Modal for Assigning Provider */}
       {isModalOpen && (
-        <div className="modal show" style={{ display: 'block', background: 'rgba(0, 0, 0, 0.5)' }}>
-          <Modal.Dialog>
-            <Modal.Header closeButton>
-              <Modal.Title>Assign Provider</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-              <div className="form-row">
-                <div className="col-12 col-md-12">
+        <div className="modal show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
+        <Modal.Dialog>
+          <Modal.Header closeButton onClick={closeModal}>
+            <Modal.Title>Assign Provider</Modal.Title>
+          </Modal.Header>
+  
+          <Modal.Body>
+            <div className="form-row">
+              <div className="col-12 col-md-12">
+                <FormControl fullWidth style={{ marginBottom: "16px" }}>
+                  <InputLabel id="provider-select-label">Select Provider</InputLabel>
+                  <Select
+                    labelId="provider-select-label"
+                    id="provider-select"
+                    value={selectedAssignProvider}
+                    onChange={(e) => setSelectedAssignProvider(e.target.value)}
+                  >
+                    {providerdata?.length > 0 ? (
+                      providerdata.map((provider) => (
+                        <MenuItem key={provider.id} value={provider.name}>
+                          {provider.name} 
+                        </MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled>No Providers Available</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
+  
+              <div className="col-12">
+                <TextField
+                  id="rate-input"
+                  label="Rate"
+                  variant="outlined"
+                  fullWidth
+                  value={inputRateAssignProvider}
+                  onChange={(e) => setInputRateAssignProvider(e.target.value)}
+                  style={{ marginBottom: "16px" }}
+                  placeholder="Enter rate"
+                />
+              </div>
+  
+              <div className="col-12 lctDropdown">
+                <div className="col-6" style={{ paddingRight: "5px" }}>
                   <FormControl fullWidth style={{ marginBottom: "16px" }}>
-                    <InputLabel id="provider-select-label">Select Provider</InputLabel>
+                    <InputLabel id="location-select-label">Location</InputLabel>
                     <Select
-                      labelId="provider-select-label"
-                      id="provider-select"
-                      value={selectedProvider}
-                      onChange={(e) => setSelectedProvider(e.target.value)}
+                      labelId="location-select-label"
+                      value={selectedAssignProviderLocation}
+                      onChange={(e) => setSelectedAssignProviderLocation(e.target.value)}
                     >
-                      {providerdata?.length > 0 ? (
-                        providerdata.map((provider) => (
-                          <MenuItem key={provider.id} value={provider.id}>
-                            {provider.name}
-                          </MenuItem>
-                        ))
-                      ) : (
-                        <MenuItem disabled>No Providers Available</MenuItem>
-                      )}
+                      <MenuItem value="Home">Home</MenuItem>
+                      <MenuItem value="School">School</MenuItem>
                     </Select>
                   </FormControl>
                 </div>
-
-                {/* TextField for Rate */}
-                <div className="col-12">
-                  <TextField
-                    id="rate-input"
-                    label="Rate"
-                    variant="outlined"
-                    fullWidth
-                    value={inputRate}
-                    onChange={handleRateChange}
-                    style={{ marginBottom: "16px" }}
-                    placeholder= "Enter rate"
-                  />
-                  
-                </div>
-
-                {/* Dropdowns for Location and Service Type */}
-                <div className="col-12 lctDropdown">
-                  <div className="col-6" style={{ paddingRight: '5px' }}>
-                    <FormControl fullWidth style={{ marginBottom: '16px' }}>
-                      <InputLabel id="demo-simple-select-label-2">Location</InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label-2"
-                        id="demo-simple-select-2"
-                        label="Location"
-                      >
-                        <MenuItem value={10}>Ten</MenuItem>
-                        <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </div>
-
-                  <div className="col-6" style={{ paddingLeft: '5px' }}>
-                  <FormControl fullWidth style={{ marginBottom: '16px' }}>
-                    <InputLabel id="demo-simple-select-label-2">Location</InputLabel>
+  
+                <div className="col-6" style={{ paddingLeft: "5px" }}>
+                  <FormControl fullWidth style={{ marginBottom: "16px" }}>
+                    <InputLabel id="service-select-label">Service Type</InputLabel>
                     <Select
-                      labelId="demo-simple-select-label-2"
-                      id="demo-simple-select-2"
-                      value={selectedService}
-                      onChange={handleChange}
-                      label="Location"
+                      labelId="service-select-label"
+                      value={selectedAssignProviderService}
+                      onChange={(e) => setSelectedAssignProviderService(e.target.value)}
                     >
                       {StudentServices.length > 0 ? (
                         StudentServices.map((service) => (
@@ -342,50 +377,68 @@ const fetchStudentDetails = async () => {
                         <MenuItem value="">No services available</MenuItem>
                       )}
                     </Select>
-                 </FormControl>
-                  </div>
-                </div>
-
-                {/* TextFields for Weekly and Yearly Hours */}
-                <div className="col-12 lctDropdown">
-                  <div className="col-6" style={{ paddingRight: '5px' }}>
-                    <TextField
-                      id="outlined-basic"
-                      label="Weekly Hours"
-                      variant="outlined"
-                      fullWidth
-                      style={{ marginBottom: '16px' }}
-                    />
-                  </div>
-                  <div className="col-6" style={{ paddingLeft: '5px' }}>
-                    <TextField
-                      id="outlined-basic"
-                      label="Yearly Hours"
-                      variant="outlined"
-                      fullWidth
-                      style={{ marginBottom: '16px' }}
-                    />
-                  </div>
-                </div>
-
-                {/* DatePickers */}
-                <div className="col-12 lctDropdown">
-                  <div className="col-6" style={{ paddingRight: '4px' }}>
-                    <DatePicker placeholder="Select a date" />
-                  </div>
-                  <div className="col-6" style={{ paddingLeft: '5px' }}>
-                    <DatePicker placeholder="Select a date" />
-                  </div>
+                  </FormControl>
                 </div>
               </div>
-            </Modal.Body>
-
-            <Modal.Footer>
-              <Button variant="secondary" onClick={closeModal}>Close</Button>
-              <Button variant="primary">Save changes</Button>
-            </Modal.Footer>
-          </Modal.Dialog>
-        </div>
+              {/* ========================= */}
+              <div className="col-12 lctDropdown">
+                <div className="col-6" style={{ paddingRight: "5px" }}>
+                <TextField
+                  id="weekly-input"
+                  label="WeeklyHours"
+                  variant="outlined"
+                  fullWidth
+                  value={inputWklyHoursAssignProvider}
+                  onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
+                  style={{ marginBottom: "16px" }}
+                  placeholder="Enter Weekly Hours"
+                />
+                </div>
+  
+                <div className="col-6" style={{ paddingLeft: "5px" }}>
+                <TextField
+                  id="yearly-input"
+                  label="Yearly Hours"
+                  variant="outlined"
+                  fullWidth
+                  value={inputYearlyHoursAssignProvider}
+                  onChange={(e) => setinputYearlyHoursAssignProvider(e.target.value)}
+                  style={{ marginBottom: "16px" }}
+                  placeholder="Enter Yearly Hours"
+                />
+                </div>
+              </div>
+              {/* ============== */}
+  
+              <div className="col-12 lctDropdown">
+                <div className="col-6" style={{ paddingRight: "4px" }}>
+                  <DatePicker
+                    selected={AssignProviderstartDate}
+                    onChange={(date) => setAssignProviderStartDate(date)}
+                    placeholdertext="Select a start date"
+                  />
+                </div>
+                <div className="col-6" style={{ paddingLeft: "5px" }}>
+                  <DatePicker
+                    selected={AssignProviderendDate}
+                    onChange={(date) => setAssignProviderEndDate(date)}
+                    placeholdertext="Select an end date"
+                  />
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+  
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeModal}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handelAssignProviderData}>
+              Save changes
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </div>
       )}
     </div>
   );

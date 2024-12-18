@@ -7,11 +7,50 @@ use App\Models\Students;
 use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\Providers;
-
-
+use App\Models\AssignProviderModel; 
 
 class ProviderController extends Controller
 {
+
+    public function SaveAssignProviderDetails(Request $request)
+{
+    try {
+       
+
+        // Validate incoming data
+        $validatedData = $request->validate([
+            'selectedAssignProvider' => 'nullable|string|max:255',
+            'inputRateAssignProvider' => 'nullable|string|max:255',
+            'selectedAssignProviderLocation' => 'nullable|string|max:255',
+            'selectedAssignProviderService' => 'nullable|string|max:255',
+            'inputWklyHoursAssignProvider' => 'nullable|string|max:255',
+            'inputYearlyHoursAssignProvider' => 'nullable|string|max:255',
+            'AssignProviderstartDate' => 'nullable|string|max:255',
+            'AssignProviderendDate' => 'nullable|string|max:255',
+        ]);
+
+      
+
+
+        $AssignProvider = AssignProviderModel::create([
+            'provider_name' => $validatedData['selectedAssignProvider'],
+            'provider_rate' => $validatedData['inputRateAssignProvider'],
+            'location' => $validatedData['selectedAssignProviderLocation'],
+            'service_type' => $validatedData['selectedAssignProviderService'],
+            'wkly_hours' => $validatedData['inputWklyHoursAssignProvider'],
+            'yearly_hours' => $validatedData['inputYearlyHoursAssignProvider'],
+            'start_date' => $validatedData['AssignProviderstartDate'],
+            'end_date' => $validatedData['AssignProviderendDate'],
+         
+        ]);
+
+        // Return a success response
+        return response()->json(['message' => 'Provider data saved successfully!'], 201);
+    } catch (\Exception $e) {
+        \Log::error('Error saving provider data: ' . $e->getMessage());
+        return response()->json(['error' => 'Internal Server Error'], 500);
+    }
+}
 
 public function addprovider(Request $request)
 {

@@ -2,6 +2,7 @@ import React from 'react';
 import './Navbar.css'; // Optional: Add custom styles
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import logo from "../../assets/logo.png"; // Import the logo
+import logoutGif from "../../assets/icons8-logout.png"; 
 // ../../assets/logo.png
 
 const Navbar = () => {
@@ -18,7 +19,7 @@ const Navbar = () => {
   return (
       <header>
           <div className="top_nav nav-hidden-print">
-              <div className="row nav_menu">
+              <div className="row nav_menu " style={{ height: '74px' }}>
                   <div className="navbar nav_title" style={{ border: 0 }}>
                       <div className="nav-title-logo">
                         <a href="/">
@@ -27,11 +28,13 @@ const Navbar = () => {
                           <h2>CARE TEACH</h2>
                       </div>
                       <div 
-                          className="logout" 
+                          className="logout" style={{marginTop: '-20px'}}
                           id="dashboard_logout" 
                           onClick={handleLogout}
                       >
-                          Logout <i className="fa fa-sign-out fa-1x"></i>
+                        Logout 
+                        <img src={logoutGif} alt="Logout" className="icons8-logout" />
+                          
                       </div>
                   </div>
               </div>
