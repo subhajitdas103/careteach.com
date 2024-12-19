@@ -26,4 +26,6 @@ Route::get('/ViewProviders',[ProviderController::class,'fetchProviderData']);
 Route::delete('/DeleteProvider/{id}', [ProviderController::class, 'deleteProvider']);
 Route::get('/StudentDataFetchAsID/{id}', [StudentController::class, 'fetchStudentById']);
 Route::post('/AssignProvider', [ProviderController::class,'SaveAssignProviderDetails']);
+Route::get('/FetchAssignedProviders/{id}',[ProviderController::class,'FetchAssignedProviders']);
 
+Route::delete('/DeleteAssignedProviders/{id}', [ProviderController::class, 'DeleteAssignedProviders']);

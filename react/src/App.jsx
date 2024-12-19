@@ -14,6 +14,7 @@ import Holidays from "./Components/Holidays/Holidays";
 import AddHoliday from "./Components/Holidays/AddHoliday";
 import AddProviders from "./Components/Providers/AddProviders";
 import AddSchool from "./Components/School/AddSchool";
+import AssignProviders from "./Components/Students/AssignProviders";
 // import Students from "./Components/School/AddSchool";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -46,6 +47,7 @@ const App = () => {
         <Route path="/AddSchool" element={<WithNavbar component={AddSchool} />} />
         <Route path="/AddStudent" element={<WithNavbar component={AddStudent} />} />
         <Route path="/EditStudent/:id" element={<WithNavbar component={EditStudent} />} />
+        <Route path="/AssignProviders/:id" element={<WithNavbar component={AssignProviders} />} />
       </Routes>
     </Router>
   );

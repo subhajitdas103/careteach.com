@@ -16,7 +16,8 @@ class AssignProviderModel extends Model
     'wkly_hours',
     'yearly_hours',
     'start_date',
-    'end_date'
+    'end_date',
+    'student_id'
         ];
 
      
