@@ -18,7 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Protected routes
 });
 // <Route path="/EditStudent/:id" element={<EditStudent />} />
-
+// http://localhost:5173/AssignProviders/api/DeleteAssignedProviders/57
+Route::delete('/DeleteAssignedProviders/{id}', [ProviderController::class, 'DeleteAssignedProvidersFromDB']);
 Route::delete('/DeleteStudent/{id}', [StudentController::class, 'DeleteStudent']);
 Route::post('/addstudent', [StudentController::class,'addstudent']);
 Route::post('/addprovider', [ProviderController::class,'addprovider']);
@@ -28,4 +29,5 @@ Route::get('/StudentDataFetchAsID/{id}', [StudentController::class, 'fetchStuden
 Route::post('/AssignProvider', [ProviderController::class,'SaveAssignProviderDetails']);
 Route::get('/FetchAssignedProviders/{id}',[ProviderController::class,'FetchAssignedProviders']);
 
-Route::delete('/DeleteAssignedProviders/{id}', [ProviderController::class, 'DeleteAssignedProviders']);
+// Route::delete('/DeleteAssignedProviders/{id}',[ProviderController::class,'DeleteAssignedProviders']);
+

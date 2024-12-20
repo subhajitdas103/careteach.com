@@ -27,12 +27,14 @@ class ProviderController extends Controller
             'inputYearlyHoursAssignProvider' => 'nullable|string|max:255',
             'assignProviderStartDate' => 'nullable|string|max:255',
             'assignProviderEndDate' => 'nullable|string|max:255',
+            'id' => 'required|integer',
         ]);
 
       
 
 
         $AssignProvider = AssignProviderModel::create([
+           
             'provider_name' => $validatedData['selectedAssignProvider'],
             'provider_rate' => $validatedData['inputRateAssignProvider'],
             'location' => $validatedData['selectedAssignProviderLocation'],
@@ -41,7 +43,7 @@ class ProviderController extends Controller
             'yearly_hours' => $validatedData['inputYearlyHoursAssignProvider'],
             'start_date' => $validatedData['assignProviderStartDate'],
             'end_date' => $validatedData['assignProviderEndDate'],
-         
+            'student_id' =>$validatedData['id'],
         ]);
 
         // Return a success response
@@ -169,24 +171,30 @@ public function deleteProvider($id)
     }
 
 
-    public function DeleteAssignedProviders($id)
-
+    public function DeleteAssignedProvidersFromDB($id)
     {
+        // error_log('Received ID: ' . $id);  // Log the received ID for debugging purposes
+    
         try {
-            // Find the provider by ID
-            $DeleteAssignedProviders = AssignProviderModel::find($id);
-            if (!$DeleteAssignedProviders) {
-                return response()->json(['message' => 'Providers not found'], 404);
+            // Find the provider in the database using the provided ID
+            $provider = AssignProviderModel::find($id);
+          
+                if (!$provider) {
+                    return response()->json(['message' => 'Providers not found'], 404);
+                }
+                $provider->delete();
+    
+                return response()->json(['message' => 'Providers deleted successfully'], 200);
+            } catch (\Exception $e) {
+                Log::error('Error deleting providers: ' . $e->getMessage());
+    
+                return response()->json(['message' => 'Error deleting providers'], 500);
             }
-            $DeleteAssignedProviders->delete();
-
-            return response()->json(['message' => 'Providers deleted successfully'], 200);
-        } catch (\Exception $e) {
-            Log::error('Error deleting providers: ' . $e->getMessage());
-
-            return response()->json(['message' => 'Error deleting providers'], 500);
-        }
     }
+    
+
+
+    }
+    
 
     
-}

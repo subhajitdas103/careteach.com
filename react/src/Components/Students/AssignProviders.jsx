@@ -15,7 +15,7 @@ const AssignProviders = () => {
     const { id } = useParams();
 //   const [selectedStudentId, setSelectedStudentId] = useState(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   
   const [studentDetails, setStudentDetails] = useState(null);
   const [StudentServices, setStudentServices] = useState([]);
@@ -64,6 +64,7 @@ const AssignProviders = () => {
     console.log("handleAssignProvider triggered");
 
     const formData = {
+      id,
       selectedAssignProvider,
       inputRateAssignProvider,
       selectedAssignProviderLocation,
@@ -72,9 +73,10 @@ const AssignProviders = () => {
       inputYearlyHoursAssignProvider,
       assignProviderStartDate,
       assignProviderEndDate,
+      
     };
 
-    console.log('Form data:', formData);
+    console.log('Form data of assign Provider Modal:', formData);
 
     try {
       const response = await axios.post('/api/AssignProvider', JSON.stringify(formData), {
@@ -104,7 +106,7 @@ const AssignProviders = () => {
 
 //-----------Start-----------Fetch  AssgniedProvider data------------
 const [assignedProviders, setAssignedProviders] = useState([]);
-
+const [AssignProviderID, setAssignProviderID] = useState(null);
 const fetchAssignedProviderDetails = async () => {
     try {
       const response = await fetch(`/api/FetchAssignedProviders/${id}`);
@@ -119,6 +121,9 @@ const fetchAssignedProviderDetails = async () => {
   useEffect(() => {
     fetchAssignedProviderDetails();
   }, [id]);
+
+ ;
+  
 //   -----------End------------------Fetch Assigned data to Show--------------------------------------
   
 //   const handelChangeProvider = (event) => {
@@ -163,7 +168,7 @@ const navigate = useNavigate();
    const AssignedProviderDelete = (id) => {
     setSelectedStudent(id); // You can also set more data about the student if needed
     setShow(true); // Opens the modal
-    // console.log(id);
+    console.log("xxxxxxxx",id);
   };
   
   const handleClose = () => {
@@ -171,20 +176,46 @@ const navigate = useNavigate();
   };
 // ==========Delete Assigned Providers================
 
-// const DeleteAssignedProviders = () => {
+const DeleteAssignBTN = () => {
+  console.log("Attempting to delete provider with ID:", selectedStudent);
 
-//       axios.delete(`api/DeleteAssignedProviders/${id}`)
-//         .then(() => {
-//           setData(data.filter(student => student.id !== SelectedStudentToDelete.id));
-//           setShow(false);
-//           setSelectedStudentToDelete(null);
-//         })
-//         .catch((error) => {
-//           console.error('Error deleting student:', error);
-//         });
-//     // }
-//   };
+  axios.delete(`/api/DeleteAssignedProviders/${selectedStudent}`)
+    .then((response) => {
+      console.log('Provider deleted successfully:', response.data); // Log the actual response data
 
+      setIsModalOpen(false);
+    })
+    .catch((error) => {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error('Error deleting provider (response):', error.response);
+       
+      } else if (error.request) {
+        // Request was made but no response was received
+        console.error('Error deleting provider (request):', error.request);
+      } else {
+        // Something else happened in setting up the request
+        console.error('Error deleting provider (message):', error.message);
+      }
+    });
+};
+
+
+const [isModalOpen, setIsModalOpen] = useState(false);
+
+// Function to open the modal
+const openModal = () => setIsModalOpen(true);
+
+// Function to close the modal
+const closeModal = () => setIsModalOpen(false);
+
+
+const [selectedProviderId, setSelectedProviderId] = useState(null);
+
+const openModalAssignProvider = (id) => {
+    setIsModalOpen(true); // Open the modal
+    setSelectedProviderId(id); // Optionally store the ID for further use
+};
 
   return (
 <div>
@@ -410,7 +441,7 @@ const navigate = useNavigate();
                   </Modal.Header>
                   <Modal.Body>
                     <p>
-                      Are you sure you want to delete this Service-{"provider "}
+                      Are you sure you want to delete this Service {"Provider "}
                       <strong className="student-name-delete-modal">
                         
                       </strong>
@@ -421,14 +452,12 @@ const navigate = useNavigate();
                     <Button className="cancel-button" variant="secondary" onClick={handleClose}>
                       <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
                     </Button>
-                    <Button className="delete-button" variant="danger" >
+                    <Button className="delete-button" variant="danger" onClick={DeleteAssignBTN}  >
                       <i className="fa fa-trash" aria-hidden="true"></i>
                     </Button>
                   </Modal.Footer>
                 </Modal>
               )}
-
-
     </div>
 </div>
   );
