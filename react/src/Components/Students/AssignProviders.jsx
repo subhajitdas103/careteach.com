@@ -108,6 +108,8 @@ const AssignProviders = () => {
 //-----------Start-----------Fetch  AssgniedProvider data------------
 const [assignedProviders, setAssignedProviders] = useState([]);
 const [AssignProviderID, setAssignProviderID] = useState(null);
+const [selectedProviderName, setSelectedProviderName] = useState('');
+
 const fetchAssignedProviderDetails = async () => {
     try {
       const response = await fetch(`/api/FetchAssignedProviders/${id}`);
@@ -318,8 +320,9 @@ console.log("nnnnnnnnn",selectedProviderId);
                     value={selectedAssignProvider}
                     onChange={(e) => {
                       setSelectedAssignProvider(e.target.value);  // Update the selected provider name
-                      setSelectedProviderId(e.target.value);  // Store the provider ID in the global variable
+                      setSelectedProviderId(e.target.value);  // Store the provider ID in the global variable 
                     }}
+                    
                 >
                     {ProviderDataAssignProvider.length > 0 ? (
                     ProviderDataAssignProvider.map((provider) => (
