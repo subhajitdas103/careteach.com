@@ -65,6 +65,7 @@ const AssignProviders = () => {
 
     const formData = {
       id,
+      selectedProviderId,
       selectedAssignProvider,
       inputRateAssignProvider,
       selectedAssignProviderLocation,
@@ -122,9 +123,9 @@ const fetchAssignedProviderDetails = async () => {
     fetchAssignedProviderDetails();
   }, [id]);
 
- ;
+ console.log("cccccccccc",assignedProviders);
   
-//   -----------End------------------Fetch Assigned data to Show--------------------------------------
+//   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
   
 //   const handelChangeProvider = (event) => {
 //     setSelectedProvider(event.target.value);
@@ -154,7 +155,7 @@ const fetchAssignedProviderDetails = async () => {
       fetchProviderData();
     }, []);
   //   -----------End------------------Fetch Provider data--------------------------------------
-  
+
 // ==============Back Button============
 const navigate = useNavigate();
  const backToStudent = () => {
@@ -213,9 +214,14 @@ const closeModal = () => setIsModalOpen(false);
 const [selectedProviderId, setSelectedProviderId] = useState(null);
 
 const openModalAssignProvider = (id) => {
+ 
     setIsModalOpen(true); // Open the modal
     setSelectedProviderId(id); // Optionally store the ID for further use
 };
+console.log("nnnnnnnnn",selectedProviderId);
+// setSelectedProviderId
+// const [selectedProviderId, setSelectedProviderId] = useState(null);
+
 
   return (
 <div>
@@ -293,12 +299,15 @@ const openModalAssignProvider = (id) => {
        {/* Modal for Assigning Provider */}
        {isModalOpen && (
         <div className="modal show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
+          
         <Modal.Dialog>
           <Modal.Header closeButton onClick={closeModal}>
             <Modal.Title>Assign Provider</Modal.Title>
           </Modal.Header>
   
           <Modal.Body>
+                
+
             <div className="form-row">
               <div className="col-12 col-md-12">
               <FormControl fullWidth style={{ marginBottom: "16px" }}>
@@ -307,18 +316,25 @@ const openModalAssignProvider = (id) => {
                     labelId="provider-select-label"
                     id="provider-select"
                     value={selectedAssignProvider}
-                    onChange={(e) => setSelectedAssignProvider(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedAssignProvider(e.target.value);  // Update the selected provider name
+                      setSelectedProviderId(e.target.value);  // Store the provider ID in the global variable
+                    }}
                 >
                     {ProviderDataAssignProvider.length > 0 ? (
                     ProviderDataAssignProvider.map((provider) => (
-                        <MenuItem key={provider.id} value={`${provider.provider_first_name} ${provider.provider_last_name}`}>
+                      
+                        <MenuItem key={provider.id} value={`${provider.id}`}>
                         {provider.provider_first_name} {provider.provider_last_name}
                         </MenuItem>
                     ))
+
+                  
                     ) : (
                     <MenuItem disabled>No Providers Available</MenuItem>
                     )}
                 </Select>
+                
                 </FormControl>
 
               </div>

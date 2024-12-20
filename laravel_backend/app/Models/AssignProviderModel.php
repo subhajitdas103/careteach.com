@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class AssignProviderModel extends Model
 {
     protected $table = 'assign_provider';
-    protected $primaryKey = 'id';
+    // protected $primaryKey = 'id';
     protected $fillable = [ 
-         
+    'provider_id', 
     'provider_name',
     'provider_rate',
     'location',

@@ -5,6 +5,7 @@ import './Providers.css';
 import { Button, Modal } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Modal as FlowbitModal } from 'flowbite-react';
 const Providers = () => {
   const [show, setShow] = useState(false);
   const [selectedProviderToDelete, setSelectedProviderToDelete] = useState(null);
@@ -67,6 +68,45 @@ const Providers = () => {
       });
   }, []);
 // =============================================================
+const [isOpen, setIsOpen] = useState(false);
+const [isModalOpen, setIsModalOpen] = useState(false);
+const handleOpenModal = () => setIsOpen(true);
+// const handleCloseModal = () => setIsOpen(false);
+// Define the function that handles the modal opening
+const ViewStudentModalClick = () => {
+  // alert("h");
+  setIsModalOpen(true); // Open the modal when this function is called
+};
+
+// Function to close the modal
+const handleCloseModal = () => {
+  setIsModalOpen(false);
+};
+// =============================
+// const [ProviderDataAssignProvider, setProviderData] = useState(null);
+
+//   const fetchProviderData = async () => {
+//       try {
+//         const response = await fetch("/api/FetchAssignStudentDetails");
+//         const data = await response.json();
+//         console.log("API Response Provider Data:", data);
+    
+//         // Directly check if 'data' is an array and has content
+//         if (Array.isArray(data) && data.length > 0) {
+//           setProviderData(data);  // Set the fetched data to the state
+//         } else {
+//           console.log("No providerData in response.");
+//         }
+//       } catch (error) {
+//         console.error("Error fetching provider data:", error);
+//       }
+//     };
+    
+//     useEffect(() => {
+//       fetchProviderData();
+//     }, []);
+
+
   return (
     <div className="dashbord-container">
       <div className="row dashbord-list">
@@ -137,7 +177,7 @@ const Providers = () => {
                         <i className="fa fa-trash fa-1x fa-icon-img"></i>
                       </button>
                       <button
-                        type="button"
+                        type="button" onClick={ViewStudentModalClick}
                         className="assign-pro-btn"
                       >
                         View Students
@@ -180,6 +220,20 @@ const Providers = () => {
           </Modal.Footer>
         </Modal>
       )}
+
+               {/* View Student Click Modal */}
+            <Modal show={isModalOpen} onHide={handleCloseModal}>
+              <Modal.Header closeButton>
+                <Modal.Title>Associated Students</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseModal}>
+                  Close
+                </Button>
+               
+              </Modal.Footer>
+            </Modal>
     </div>
   );
 };

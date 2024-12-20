@@ -27,6 +27,7 @@ class ProviderController extends Controller
             'inputYearlyHoursAssignProvider' => 'nullable|string|max:255',
             'assignProviderStartDate' => 'nullable|string|max:255',
             'assignProviderEndDate' => 'nullable|string|max:255',
+            'selectedProviderId' => 'required|integer',
             'id' => 'required|integer',
         ]);
 
@@ -44,6 +45,7 @@ class ProviderController extends Controller
             'start_date' => $validatedData['assignProviderStartDate'],
             'end_date' => $validatedData['assignProviderEndDate'],
             'student_id' =>$validatedData['id'],
+            'provider_id' =>$validatedData['selectedProviderId'],
         ]);
 
         // Return a success response
