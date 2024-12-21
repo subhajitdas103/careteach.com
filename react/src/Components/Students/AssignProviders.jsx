@@ -62,11 +62,14 @@ const AssignProviders = () => {
 
   const handelAssignProviderData = async () => {
     console.log("handleAssignProvider triggered");
+  // Process the selectedAssignProvider to extract the first name
+  const [providerId, full_name] = selectedAssignProvider.split('|');
 
+  
     const formData = {
       id,
       selectedProviderId,
-      selectedAssignProvider,
+      full_name,
       inputRateAssignProvider,
       selectedAssignProviderLocation,
       selectedAssignProviderService,
@@ -319,18 +322,21 @@ console.log("nnnnnnnnn",selectedProviderId);
                     id="provider-select"
                     value={selectedAssignProvider}
                     onChange={(e) => {
-                      setSelectedAssignProvider(e.target.value);  // Update the selected provider name
-                      setSelectedProviderId(e.target.value);  // Store the provider ID in the global variable 
+                      const [id, name] = e.target.value.split('|'); // Split the concatenated value
+                      setSelectedAssignProvider(e.target.value);   // Update the full `id|name` in state
+                      setSelectedProviderId(id);                   // Store the provider ID
                     }}
                     
                 >
                     {ProviderDataAssignProvider.length > 0 ? (
-                    ProviderDataAssignProvider.map((provider) => (
-                      
-                        <MenuItem key={provider.id} value={`${provider.id}`}>
-                        {provider.provider_first_name} {provider.provider_last_name}
+                      ProviderDataAssignProvider.map((provider) => (
+                        <MenuItem 
+                          key={provider.id} 
+                          value={`${provider.id}|${provider.provider_first_name} ${provider.provider_last_name}`}
+                        >
+                          {provider.provider_first_name} {provider.provider_last_name}
                         </MenuItem>
-                    ))
+                      ))
 
                   
                     ) : (

@@ -19,7 +19,7 @@ class ProviderController extends Controller
 
         // Validate incoming data
         $validatedData = $request->validate([
-            'selectedAssignProvider' => 'nullable|string|max:255',
+            'full_name' => 'nullable|string|max:255',
             'inputRateAssignProvider' => 'nullable|string|max:255',
             'selectedAssignProviderLocation' => 'nullable|string|max:255',
             'selectedAssignProviderService' => 'nullable|string|max:255',
@@ -36,7 +36,7 @@ class ProviderController extends Controller
 
         $AssignProvider = AssignProviderModel::create([
            
-            'provider_name' => $validatedData['selectedAssignProvider'],
+            'provider_name' => $validatedData['full_name'],
             'provider_rate' => $validatedData['inputRateAssignProvider'],
             'location' => $validatedData['selectedAssignProviderLocation'],
             'service_type' => $validatedData['selectedAssignProviderService'],
