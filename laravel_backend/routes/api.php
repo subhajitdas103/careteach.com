@@ -30,6 +30,6 @@ Route::post('/AssignProvider', [ProviderController::class,'SaveAssignProviderDet
 Route::get('/FetchAssignedProviders/{id}',[ProviderController::class,'FetchAssignedProviders']);
 Route::get('/FetchStudentOfAssignedProviders/{id}',[ProviderController::class,'FetchStudentOfAssignedProviders']);
 
-
+Route::get('/ProviderDataFetchAsID/{id}', [ProviderController::class, 'fetchProviderById']);
 // Route::delete('/DeleteAssignedProviders/{id}',[ProviderController::class,'DeleteAssignedProviders']);
 

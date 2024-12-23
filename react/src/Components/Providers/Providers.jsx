@@ -82,6 +82,15 @@ const ViewStudentModalClick = (id) => {
   // setAssignofStudentData(data);
   StudentOfAssignedProviders(id);
 };
+const redirectToEditProviders = (id) => {
+  alert(id);
+  navigate(`/EditProviders/${id}`);
+  // Open the modal when this function is called
+  // setAssignofStudentData(data);
+  // StudentOfAssignedProviders(id);
+};
+
+
 
 // Function to close the modal
 const handleCloseModal = () => {
@@ -180,7 +189,14 @@ const handleStudentClick = (studentId) => {
                   <td className="col-md-2">
                     <div className="status-area">
                       <div>
+                      <button
+                        type="button"
+                        onClick={() => redirectToEditProviders(provider.id)}
+                        style={{ background: 'none', border: 'none', padding: 0 }}
+                      >
                         <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                      </button>
+
                       </div>
                       <button
                         type="button"

@@ -225,6 +225,25 @@ public function deleteProvider($id)
     
     
     
+    public function fetchProviderById($id)
+{
+    try {
+        // Fetch assigned providers for the given student_id
+        $AssignedProviders = Providers::where('id', $id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        if ($AssignedProviders->isEmpty()) {
+            return response()->json(['message' => 'No assigned providers found'], 404);
+        }
+
+        return response()->json($AssignedProviders);
+    } catch (\Exception $e) {
+        \Log::error('Error fetching Providers: ' . $e->getMessage());
+        return response()->json(['error' => 'Error fetching Providers'], 500);
+    }
+}
+    
     }
     
 

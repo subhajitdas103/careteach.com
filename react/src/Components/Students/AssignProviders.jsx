@@ -65,7 +65,8 @@ const AssignProviders = () => {
   // Process the selectedAssignProvider to extract the first name
   const [providerId, full_name] = selectedAssignProvider.split('|');
 
-  
+  const FormatassignProviderStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toISOString().split('T')[0] : null;
+  const FormatassignProviderEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toISOString().split('T')[0] : null;
     const formData = {
       id,
       selectedProviderId,
@@ -75,8 +76,8 @@ const AssignProviders = () => {
       selectedAssignProviderService,
       inputWklyHoursAssignProvider,
       inputYearlyHoursAssignProvider,
-      assignProviderStartDate,
-      assignProviderEndDate,
+      assignProviderStartDate : FormatassignProviderStartDate,
+      assignProviderEndDate : FormatassignProviderEndDate ,
       
     };
 
@@ -189,7 +190,7 @@ const DeleteAssignBTN = () => {
     .then((response) => {
       console.log('Provider deleted successfully:', response.data); // Log the actual response data
 
-      setIsModalOpen(false);
+      setShow(false);
     })
     .catch((error) => {
       if (error.response) {
