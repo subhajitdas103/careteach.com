@@ -228,10 +228,10 @@ useEffect(() => {
 
   useEffect(() => {
     if (providerData && providerData[0] && providerData[0].license_exp_date) {
-      const expdateChange = new Date(providerData[0].license_exp_date); // Convert 'YYYY-MM-DD' to Date object
-      if (!isNaN(expdateChange)) {
-        setSelectedDate(expdateChange); // Only set the date if it's valid
-        console.log(' from provider data:', expdateChange);
+      const expdateChangeLicenseExpDate = new Date(providerData[0].license_exp_date); // Convert 'YYYY-MM-DD' to Date object
+      if (!isNaN(expdateChangeLicenseExpDate)) {
+        setLicenseExpDate(expdateChangeLicenseExpDate); // Only set the date if it's valid
+        console.log(' from provider datahhhhhh:', expdateChangeLicenseExpDate);
       } else {
       
       }
@@ -622,10 +622,11 @@ const fetchProviderDetails = async () => {
             <div className="col-md-6 student-profile-field">
               <label>License Exp Date:</label>
                 <DatePicker
-                    value={selectedDate} // Bind the selected date to the DatePicker
+                    value={licenseExpDate} // Bind the selected date to the DatePicker
                     onChange={handleLicenseExpDateChangeDate} // Handle the change of the date
+                    format="dd/MM/yyyy" 
                     placeholder="License Exp Date"
-                    format="dd/MM/yyyy" // Format the date to "DD/MM/YYYY"
+                   // Format the date to "DD/MM/YYYY"
                     style={{ width: "100%", height: "45px" }}
                 />
             </div>
@@ -668,8 +669,6 @@ const fetchProviderDetails = async () => {
         <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
                 <label>PETS Approval Date:</label>
-                
-
                 <DatePicker
                     value={petsApprovalDate}
                     onChange={handlePetsApprovalDateChange} // Handle the change of the date
@@ -677,10 +676,7 @@ const fetchProviderDetails = async () => {
                     format="dd/MM/yyyy" // Format the date to "DD/MM/YYYY"
                     style={{ width: "100%", height: "45px" }}
                 />
-
               </div>
-
-
                 <div className="col-md-6 student-profile-field">
                 <FormControl component="fieldset">
                     <FormLabel component="legend">Bilingual</FormLabel>
