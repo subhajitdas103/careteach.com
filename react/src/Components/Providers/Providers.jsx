@@ -6,7 +6,9 @@ import { Button, Modal } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Modal as FlowbitModal } from 'flowbite-react';
+import { useParams } from 'react-router-dom'; // Import useParams
 const Providers = () => {
+   
   const [show, setShow] = useState(false);
   const [selectedProviderToDelete, setSelectedProviderToDelete] = useState(null);
   const [data, setData] = useState([]);
@@ -73,38 +75,49 @@ const [isModalOpen, setIsModalOpen] = useState(false);
 const handleOpenModal = () => setIsOpen(true);
 // const handleCloseModal = () => setIsOpen(false);
 // Define the function that handles the modal opening
-const ViewStudentModalClick = () => {
-  // alert("h");
-  setIsModalOpen(true); // Open the modal when this function is called
+const ViewStudentModalClick = (id) => {
+  alert(id);
+  setIsModalOpen(true); 
+  // Open the modal when this function is called
+  // setAssignofStudentData(data);
+  StudentOfAssignedProviders(id);
 };
 
 // Function to close the modal
 const handleCloseModal = () => {
   setIsModalOpen(false);
+  // setAssignofStudentData([]); 
 };
 // =============================
-// const [ProviderDataAssignProvider, setProviderData] = useState(null);
+const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
+console.log("mmmmmmmm",ProviderDataAssignProvider);
+const StudentOfAssignedProviders = async (id) => {
+  try {
+    const response = await fetch(`api/FetchStudentOfAssignedProviders/${id}`, {
+      method: "GET",
+    });
 
-//   const fetchProviderData = async () => {
-//       try {
-//         const response = await fetch("/api/FetchAssignStudentDetails");
-//         const data = await response.json();
-//         console.log("API Response Provider Data:", data);
-    
-//         // Directly check if 'data' is an array and has content
-//         if (Array.isArray(data) && data.length > 0) {
-//           setProviderData(data);  // Set the fetched data to the state
-//         } else {
-//           console.log("No providerData in response.");
-//         }
-//       } catch (error) {
-//         console.error("Error fetching provider data:", error);
-//       }
-//     };
-    
-//     useEffect(() => {
-//       fetchProviderData();
-//     }, []);
+    if (!response.ok) {
+      // Handle non-JSON or error responses
+      const errorText = await response.text();
+      console.error("Error Response:", errorText);
+      throw new Error(`Server Error: ${response.status}`);
+    }
+
+    const data = await response.json(); // Parse JSON only if response is valid
+    console.log("API Response Provider Data:", data);
+    setAssignofStudentData(data);
+  } catch (error) {
+    setAssignofStudentData("");
+    console.error("Error fetching provider data:", error);
+  }
+};
+
+const handleStudentClick = (studentId) => {
+  navigate('/students'); // Adjust the path as per your route setup
+};
+ 
+
 
 
   return (
@@ -177,7 +190,7 @@ const handleCloseModal = () => {
                         <i className="fa fa-trash fa-1x fa-icon-img"></i>
                       </button>
                       <button
-                        type="button" onClick={ViewStudentModalClick}
+                        type="button" onClick={() => ViewStudentModalClick(provider.id)}
                         className="assign-pro-btn"
                       >
                         View Students
@@ -222,18 +235,36 @@ const handleCloseModal = () => {
       )}
 
                {/* View Student Click Modal */}
-            <Modal show={isModalOpen} onHide={handleCloseModal}>
-              <Modal.Header closeButton>
-                <Modal.Title>Associated Students</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleCloseModal}>
-                  Close
-                </Button>
-               
-              </Modal.Footer>
-            </Modal>
+              <Modal show={isModalOpen} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                  <Modal.Title>Associated Students</Modal.Title>
+                </Modal.Header>
+                
+                <Modal.Body>
+                  {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
+                    <ul>
+                      {ProviderDataAssignProvider.map((assignStudent) => (
+                       <li
+                       key={assignStudent.student_id}
+                       onClick={() => handleStudentClick(assignStudent.student_id)}
+                        className="assign-student-name-mouse-over"
+                     >
+                       {assignStudent.student_name}
+                     </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No Associated Student found.</p>
+                  )}
+                </Modal.Body>
+  
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={handleCloseModal}>
+                    Close
+                  </Button>
+                </Modal.Footer>
+              </Modal>
+
     </div>
   );
 };

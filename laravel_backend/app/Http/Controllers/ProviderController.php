@@ -8,6 +8,7 @@ use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\Providers;
 use App\Models\AssignProviderModel; 
+use Illuminate\Support\Facades\DB;
 
 class ProviderController extends Controller
 {
@@ -193,9 +194,37 @@ public function deleteProvider($id)
                 return response()->json(['message' => 'Error deleting providers'], 500);
             }
     }
+
+
     
 
-
+    public function FetchStudentOfAssignedProviders($id)
+    {
+      
+        try {
+            $students = DB::table('providers')
+                ->join('assign_provider', 'providers.id', '=', 'assign_provider.provider_id')
+                ->join('students', 'assign_provider.student_id', '=', 'students.id')
+                ->where('providers.id', $id)
+                ->select(
+                    'students.id as student_id',
+                    DB::raw("CONCAT(students.first_name, ' ', students.last_name) as student_name")
+                )
+                ->get();
+               
+    
+            if ($students->isEmpty()) {
+                return response()->json(['message' => 'No students found for this provider.'], 404);
+            }
+    
+            return response()->json($students, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    
+    
+    
     }
     
 

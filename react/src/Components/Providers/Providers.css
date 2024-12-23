@@ -1,3 +1,7 @@
+.assign-student-name-mouse-over{
+    cursor: pointer; /* Optional: Changes the cursor to indicate a clickable item */
+  }
+
 .cancel-button, .delete-button {
     width: 40px; /* Adjust the width */
     height: 40px; /* Adjust the height */
