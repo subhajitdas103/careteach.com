@@ -329,57 +329,59 @@ const lisenceExpDateFormat = licenseExpDate ? new Date(licenseExpDate).toISOStri
 const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toISOString().split('T')[0] : null;
 
    
-    const formData = {
-      first_name,
-      last_name,
-      selectedDate:formattedDOB,
-      email,
-      phone,
-      address,
-      rate,
-      rateNotes,
-      selectedform,
-      companyName,
-      selectedGrades,
-      licenseExpDateApplicable,
-      licenseExpDate:lisenceExpDateFormat,
-      petStatus,
-      petsApprovalDate:PetsApprovalDateFormat,
-      bilingual,
-      ssNumber,
-      notes,
-      status
-    };
-    console.log('Form data:', formData);
+const formData = {
+    first_name,
+    last_name,
+    selectedDate: formattedDOB,
+    email,
+    phone,
+    address,
+    rate,
+    rateNotes,
+    selectedform,
+    companyName,
+    selectedGrades,
+    licenseExpDateApplicable,
+    licenseExpDate: lisenceExpDateFormat,
+    petStatus,
+    petsApprovalDate: PetsApprovalDateFormat,
+    bilingual,
+    ssNumber,
+    notes,
+    status
+  };
+  console.log('Form data:', formData);
+  
+  try {
+    const response = await axios.post(`/api/UpdateProvider/${ProviderID}`, JSON.stringify(formData), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  
+    toast.success("Provider successfully Saved!", {
+      position: "top-right",
+      autoClose: 5000,
+    });
+  
+    // Navigate to Providers page after 5 seconds
+    setTimeout(() => {
+      navigate('/Providers');
+    }, 5000);
+  
+    console.log('Data sent successfully:', response.data);  
+  } catch (error) {
+    toast.error("An error occurred. Please try again.", {
+      position: "top-right",
+      autoClose: 5000,
+    });
+  
+    console.error('There was an error sending data:', error.response?.data || error.message);
+  }
+      
 
-    try {
-      const response = await axios.post('/api/addprovider', JSON.stringify(formData), {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      toast.success("Provider successfully Saved!", {
-        position: "top-right", 
-        autoClose: 5000,
-      });
-       // Navigate to Students page after 5 seconds
-       setTimeout(() => {
-        navigate('/Providers');
-      }, 5000);
 
 
-      console.log('Data sent successfully:', response.data);  
-    } 
-    
-    catch (error) {
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
-
-      console.error('There was an error sending data:', error.response?.data || error.message);
-    }
   }
 
   const bcktoprovidersView = () => {

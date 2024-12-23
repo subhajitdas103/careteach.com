@@ -23,6 +23,7 @@ Route::delete('/DeleteAssignedProviders/{id}', [ProviderController::class, 'Dele
 Route::delete('/DeleteStudent/{id}', [StudentController::class, 'DeleteStudent']);
 Route::post('/addstudent', [StudentController::class,'addstudent']);
 Route::post('/addprovider', [ProviderController::class,'addprovider']);
+Route::post('/UpdateProvider/{id}', [ProviderController::class,'updateprovider']);
 Route::get('/ViewProviders',[ProviderController::class,'fetchProviderData']);
 Route::delete('/DeleteProvider/{id}', [ProviderController::class, 'deleteProvider']);
 Route::get('/StudentDataFetchAsID/{id}', [StudentController::class, 'fetchStudentById']);
