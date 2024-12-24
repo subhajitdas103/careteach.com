@@ -188,13 +188,12 @@ const handleGradeChange = (event) => {
   );
 };
 useEffect(() => {
-    if (providerData && providerData[0] && providerData[0].grades_approved) {
-      const grades = Array.isArray(providerData[0].grades_approved)
-        ? providerData[0].grades_approved
-        : providerData[0].grades_approved.split(','); // Convert CSV string to an array
-      setSelectedGrades(grades);
-    }
-  }, [providerData]);
+  if (providerData && providerData[0] && providerData[0].grades_approved) {
+    const grades = providerData[0].grades_approved.split(','); // Convert CSV string to an array
+    setSelectedGrades(grades);
+  }
+}, [providerData]);
+
   
 
 //   =================================
@@ -340,7 +339,7 @@ const formData = {
     rateNotes,
     selectedform,
     companyName,
-    selectedGrades,
+    selectedGrades:selectedGrades.join(','),
     licenseExpDateApplicable,
     licenseExpDate: lisenceExpDateFormat,
     petStatus,

@@ -89,6 +89,7 @@ const AssignProviders = () => {
           'Content-Type': 'application/json',
         },
       });
+      fetchAssignedProviderDetails();
       setIsModalOpen(false);
       setTimeout(() => {
         toast.success("Provider assigned successfully", {
@@ -189,7 +190,7 @@ const DeleteAssignBTN = () => {
   axios.delete(`/api/DeleteAssignedProviders/${selectedStudent}`)
     .then((response) => {
       console.log('Provider deleted successfully:', response.data); // Log the actual response data
-
+      fetchAssignedProviderDetails();
       setShow(false);
     })
     .catch((error) => {

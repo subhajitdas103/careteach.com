@@ -223,7 +223,7 @@ public function deleteProvider($id)
         }
     }
     
-    
+
     
     public function fetchProviderById($id)
 {
@@ -243,6 +243,47 @@ public function deleteProvider($id)
         return response()->json(['error' => 'Error fetching Providers'], 500);
     }
 }
+
+public function updateProvider($id, Request $request)
+{
+    // Find the provider by ID
+    $provider = Providers::find($id);
+    if (!$provider) {
+        return response()->json(['message' => 'Provider not found'], 404);
+    }
+
+    // Map request fields directly to database columns
+    $dataToUpdate = [
+        'provider_first_name' => $request->input('first_name'),
+        'provider_last_name' => $request->input('last_name'),
+        'provider_dob' => $request->input('selectedDate'),
+        'provider_email' => $request->input('email'),
+        'provider_phone' => $request->input('phone'),
+        'provider_address' => $request->input('address'),
+        'rate' => $request->input('rate'),
+        'rate_notes' => $request->input('rateNotes'),
+        'form' => $request->input('selectedform'),
+        'company_name' => $request->input('companyName'),
+        'grades_approved' => $request->input('selectedGrades'),
+        'license_exp_date_applicable' => $request->input('licenseExpDateApplicable'),
+        'license_exp_date' => $request->input('licenseExpDate'),
+        'pets_status' => $request->input('petStatus'),
+        'pets_approval_date' => $request->input('petsApprovalDate'),
+        'bilingual' => $request->input('bilingual'),
+        'ss_number' => $request->input('ssNumber'),
+        'notes' => $request->input('notes'),
+        'status' => $request->input('status'),
+    ];
+
+    // Update the provider
+    $provider->update($dataToUpdate);
+
+    return response()->json(['message' => 'Provider updated successfully'], 200);
+}
+
+
+
+
     
     }
     

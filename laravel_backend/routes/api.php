@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProviderController;
-
+use App\Http\Controllers\SchoolController;
 
 Route::get('/user', function (Request $request) { 
     return $request->user();
@@ -33,4 +33,8 @@ Route::get('/FetchStudentOfAssignedProviders/{id}',[ProviderController::class,'F
 
 Route::get('/ProviderDataFetchAsID/{id}', [ProviderController::class, 'fetchProviderById']);
 // Route::delete('/DeleteAssignedProviders/{id}',[ProviderController::class,'DeleteAssignedProviders']);
+// Route::post('/AddSchool', [SchoolController::class,'addschool']);
+Route::post('/AddSchool', [SchoolController::class, 'addSchool']);
+Route::get('/fetchSchoolData',[SchoolController::class,'SchoolData']);
+Route::delete('/DeleteSchool/{id}', [SchoolController::class, 'deleteSchooldata']);
 
