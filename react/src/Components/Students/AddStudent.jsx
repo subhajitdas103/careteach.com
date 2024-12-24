@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
@@ -11,6 +11,7 @@ import { faSquareMinus } from '@fortawesome/free-solid-svg-icons';
 import { IconButton, Tooltip } from '@mui/material';
 import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
+import { Modal as FlowbitModal } from 'flowbite-react';
 // import { useForm } from 'react-hook-form'; // Import useForm
 // import { useForm } from "react-hook-form";
 // import Dropdown from "react-bootstrap/Dropdown";
@@ -70,6 +71,7 @@ const removeService = (index) => {
   const handleCheckboxChange = (e) => {
     setResolutionInvoice(e.target.checked);
   };
+  const [selectedSchool, setSelectedSchool] = useState('')
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
     const [grade, setGrade] = useState('');
@@ -119,29 +121,21 @@ const removeService = (index) => {
 
     const handleFirstNameChange = (e) => {
       setFirstName(e.target.value);
-      if (e.target.value) {
-        setFirstNameError('');  // Clear the error as soon as the user types something
-      }
+    
     };
 
     const handleLastNameChange = (event) => {
       setLastName(event.target.value);
-      if (event.target.value) {
-        setLastNameError(''); // Clear the error as soon as the user types something
-      }
+     
     };
     const handleSchoolNameChange = (event) => {
       setSchoolName(event.target.value);
-      if (event.target.value) {
-        setSchoolNameError('');  // Clear the error as soon as the user types something
-      }
+    
     };
 
     const handleHomeAddress = (event) => {
       setHomeaddress(event.target.value);
-      if (event.target.value) {
-        setHomeNameError('');  // Clear the error as soon as the user types something
-      }
+      
     };
 
 
@@ -155,7 +149,7 @@ const removeService = (index) => {
     }
 
     if (event.target.value) {
-      setDOEError('');  // Clear the error as soon as the user types something
+      // setDOEError('');  // Clear the error as soon as the user types something
     }
   };
 
@@ -180,88 +174,59 @@ const removeService = (index) => {
       setGrade(selectedGrade);
       // setSchoolNameError(''); 
       // if (event.target.value) {
-        setLastNameError(''); // Clear the error as soon as the user types something
+        // Clear the error as soon as the user types something
       // }
     };
 
     const handelDisability = (selectedDisability) => {
       setDisability(selectedDisability);
-      setLastNameError('');
+      
     };
     // Handle grade change
     const handelIEP = (selectedIEP) => {
       setIEP(selectedIEP);
 
     };
-  // ===================Validation===============================
+  
 
-  const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError] = useState('');
-  const [SchoolNameError, setSchoolNameError] = useState('');
-  const [HomeNameError, setHomeNameError] = useState('');
-  const [DOEError, setDOEError] = useState('');
-  const [GradeError, setGradeError] = useState('');
-  const validateForm = () => {
-    // Validate first name
-    if (!first_name) {
-      setFirstNameError('First name is required');
-    } else {
-      setFirstNameError('');
-    }
-
-    // Validate last name
-    if (!last_name) {
-      setLastNameError('Last name is required');
-    } else {
-      setLastNameError('');
-    }
-
-    if (!school_name) {
-      setSchoolNameError('School name is required');
-    } else {
-      setSchoolNameError('');
-    }
-
-    if (!home_address) {
-      setHomeNameError('Home name is required');
-    } else {
-      setHomeNameError('');
-    }
-
-
-    if (!doe_rate) {
-      setDOEError('DOE Rate is required');
-    } else {
-      setDOEError('');
-    }
-    if (!grade) {
-      setGradeError('Grade Rate is required');
-    } else {
-      setGradeError('');
-    }
-    if (!first_name || !last_name || !school_name || !home_address || !doe_rate || !grade) {
-      return false;
-    }
-    
-    return true;
-  };
-
-  // const [message, setMessage] = useState('');
-
+//  ========================Fetch school Data==========================
+  const [schools, setSchools] = useState([]);
+ const fetchSchoolDetails = async () => {
+  try {
+    const response = await fetch('/api/fetchSchoolData');
+    const data = await response.json();
+    setSchools(data); // Update the state with fetched data
+    console.log(data);
+  } catch (error) {
+    console.error('Error fetching school details:', error);
+  }
+};
+ useEffect(() => {
+    fetchSchoolDetails();
+  }, []);
+console.log(schools);
+// ===========================================================
+ // Function to handle school selection
+ const handleSchoolChange = (schoolName) => {
+  setSelectedSchool(schoolName); // Update the selected school in state
+  console.log('Selected school:', schoolName); // Optionally log the selected school
+};
     // ===================================================================
    
   
     const handleAddStudent   = async (event) => {
       console.log("handleAddStudent triggered");
-      event.preventDefault();
-      if (!validateForm()) return; 
+       if (!first_name || !last_name ) {
+            toast.error('Please fill in all fields!');
+            return;
+          }
 
      
       const formData = {
         first_name,
         last_name,
         grade,
-        school_name,
+        school_name : selectedSchool,
         home_address,
         doe_rate,
         iep_doc,
@@ -331,7 +296,7 @@ const removeService = (index) => {
                   name="firstName"
                   className="stu-pro-input-field"
                   placeholder="Enter First Name" value={first_name} onChange={handleFirstNameChange}/>
-                  {firstNameError && <span>{firstNameError}</span>}
+               
               </div>
 
               <div className="col-md-6 student-profile-field widthcss">
@@ -342,21 +307,39 @@ const removeService = (index) => {
                   className="stu-pro-input-field"
                   placeholder="Enter Last Name"  value={last_name} onChange={handleLastNameChange}
                 />
-                {lastNameError && <span>{lastNameError}</span>}
+               
               </div>
             </div>
 
           <div className="stu-pro-field-div">
-              <div className="col-md-6 student-profile-field widthcss">
-                <label>School Name:</label>
-                <input
-                  type="text"
-                  name="schoolName"
-                  className="stu-pro-input-field"
-                  placeholder="Enter a School Name"  value={school_name} onChange={handleSchoolNameChange}
-                />
-                {SchoolNameError && <span>{SchoolNameError}</span>}
+            <div className="col-md-6 student-profile-field widthcss">
+              <label>School Name:</label>
+              <div className="dropdown">
+                <button
+                  className="btn btn-secondary dropdown-toggle stu-pro-input-field"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  {selectedSchool || "Choose School"} {/* Display selected school or default text */}
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  {schools.length > 0 ? (
+                    schools.map((school) => (
+                      <li key={school.id}>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleSchoolChange(school.school_name)}>
+                          {school.school_name} {/* Ensure this is a string */}
+                        </button>
+                      </li>
+                    ))
+                  ) : (
+                    <li><span className="dropdown-item">No schools available</span></li>
+                  )}
+                </ul>
               </div>
+            </div>
             
             <div className="col-md-6 student-profile-field widthcss">
                 <label>Grade:</label>
@@ -393,7 +376,7 @@ const removeService = (index) => {
                   </li>
                 </ul>
               </div>
-              {GradeError && <span>{GradeError}</span>}
+            
           </div>
       </div>
 
@@ -407,7 +390,7 @@ const removeService = (index) => {
                 className="text-field stu-pro-input-field"
                 placeholder="Enter home address"  value={home_address} onChange={handleHomeAddress}
               ></textarea>
-              {HomeNameError && <span>{HomeNameError}</span>}
+           
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
@@ -418,7 +401,7 @@ const removeService = (index) => {
                 className="stu-pro-input-field"
                 placeholder="Enter Rate"  value={doe_rate} onChange={handelDoe_rate}
               />
-              {DOEError && <span>{DOEError}</span>}
+     
             </div>
           </div>
 

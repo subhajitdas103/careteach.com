@@ -72,7 +72,7 @@ public function addstudent(Request $request)
         );
 
         // Find or create student
-        $student = Students::updateOrCreate(
+        $student = Students::Create(
             ['nyc_id' => $validatedData['nyc_id'] ?? null], // Use a unique identifier (nyc_id)
             [
                 'first_name' => $validatedData['first_name'],
