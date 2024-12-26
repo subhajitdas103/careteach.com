@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './School.css';
 const School = () => {
   const location = useLocation();
   const message = location.state?.message;
@@ -171,17 +172,9 @@ const School = () => {
                   <td>{school.school_name}</td>
                   <td>{school.email}</td>
                   <td>{school.phone}</td>
-                  <td
-                    className={
-                      school.status === "active" ? "text-success" : "text-danger"
-                    }
-                  >
-                    <span
-                      className={
-                        school.status === "active" ? "activedot" : "inactivedot"
-                      }
-                    ></span>
-                    {school.status}
+                  <td className={`${school.status === "Active" ? "text-success" : "text-danger"}`}>
+                    <span className={`${school.status === "Active" ? "activedot" : "inactivedot"}`}></span>
+                    {school.status.charAt(0).toUpperCase() + school.status.slice(1)}
                   </td>
                   <td>
                     <div className="status-area">

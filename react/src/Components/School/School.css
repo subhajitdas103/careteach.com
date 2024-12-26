@@ -1,0 +1,22 @@
+.text-success {
+    color: green; /* Green text color for active status */
+  }
+  
+  .text-danger {
+    color: red; /* Red text color for inactive status */
+  }
+  
+  .activedot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: green; /* Green dot for active status */
+  }
+  
+  .inactivedot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: red; /* Red dot for inactive status */
+  }
+  
