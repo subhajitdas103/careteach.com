@@ -38,3 +38,6 @@ Route::post('/AddSchool', [SchoolController::class, 'addSchool']);
 Route::get('/fetchSchoolData',[SchoolController::class,'SchoolData']);
 Route::delete('/DeleteSchool/{id}', [SchoolController::class, 'deleteSchooldata']);
 
+Route::get('/search', [StudentController::class, 'search']);
+Route::get('/searchproviders', [ProviderController::class, 'searchProvider']);
+Route::get('/searchschool', [SchoolController::class, 'SearchSchool']);

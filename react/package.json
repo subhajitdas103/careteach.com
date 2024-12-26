@@ -42,7 +42,8 @@
     "react-input-mask": "^2.0.4",
     "react-router-dom": "^7.0.2",
     "react-toastify": "^10.0.6",
-    "rsuite": "^5.75.0"
+    "rsuite": "^5.75.0",
+    "tw-elements-react": "^1.0.0-alpha-end"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

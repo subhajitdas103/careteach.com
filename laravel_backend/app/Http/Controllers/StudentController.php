@@ -62,18 +62,20 @@ public function addstudent(Request $request)
         ]);
 
         // Find or create parent
-        $parents = Parents::updateOrCreate(
-            ['parent_email' => $validatedData['parent_email']], // Check by unique key (email)
+        $parents = Parents::Create(
+           
             [
                 'parent_name' => $validatedData['parent_name'],
                 'ph_no' => $validatedData['parent_phnumber'],
                 'parent_type' => $validatedData['parent_type'],
+                'parent_email' => $validatedData['parent_email'],
+                
             ]
         );
 
         // Find or create student
         $student = Students::Create(
-            ['nyc_id' => $validatedData['nyc_id'] ?? null], // Use a unique identifier (nyc_id)
+            
             [
                 'first_name' => $validatedData['first_name'],
                 'last_name' => $validatedData['last_name'],
@@ -92,32 +94,7 @@ public function addstudent(Request $request)
         );
 
         foreach ($validatedData['services'] as $service) {
-            // Check if a matching service exists for the given student
-            $existingService = StudentServices::where('student_id', $student->id)
-                ->where('service_type', $service['service_type'])
-                ->where('start_date', $service['startDate'])
-                ->where('end_date', $service['endDate'])
-                ->first();
-        
-            if ($existingService) {
-                // If the service exists, check if the mandates are different
-                $updateNeeded = false;
-        
-                if ($existingService->weekly_mandate !== $service['weeklyMandate']) {
-                    $existingService->weekly_mandate = $service['weeklyMandate'];
-                    $updateNeeded = true;
-                }
-        
-                if ($existingService->yearly_mandate !== $service['yearlyMandate']) {
-                    $existingService->yearly_mandate = $service['yearlyMandate'];
-                    $updateNeeded = true;
-                }
-        
-                // Only update the service if there are changes in the data
-                if ($updateNeeded) {
-                    $existingService->save();  // Save the updated service
-                }
-            } else {
+           
                 // If no matching service exists, insert a new one
                 StudentServices::create([
                     'student_id' => $student->id,  // Link to the student
@@ -127,7 +104,7 @@ public function addstudent(Request $request)
                     'weekly_mandate' => $service['weeklyMandate'],
                     'yearly_mandate' => $service['yearlyMandate'],
                 ]);
-            }
+            
         }
 
         return response()->json(['message' => 'Student data saved/updated successfully!'], 200);
@@ -181,6 +158,13 @@ public function DeleteStudent($id)
         }
     }
     
-
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        $students = Students::where('first_name', 'LIKE', "%{$query}%")
+            ->orWhere('last_name', 'LIKE', "%{$query}%")
+            ->get();
+        return response()->json($students);
+    }
 
 }

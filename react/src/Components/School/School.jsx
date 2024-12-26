@@ -6,24 +6,38 @@ import axios from 'axios';
 const School = () => {
   const navigate = useNavigate();
   const [schools, setSchools] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [searchQuery, setSearchQuery] = useState("");
  
   const [show, setShow] = useState(false);
   const [IDSchool, setIDSchool] = useState(null);
-  useEffect(() => {
-    fetchSchoolDetails();
-  }, []);
+    const [data, setData] = useState([]);
+  // useEffect(() => {
+  //   fetchSchoolDetails();
+  // }, []);
 
-  const fetchSchoolDetails = async () => {
-    try {
-      const response = await fetch('/api/fetchSchoolData');
-      const data = await response.json();
-      setSchools(data); // Update the state with fetched data
-      console.log(data);
-    } catch (error) {
-      console.error('Error fetching school details:', error);
+  // const fetchSchoolDetails = async () => {
+  //   try {
+      
+  //     const response = await fetch('/api/fetchSchoolData');
+  //     const data = await response.json();
+  //     setSchools(data); // Update the state with fetched data
+  //     console.log(data);
+  //   } catch (error) {
+  //     console.error('Error fetching school details:', error);
+  //   }
+  // };
+
+  useEffect(() => {
+    if (!searchQuery) {
+    axios.get('/api/fetchSchoolData')
+      .then((response) => {
+        setSchools(response.data); 
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
     }
-  };
+  }, []);
 
   const addSchool = () => {
     navigate('/AddSchool'); // Navigate to the add school page
@@ -33,9 +47,9 @@ const School = () => {
     navigate('/Dashboard');
   };
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value); // Update search query state
-  };
+  // const handleSearchSchoolChange = (e) => {
+  //   setSearchQuery(e.target.value); // Update search query state
+  // };
 
 
   const editSchool =(id) =>{
@@ -70,7 +84,19 @@ const School = () => {
         });
     
   };
-  
+   // ===========Search Result====================
+
+   const [searchQuery, setSearchQuery] = useState('');
+
+   const handleSearchSchool = async (event) => {
+       event.preventDefault();
+       try {
+           const response = await axios.get(`/api/searchschool?query=${searchQuery}`);
+           setSchools(response.data); // Update the student list with the search results
+       } catch (error) {
+           console.error('Error fetching by Search:', error);
+       }
+   };
 
 
   return (
@@ -87,21 +113,21 @@ const School = () => {
       </div>
 
       <div className="row col-md-12 form-grouptop_search topnav">
-        <div className="search-container">
-          <form className="search-bar" onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="text"
-              name="search"
-              className="search-field"
-              placeholder="Search for school"
-              value={searchQuery}
-              onChange={handleSearchChange} // Handle search input change
-            />
-            <button type="submit" className="fa-search-icon">
-              <i className="fa fa-search"></i>
-            </button>
-          </form>
-        </div>
+          <div className="search-container">
+              <form className="search-bar dashboard-list" onSubmit={handleSearchSchool}>
+                  <input
+                      type="text"
+                      name="search"
+                      className="search-field"
+                      placeholder="Search for providers"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button type="submit" className="fa-search-icon">
+                      <i className="fa fa-search"></i>
+                  </button>
+              </form>
+          </div>
       </div>
 
       <div className="add-student-btn" id="add_school_btn" onClick={addSchool}>

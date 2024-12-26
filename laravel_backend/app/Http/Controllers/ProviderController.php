@@ -284,7 +284,14 @@ public function updateProvider($id, Request $request)
 
 
 
-    
+public function searchProvider(Request $request)
+{
+    $query = $request->input('query');
+    $Providers = Providers::where('provider_first_name', 'LIKE', "%{$query}%")
+        ->orWhere('provider_last_name', 'LIKE', "%{$query}%")
+        ->get();
+    return response()->json($Providers);
+}
     }
     
 

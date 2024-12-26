@@ -61,6 +61,7 @@ const Providers = () => {
   };
 // ======================  Fetch data from API=================
   useEffect(() => {
+    if (!searchQuery) {
     axios.get('api/ViewProviders')
       .then((response) => {
         setData(response.data); 
@@ -68,6 +69,7 @@ const Providers = () => {
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
+    }
   }, []);
 // =============================================================
 const [isOpen, setIsOpen] = useState(false);
@@ -99,7 +101,7 @@ const handleCloseModal = () => {
 };
 // =============================
 const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
-console.log("mmmmmmmm",ProviderDataAssignProvider);
+// console.log("mmmmmmmm",ProviderDataAssignProvider);
 const StudentOfAssignedProviders = async (id) => {
   try {
     const response = await fetch(`api/FetchStudentOfAssignedProviders/${id}`, {
@@ -126,6 +128,19 @@ const handleStudentClick = (studentId) => {
   navigate('/students'); // Adjust the path as per your route setup
 };
  
+  // ===========Search Result====================
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = async (event) => {
+      event.preventDefault();
+      try {
+          const response = await axios.get(`/api/searchproviders?query=${searchQuery}`);
+          setData(response.data); // Update the student list with the search results
+      } catch (error) {
+          console.error('Error fetching by Search:', error);
+      }
+  };
 
 
 
@@ -143,20 +158,23 @@ const handleStudentClick = (studentId) => {
         </div>
       </div>
 
+      
       <div className="row col-md-12 form-grouptop_search topnav">
-        <div className="search-container">
-          <form className="search-bar">
-            <input
-              type="text"
-              name="search"
-              className="search-field"
-              placeholder="Search for provider"
-            />
-            <button type="submit" className="fa-search-icon">
-              <i className="fa fa-search"></i>
-            </button>
-          </form>
-        </div>
+          <div className="search-container">
+              <form className="search-bar dashboard-list" onSubmit={handleSearch}>
+                  <input
+                      type="text"
+                      name="search"
+                      className="search-field"
+                      placeholder="Search for providers"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  <button type="submit" className="fa-search-icon">
+                      <i className="fa fa-search"></i>
+                  </button>
+              </form>
+          </div>
       </div>
 
       <div className="add-student-btn" id="add_provider_btn" onClick={addProvider}>

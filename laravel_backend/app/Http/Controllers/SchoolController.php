@@ -86,6 +86,14 @@ public function deleteSchooldata($id)
         }
     }
     
+    public function SearchSchool(Request $request)
+    {
+        $query = $request->input('query');
+        $school = SchoolModel::where('school_name', 'LIKE', "%{$query}%")
+            // ->orWhere('last_name', 'LIKE', "%{$query}%")
+            ->get();
+        return response()->json($school);
+    }
     }
     
 

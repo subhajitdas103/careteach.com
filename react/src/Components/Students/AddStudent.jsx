@@ -216,12 +216,39 @@ console.log(schools);
   
     const handleAddStudent   = async (event) => {
       console.log("handleAddStudent triggered");
-       if (!first_name || !last_name ) {
-            toast.error('Please fill in all fields!');
-            return;
-          }
+      if (!first_name) {
+        toast.error('Please fill First Name!');
+        return;
+    } else if (!last_name) {
+        toast.error('Please fill Last Name!');
+        return;
+    } else if (!grade) {
+        toast.error('Please Choose Grade!');
+        return;
+    }else if (!home_address) {
+      toast.error('Please fill Home address!');
+      return;
+    }else if (!doe_rate) {
+        toast.error('Please Enter DOE Rate!');
+        return;
+    }else if (!iep_doc) {
+      toast.error('Please Choose IEP!');
+      return;
+    }else if (!disability) {
+      toast.error('Please Choose Disability!');
+      return;
+    }else if (!nyc_id) {
+      toast.error('Please Enter NYC ID!');
+      return;
+    }else if (!parent_name) {
+      toast.error('Please Enter Parent Name!');
+      return;
+    }else if (!parent_email) {
+      toast.error('Please Enter Parent Email!');
+      return;
+    }
 
-     
+    
       const formData = {
         first_name,
         last_name,
@@ -240,8 +267,7 @@ console.log(schools);
         parent_email,
         parent_phnumber,
         parent_type,
-        // Add formDataList here to send the dynamic fields
-        services: formDataList, // This includes all the dynamically added service forms
+        services: formDataList, 
       };
       console.log('Form data:', formData);
 
