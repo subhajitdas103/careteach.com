@@ -88,6 +88,10 @@ const School = () => {
         .then(() => {
           setShow(false); // Hides the modal or updates the state
           console.log('School deleted successfully');
+           toast.success("School successfully Deleted!", {
+                      position: "top-right", 
+                      autoClose: 5000,
+                    });
           // Optionally refresh the list or update the state
           fetchSchoolDetails();
         })

@@ -73,6 +73,10 @@ const Students = () => {
           setData(data.filter(student => student.id !== SelectedStudentToDelete.id));
           setShow(false);
           setSelectedStudentToDelete(null);
+          toast.success("Student successfully Deleted!", {
+                                position: "top-right", 
+                                autoClose: 5000,
+                              });
         })
         .catch((error) => {
           console.error('Error deleting student:', error);
