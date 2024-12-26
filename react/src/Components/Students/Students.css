@@ -1,3 +1,17 @@
+/* Default styling for the search field */
+.search-field {
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 16px;
+    transition: border 0.3s ease;
+  }
+  
+  /* Blue border when the search field is focused */
+  .search-field:focus {
+    border-color: #a04949;
+    outline: none; /* Removes the default outline */
+  }
+  
 /* Assign Provider Delete icon */
 .status-area {
     display: flex;
@@ -466,7 +480,7 @@ body{
 .search-field{
     width: 100%;
     height: 50px;
-    border: 1px solid #4979a0;
+    border: 3px solid #4979a0;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
     padding-left: 8px;
