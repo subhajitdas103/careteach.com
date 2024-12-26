@@ -235,6 +235,7 @@ public function editstudent(Request $request, $id)
             'doe_rate' => $validatedData['doe_rate'],
             'iep_doc' => $validatedData['iep_doc'],
             'disability' => $validatedData['disability'],
+            'nyc_id' => $validatedData['nyc_id'],
             'notes_per_hour' => $validatedData['notesPerHour'],
             'case' => $validatedData['case_v'],
             'resulation_invoice' => $validatedData['resolutionInvoice'],

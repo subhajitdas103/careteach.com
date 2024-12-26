@@ -257,38 +257,38 @@ useEffect(() => {
 
     // ===============DOE Rate==================
 
-    useEffect(() => {
-      if (student && student.doe_rate) {
-        setDOE(student.doe_rate);
-      }
-    }, [student]);
+        useEffect(() => {
+          if (student && student.doe_rate) {
+            setDOE(student.doe_rate);
+          }
+        }, [student]);
+        
+
+        const handelDoe_rate = (event) => {
+        const value = event.target.value;
     
+        if (/^\d+$/.test(value) || value === "") {
+          setDOE(value); 
+        }
 
-    const handelDoe_rate = (event) => {
-    const value = event.target.value;
- 
-    if (/^\d+$/.test(value) || value === "") {
-      setDOE(value); 
-    }
+        if (event.target.value) {
+          setDOEError('');
+        }
+      };
+    // =================NYC ID==================================
+      useEffect(() => {
+      if (student && student.nyc_id) {
+        setNYC(student.nyc_id);
+      }
+      }, [student]);
 
-    if (event.target.value) {
-      setDOEError('');
-    }
-  };
-// =================NYC ID==================================
-useEffect(() => {
-  if (student && student.nyc_id) {
-    setNYC(student.nyc_id);
-  }
-}, [student]);
-
-    const handelNycID = (event) => {
-      const value = event.target.value;
-      // Allow only numeric input (whole numbers)
-    if (/^\d+$/.test(value) || value === "") {
-      setNYC(value); // Update state if input is valid
-    }
-    };
+        const handelNycID = (event) => {
+          const value = event.target.value;
+          // Allow only numeric input (whole numbers)
+        if (/^\d+$/.test(value) || value === "") {
+          setNYC(value); // Update state if input is valid
+        }
+        };
 
     // ==================Notes Per Hour=======================
         const handlenotesPerHour = (event) => {
@@ -299,17 +299,17 @@ useEffect(() => {
             };
 
         useEffect(() => {
-            if (student) {
-              // Only set case_v if it exists in student
-              if (student.case) {
-                setCase(student.case);
-              }
-              // Only set notesPerHour if it exists in student
-              if (student.notes_per_hour) {
-                setNotesPerHour(student.notes_per_hour);
-              }
-            }
-          }, [student])
+        if (student) {
+          // Only set case_v if it exists in student
+          if (student.case) {
+            setCase(student.case);
+          }
+          // Only set notesPerHour if it exists in student
+          if (student.notes_per_hour) {
+            setNotesPerHour(student.notes_per_hour);
+          }
+        }
+      }, [student])
 
   // =====================Case==========================
           const handleCase = (e) => {
@@ -320,61 +320,6 @@ useEffect(() => {
    
 
    
-  
-  // ===================Validation===============================
-
-  const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError] = useState('');
-  const [SchoolNameError, setSchoolNameError] = useState('');
-  const [HomeNameError, setHomeNameError] = useState('');
-  const [DOEError, setDOEError] = useState('');
-  const [GradeError, setGradeError] = useState('');
-  const validateForm = () => {
-    // Validate first name
-    if (!first_name) {
-      setFirstNameError('First name is required');
-    } else {
-      setFirstNameError('');
-    }
-
-    // Validate last name
-    if (!last_name) {
-      setLastNameError('Last name is required');
-    } else {
-      setLastNameError('');
-    }
-
-    if (!school_name) {
-      setSchoolNameError('School name is required');
-    } else {
-      setSchoolNameError('');
-    }
-
-    if (!home_address) {
-      setHomeNameError('Home name is required');
-    } else {
-      setHomeNameError('');
-    }
-
-
-    if (!doe_rate) {
-      setDOEError('DOE Rate is required');
-    } else {
-      setDOEError('');
-    }
-    if (!grade) {
-      setGradeError('Grade Rate is required');
-    } else {
-      setGradeError('');
-    }
-    if (!first_name || !last_name || !school_name || !home_address || !doe_rate || !grade) {
-      return false;
-    }
-    
-    return true;
-  };
-
-  // const [message, setMessage] = useState('');
 
     // ===================================================================
    
@@ -383,7 +328,37 @@ useEffect(() => {
       console.log("Edit Student triggered");
       // event.preventDefault();
       // if (!validateForm()) return; 
-
+ if (!first_name) {
+        toast.error('Please fill First Name!');
+        return;
+    } else if (!last_name) {
+        toast.error('Please fill Last Name!');
+        return;
+    } else if (!grade) {
+        toast.error('Please Choose Grade!');
+        return;
+    }else if (!home_address) {
+      toast.error('Please fill Home address!');
+      return;
+    }else if (!doe_rate) {
+        toast.error('Please Enter DOE Rate!');
+        return;
+    }else if (!iep_doc) {
+      toast.error('Please Choose IEP!');
+      return;
+    }else if (!disability) {
+      toast.error('Please Choose Disability!');
+      return;
+    }else if (!nyc_id) {
+      toast.error('Please Enter NYC ID!');
+      return;
+    }else if (!parent_name) {
+      toast.error('Please Enter Parent Name!');
+      return;
+    }else if (!parent_email) {
+      toast.error('Please Enter Parent Email!');
+      return;
+    }
      
       const formData = {
         first_name,
@@ -432,7 +407,7 @@ useEffect(() => {
       
       catch (error) {
       toast.error("An error occurred. Please try again.", {
-        position: "top-right", // Correct syntax
+        position: "top-right",
         autoClose: 5000,
       });
         console.error('There was an error sending data:', error.response?.data || error.message);
@@ -466,10 +441,7 @@ useEffect(() => {
       fetchStudentDetails();
     }, [id]); // Fetch when `id` changes
     
-    // if (!student || !parentData || !StudentServices) {
-    //   return <div>Loading...</div>; // Show loading until all data is fetched
-    // }
-    
+   
   // ======================================================
     return (
     <div className="dashboard-container">
@@ -491,7 +463,7 @@ useEffect(() => {
                   name="firstName"
                   className="stu-pro-input-field"
                   placeholder="Enter First Name" value={first_name} onChange={handleFirstNameChange}/>
-                  {firstNameError && <span>{firstNameError}</span>}
+                
               </div>
 
               <div className="col-md-6 student-profile-field widthcss">
@@ -502,7 +474,7 @@ useEffect(() => {
                   className="stu-pro-input-field"
                   placeholder="Enter Last Name"  value={last_name} onChange={handleLastNameChange}
                 />
-                {lastNameError && <span>{lastNameError}</span>}
+             
               </div>
             </div>
 
@@ -515,7 +487,7 @@ useEffect(() => {
                   className="stu-pro-input-field"
                   placeholder="Enter a School Name"  value={school_name} onChange={handleSchoolNameChange}
                 />
-                {SchoolNameError && <span>{SchoolNameError}</span>}
+              
               </div>
             
             <div className="col-md-6 student-profile-field widthcss">
@@ -553,7 +525,6 @@ useEffect(() => {
                   </li>
                 </ul>
               </div>
-              {GradeError && <span>{GradeError}</span>}
           </div>
       </div>
 
@@ -567,7 +538,7 @@ useEffect(() => {
                 className="text-field stu-pro-input-field"
                 placeholder="Enter home address"  value={home_address} onChange={handleHomeAddress}
               ></textarea>
-              {HomeNameError && <span>{HomeNameError}</span>}
+           
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
@@ -578,7 +549,7 @@ useEffect(() => {
                 className="stu-pro-input-field"
                 placeholder="Enter Rate"  value={doe_rate} onChange={handelDoe_rate}
               />
-              {DOEError && <span>{DOEError}</span>}
+           
             </div>
           </div>
 
