@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::delete('/DeleteAssignedProviders/{id}', [ProviderController::class, 'DeleteAssignedProvidersFromDB']);
 Route::delete('/DeleteStudent/{id}', [StudentController::class, 'DeleteStudent']);
 Route::post('/addstudent', [StudentController::class,'addstudent']);
+
 Route::post('/addprovider', [ProviderController::class,'addprovider']);
 Route::post('/UpdateProvider/{id}', [ProviderController::class,'updateprovider']);
 Route::get('/ViewProviders',[ProviderController::class,'fetchProviderData']);
@@ -41,3 +42,4 @@ Route::delete('/DeleteSchool/{id}', [SchoolController::class, 'deleteSchooldata'
 Route::get('/search', [StudentController::class, 'search']);
 Route::get('/searchproviders', [ProviderController::class, 'searchProvider']);
 Route::get('/searchschool', [SchoolController::class, 'SearchSchool']);
+Route::post('/EditStudent/{id}', [StudentController::class,'editstudent']);

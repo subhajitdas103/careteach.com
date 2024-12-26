@@ -16,7 +16,7 @@ import axios from "axios";
 
   const AddStudent = () => {
     const { id } = useParams();
-  
+  // console.log(id);
     const [student, setStudent] = useState(null);
     const [parent, setParentData] = useState(null);
     const [StudentServices, setStudentServices] = useState(null);
@@ -34,11 +34,12 @@ import axios from "axios";
   // ==========================Clone Service Div====================================
 
   const [formDataList, setFormDataList] = useState([
-    { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: ''}
+    { id: '',service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: ''}
   ]);
   useEffect(() => {
     if (StudentServices && StudentServices.length > 0) {
       const updatedFormDataList = StudentServices.map(service => ({
+        id: service.id || '',
         service_type: service.service_type || '',
         startDate: service.start_date || '',
         endDate: service.end_date || '',
@@ -68,7 +69,7 @@ import axios from "axios";
   const addService = () => {
     setFormDataList([
       ...formDataList,
-      { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' }
+      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' }
     ]);
   };
 
@@ -379,7 +380,7 @@ useEffect(() => {
    
   
     const handleAddStudent   = async (event) => {
-      console.log("handleAddStudent triggered");
+      console.log("Edit Student triggered");
       // event.preventDefault();
       // if (!validateForm()) return; 
 
@@ -405,10 +406,11 @@ useEffect(() => {
         // Add formDataList here to send the dynamic fields
         services: formDataList, // This includes all the dynamically added service forms
       };
-      // console.log('Form data:', formData);
+      console.log('Form data:', formData);
 
       try {
-        const response = await axios.post('/api/addstudent', JSON.stringify(formData), {
+        const response = await axios.post(`/api/EditStudent/${id}`, formData, {
+         
           headers: {
             'Content-Type': 'application/json',
           },

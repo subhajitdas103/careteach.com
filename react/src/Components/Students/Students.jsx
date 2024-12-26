@@ -122,7 +122,7 @@ const fetchStudentDetails = async () => {
           const response = await axios.get(`/api/search?query=${searchQuery}`);
           setData(response.data); // Update the student list with the search results
       } catch (error) {
-          console.error('Error fetching Provider:', error);
+          console.error('Error fetching Prov:', error);
       }
   };
   
@@ -142,9 +142,9 @@ const fetchStudentDetails = async () => {
       </div>
       
 
-      <div className="row col-md-12 form-grouptop_search topnav">
+      <div className="row col-md-12  form-grouptop_search topnav">
           <div className="search-container">
-              <form className="search-bar dashboard-list" onSubmit={handleSearch}>
+              <form className="search-bar dashboard-list form-floating" onSubmit={handleSearch}>
                   <input
                       type="text"
                       name="search"
