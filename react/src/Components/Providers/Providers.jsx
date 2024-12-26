@@ -4,10 +4,23 @@ import axios from 'axios';
 import './Providers.css';
 import { Button, Modal } from 'react-bootstrap';
 import { toast, ToastContainer } from 'react-toastify';
+import { useLocation } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import { Modal as FlowbitModal } from 'flowbite-react';
 import { useParams } from 'react-router-dom'; // Import useParams
+// import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Providers = () => {
+  const location = useLocation();
+  const message = location.state?.message;
+  useEffect(() => {
+    if (message) {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
+  }, [message]);
    
   const [show, setShow] = useState(false);
   const [selectedProviderToDelete, setSelectedProviderToDelete] = useState(null);
@@ -145,6 +158,8 @@ const handleStudentClick = (studentId) => {
 
 
   return (
+<div>
+    <ToastContainer />
     <div className="dashbord-container">
       <div className="row dashbord-list">
         <div className="heading-text">
@@ -300,6 +315,7 @@ const handleStudentClick = (studentId) => {
               </Modal>
 
     </div>
+</div>
   );
 };
 

@@ -391,16 +391,16 @@ useEffect(() => {
           },
         });
 
-
-       toast.success("Student successfully Updated!", {
-        position: "top-right", 
-        autoClose: 5000,
-      });
-
-      // Navigate to Students page after 5 seconds
-      setTimeout(() => {
-        navigate('/Students');
-      }, 5000);
+        setTimeout(() => {
+                toast.success("Student Update successfully", {
+                  position: "top-right",
+                  autoClose: 5000,
+                });
+              }, 500);
+     
+        navigate('/Students', { state: { successMessage: 'Student updated successfully!' } });
+              
+     
 
         console.log('Data sent successfully:', response.data);  
       } 

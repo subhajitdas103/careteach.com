@@ -174,7 +174,48 @@ const formattedDOB = selectedDate ? new Date(selectedDate).toISOString().split('
 const lisenceExpDateFormat = licenseExpDate ? new Date(licenseExpDate).toISOString().split('T')[0] : null;
 const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toISOString().split('T')[0] : null;
 
-   
+  if (!first_name) {
+        toast.error('Please fill First Name!');
+        return;
+    }
+  if (!last_name) {
+        toast.error('Please fill Last Name!');
+        return;
+    }
+
+  if (!email) {
+        toast.error('Please Enter Email Address!');
+        return;
+    }
+
+  if (!phone) {
+        toast.error('Please Enter Phone Number!');
+        return;
+    }
+  if (!address) {
+          toast.error('Please Enter Address!');
+          return;
+      }
+  if (!rate) {
+          toast.error('Please Enter Rate!');
+          return;
+      }
+  if (!licenseExpDate) {
+          toast.error('Please Enter License Exp Date!');
+          return;
+      }
+  if (!petsApprovalDate) {
+    toast.error('Please Enter Pats Approval Date!');
+    return;
+    }
+  if (!ssNumber) {
+    toast.error('Please Enter SS Number!');
+    return;
+    }
+    if (!petStatus) {
+      toast.error('Please Choose Pets Status!');
+      return;
+      }
     const formData = {
       first_name,
       last_name,
@@ -205,15 +246,18 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
         },
       });
 
-      toast.success("Provider successfully Saved!", {
-        position: "top-right", 
-        autoClose: 5000,
-      });
-       // Navigate to Students page after 5 seconds
-       setTimeout(() => {
-        navigate('/Providers');
-      }, 5000);
-
+      
+setTimeout(() => {
+                toast.success("Provider successfully Saved!", {
+                  position: "top-right",
+                  autoClose: 5000,
+                });
+              }, 500);
+     
+        navigate('/Providers', { state: { successMessage: 'Provider successfully Saved!!' } });
+              
+      
+      
 
       console.log('Data sent successfully:', response.data);  
     } 

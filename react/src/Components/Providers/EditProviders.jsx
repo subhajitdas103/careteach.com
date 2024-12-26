@@ -358,17 +358,14 @@ const formData = {
       },
     });
   
-    toast.success("Provider successfully Saved!", {
-      position: "top-right",
-      autoClose: 5000,
-    });
-  
-    // Navigate to Providers page after 5 seconds
     setTimeout(() => {
-      navigate('/Providers');
-    }, 5000);
-  
-    console.log('Data sent successfully:', response.data);  
+                  toast.success("Provider successfully Saved!", {
+                    position: "top-right",
+                    autoClose: 5000,
+                  });
+                }, 500);
+       
+    navigate('/Providers', { state: { successMessage: 'Provider successfully Saved!!' } }); 
   } catch (error) {
     toast.error("An error occurred. Please try again.", {
       position: "top-right",

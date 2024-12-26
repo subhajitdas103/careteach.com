@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
 
-  const EditStudent = () => {
+  const AddStudent = () => {
 
   
   const navigate = useNavigate();
@@ -277,19 +277,16 @@ console.log(schools);
             'Content-Type': 'application/json',
           },
         });
-
-
-       toast.success("Student successfully Saved!", {
-        position: "top-right", 
-        autoClose: 5000,
-      });
-
-      // Navigate to Students page after 5 seconds
-      setTimeout(() => {
-        navigate('/Students');
-      }, 5000);
-
-        console.log('Data sent successfully:', response.data);  
+        
+        setTimeout(() => {
+                toast.success("Student Created successfully", {
+                  position: "top-right",
+                  autoClose: 5000,
+                });
+              }, 500);
+     
+        navigate('/Students', { state: { successMessage: 'Student Created successfully!' } });
+              
       } 
       
       catch (error) {
@@ -775,5 +772,5 @@ console.log(schools);
     );
   };
 
-export default EditStudent;
+export default AddStudent;
 

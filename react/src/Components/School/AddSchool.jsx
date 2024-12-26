@@ -62,10 +62,24 @@ console.log(SelectedWorkingDays);
 
   const handelAddSchool = async () => {
 
-    if (!schoolName || !principalName || !address || !phone || !emailAddress) {
-      toast.error('Please fill in all fields!');
+    if (!schoolName ) {
+      toast.error('Please Enter School Name!');
       return;
     }
+    if ( !principalName) {
+      toast.error('Please Enter Principal Name!');
+      return;
+    }
+    if (!address) {
+      toast.error('Please Enter Address !');
+      return;
+    }
+    if (!phone) {
+      toast.error('Please Enter Phone Number!');
+      return;
+    }
+    
+
 
    // Email validation
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -92,7 +106,7 @@ console.log(SelectedWorkingDays);
       status,
       emailAddress,
     };
-console.log(schoolData);
+
     try {
       const response = await axios.post('/api/AddSchool', schoolData, {
         headers: {
@@ -100,12 +114,19 @@ console.log(schoolData);
         },
       });
 
-      toast.success('School added successfully!');
-    
-      console.log('School added successfully:', response.data);
+     
+    setTimeout(() => {
+                    toast.success("School added successfully!", {
+                      position: "top-right",
+                      autoClose: 5000,
+                    });
+                  }, 500);
+         
+    navigate('/School', { state: { successMessage: 'School added successfully!!' } });
+
     } catch (error) {
       toast.error('Error adding school!');
-      console.error('Error adding school:', error);
+      // console.error('Error adding school:', error);
     }
   };
 

@@ -86,6 +86,7 @@ public function addstudent(Request $request)
                 'iep_doc' => $validatedData['iep_doc'],
                 'disability' => $validatedData['disability'],
                 'notes_per_hour' => $validatedData['notesPerHour'],
+                'nyc_id' => $validatedData['nyc_id'],
                 'case' => $validatedData['case_v'],
                 'resulation_invoice' => $validatedData['resolutionInvoice'],
                 'status' => $validatedData['status'],
@@ -248,6 +249,7 @@ public function editstudent(Request $request, $id)
             StudentServices::updateOrCreate(
                 ['id' => $service['id']],  // Match by service type
                 [
+                    'service_type' => $service['service_type'],
                     'start_date' => $service['startDate'],
                     'end_date' => $service['endDate'],
                     'weekly_mandate' => $service['weeklyMandate'],

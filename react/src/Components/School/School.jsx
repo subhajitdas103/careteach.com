@@ -3,7 +3,20 @@ import { useNavigate } from "react-router-dom";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const School = () => {
+  const location = useLocation();
+  const message = location.state?.message;
+  useEffect(() => {
+    if (message) {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
+  }, [message]);
   const navigate = useNavigate();
   const [schools, setSchools] = useState([]);
   // const [searchQuery, setSearchQuery] = useState("");
@@ -11,21 +24,21 @@ const School = () => {
   const [show, setShow] = useState(false);
   const [IDSchool, setIDSchool] = useState(null);
     const [data, setData] = useState([]);
-  // useEffect(() => {
-  //   fetchSchoolDetails();
-  // }, []);
+  useEffect(() => {
+    fetchSchoolDetails();
+  }, []);
 
-  // const fetchSchoolDetails = async () => {
-  //   try {
+  const fetchSchoolDetails = async () => {
+    try {
       
-  //     const response = await fetch('/api/fetchSchoolData');
-  //     const data = await response.json();
-  //     setSchools(data); // Update the state with fetched data
-  //     console.log(data);
-  //   } catch (error) {
-  //     console.error('Error fetching school details:', error);
-  //   }
-  // };
+      const response = await fetch('/api/fetchSchoolData');
+      const data = await response.json();
+      setSchools(data); // Update the state with fetched data
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching school details:', error);
+    }
+  };
 
   useEffect(() => {
     if (!searchQuery) {
@@ -100,6 +113,8 @@ const School = () => {
 
 
   return (
+<div>
+    <ToastContainer />
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
@@ -215,6 +230,7 @@ const School = () => {
         </Modal>
       
     </div>
+</div>
   );
 };
 

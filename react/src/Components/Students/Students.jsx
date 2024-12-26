@@ -7,11 +7,21 @@ import { Button } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
 import { DatePicker } from 'rsuite';
 import { toast, ToastContainer } from 'react-toastify';
-import 'rsuite/dist/rsuite.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
+import 'rsuite/dist/rsuite.min.css';
+// import { useLocation } from 'react-router-dom';
 const Students = () => {
   const location = useLocation();
   const message = location.state?.message;
+  useEffect(() => {
+    if (message) {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
+  }, [message]);
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [show, setShow] = useState(false);
@@ -130,7 +140,7 @@ const fetchStudentDetails = async () => {
   
   return (
 <div>
-{/* <ToastContainer /> */}
+<ToastContainer />
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
