@@ -1,7 +1,6 @@
 import React, { useState ,useEffect } from "react";
 import axios from "axios";
 import "./style.css";
-import kgroup from "../../Assets/kgroup.png";
 import logo from "../../Assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
