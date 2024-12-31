@@ -17,14 +17,15 @@ Route::get('/Students',[StudentController::class,'fetchStudentData']);
 Route::middleware('auth:sanctum')->group(function () {
     // Protected routes
 });
-// <Route path="/EditStudent/:id" element={<EditStudent />} />
-// http://localhost:5173/AssignProviders/api/DeleteAssignedProviders/57
+
 Route::delete('/DeleteAssignedProviders/{id}', [ProviderController::class, 'DeleteAssignedProvidersFromDB']);
 Route::delete('/DeleteStudent/{id}', [StudentController::class, 'DeleteStudent']);
 Route::post('/addstudent', [StudentController::class,'addstudent']);
 
 Route::post('/addprovider', [ProviderController::class,'addprovider']);
 Route::post('/UpdateProvider/{id}', [ProviderController::class,'updateprovider']);
+Route::post('/EditSchool/{id}', [SchoolController::class,'editschool']);
+
 Route::get('/ViewProviders',[ProviderController::class,'fetchProviderData']);
 Route::delete('/DeleteProvider/{id}', [ProviderController::class, 'deleteProvider']);
 Route::get('/StudentDataFetchAsID/{id}', [StudentController::class, 'fetchStudentById']);
@@ -43,3 +44,4 @@ Route::get('/search', [StudentController::class, 'search']);
 Route::get('/searchproviders', [ProviderController::class, 'searchProvider']);
 Route::get('/searchschool', [SchoolController::class, 'SearchSchool']);
 Route::post('/EditStudent/{id}', [StudentController::class,'editstudent']);
+Route::get('/FetchSchoolDataBYID/{id}',[SchoolController::class,'FetchSchoolDataBYID']);

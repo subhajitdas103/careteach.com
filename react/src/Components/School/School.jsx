@@ -68,7 +68,8 @@ const School = () => {
 
   const editSchool =(id) =>{
     alert(id);
-    // setIDSchool(id);
+    // navigate('/EditSchool');
+    navigate(`/EditSchool/${id}`);
   }
   const handleShow = (id) => {
     setShow(true);

@@ -22,6 +22,8 @@ const AssignProviders = () => {
   const [parentsDetails, setParentsDetails] = useState(null);
 
   const [selectedAssignProvider, setSelectedAssignProvider] = useState("");
+  
+  console.log("cxxxx",selectedAssignProvider);
   const [inputRateAssignProvider, setInputRateAssignProvider] = useState("");
   const [selectedAssignProviderLocation, setSelectedAssignProviderLocation] = useState("");
   const [selectedAssignProviderService, setSelectedAssignProviderService] = useState("");
@@ -31,8 +33,17 @@ const AssignProviders = () => {
   const [assignProviderEndDate, setAssignProviderEndDate] = useState(null);
 
 
-
-
+  const resetFormData = () => {
+    setSelectedAssignProvider(''); // Reset the selected provider
+    setInputRateAssignProvider(''); // Reset the rate
+    setSelectedAssignProviderService(''); // Reset service selection
+    setSelectedAssignProviderLocation(''); // Reset location selection
+    setinputWklyHoursAssignProvider(''); // Reset weekly hours
+    setInputYearlyHoursAssignProvider(''); // Reset yearly hours
+    setAssignProviderStartDate(null); // Reset start date
+    setAssignProviderEndDate(null); // Reset end date
+  };
+// After Modal close of Assign provider , Reset all data in modal
 
 
   
@@ -67,6 +78,43 @@ const AssignProviders = () => {
 
   const FormatassignProviderStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toISOString().split('T')[0] : null;
   const FormatassignProviderEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toISOString().split('T')[0] : null;
+
+  if (!selectedAssignProvider) {
+          toast.error('Please Select a Provider!');
+          return;
+      }
+  if (!inputRateAssignProvider) {
+      toast.error('Please Enter Rate!');
+      return;
+  }
+
+  if (!selectedAssignProviderService) {
+    toast.error('Please Select a Service!');
+    return;
+  }
+  if (!selectedAssignProviderLocation) {
+    toast.error('Please Select a Location!');
+    return;
+  }
+  if (!inputWklyHoursAssignProvider) {
+    toast.error('Please Select a Weekly Hours!');
+    return;
+    }
+  if (!inputYearlyHoursAssignProvider) {
+  toast.error('Please Enter Yearly Hours!');
+  return;
+  }
+  if (!assignProviderStartDate) {
+  toast.error('Please Select a Start Date!');
+  return;
+  }
+  if (!assignProviderEndDate) {
+  toast.error('Please Select a End Date!');
+  return;
+  }
+  
+
+
     const formData = {
       id,
       selectedProviderId,
@@ -89,8 +137,11 @@ const AssignProviders = () => {
           'Content-Type': 'application/json',
         },
       });
+     
       fetchAssignedProviderDetails();
+     
       setIsModalOpen(false);
+    
       setTimeout(() => {
         toast.success("Provider assigned successfully", {
           position: "top-right",
@@ -130,15 +181,13 @@ const fetchAssignedProviderDetails = async () => {
     fetchAssignedProviderDetails();
   }, [id]);
 
- console.log("cccccccccc",assignedProviders);
+
   
 //   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
   
-//   const handelChangeProvider = (event) => {
-//     setSelectedProvider(event.target.value);
-//     console.log("Selected Provider:", event.target.value);
-//   };
-  
+
+// ========================================
+
   const [ProviderDataAssignProvider, setProviderData] = useState(null);
 
   const fetchProviderData = async () => {
@@ -176,8 +225,10 @@ const navigate = useNavigate();
    const AssignedProviderDelete = (id) => {
     setSelectedStudent(id); // You can also set more data about the student if needed
     setShow(true); // Opens the modal
-    console.log("xxxxxxxx",id);
+    // console.log("xxxxxxxx",id);
   };
+
+ 
   
   const handleClose = () => {
     setShow(false);  // Closes the modal
@@ -210,13 +261,51 @@ const DeleteAssignBTN = () => {
 
 
 const [isModalOpen, setIsModalOpen] = useState(false);
-
-// Function to open the modal
+const [isModalOpenofEditAssignProvider, setIsModalOpenofAssignProvider] = useState(false);
 const openModal = () => setIsModalOpen(true);
 
-// Function to close the modal
-const closeModal = () => setIsModalOpen(false);
+const closeModal = () => {
+  setIsModalOpen(false);
+  resetFormData();
+};
 
+// =====================Edit of Assign Provider Modal==============================
+// console.log("cccccccccc",assignedProviders);
+// const AssignedProviderEdit = (id) => {
+//   alert(id);
+//   setIsModalOpenofAssignProvider(true)
+      // console.log("xxxxxxxx",id);
+//     };
+    const closeModalofAssignProvider = () => {
+      setIsModalOpenofAssignProvider(false);
+     
+    };
+    
+    const AssignedProviderEdit = (id) => {
+      // Find the provider details by ID
+      const providerDetails = assignedProviders.find((provider) => provider.id === id);
+    // console.log("uegf",providerDetails.provider_name);
+      if (providerDetails) {
+        // Populate modal fields with provider details
+        setSelectedAssignProvider(`${providerDetails.provider_name}`);
+
+        setInputRateAssignProvider(providerDetails.provider_rate);
+        setSelectedAssignProviderLocation(providerDetails.location);
+        setAssignProviderStartDate(new Date(providerDetails.start_date));
+        setAssignProviderEndDate(new Date(providerDetails.end_date));
+        setinputWklyHoursAssignProvider(providerDetails.wkly_hours );
+        setInputYearlyHoursAssignProvider(providerDetails.yearly_hours );
+    
+        // Open the modal
+        setIsModalOpenofAssignProvider(true);
+      } else {
+        console.error("Provider not found for ID:", id);
+        alert("Provider details not found!");
+      }
+    };
+    
+    
+// ==================================================
 
 const [selectedProviderId, setSelectedProviderId] = useState(null);
 
@@ -276,7 +365,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                         <td>{provider.provider_rate}</td>
                         <td>
                         <div className="status-area">
-                            <button
+                            <button onClick={() => AssignedProviderEdit(provider.id)}
                             style={{ backgroundColor: 'white', display: 'inline-block' }}
                             title="Edit Assigned Provider"
                             >
@@ -305,7 +394,7 @@ console.log("nnnnnnnnn",selectedProviderId);
 
        {/* Modal for Assigning Provider */}
        {isModalOpen && (
-        <div className="modal show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
+      <div className="modal show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
           
         <Modal.Dialog>
           <Modal.Header closeButton onClick={closeModal}>
@@ -457,7 +546,7 @@ console.log("nnnnnnnnn",selectedProviderId);
             </Button>
           </Modal.Footer>
         </Modal.Dialog>
-        </div>
+      </div>
       )}
 
         {/* =============Delete Assigned Provider================= */}
@@ -485,6 +574,166 @@ console.log("nnnnnnnnn",selectedProviderId);
                   </Modal.Footer>
                 </Modal>
               )}
+
+      {/* ==================================== */}
+      {/* Edit Modal for Assigning Provider */}
+       {isModalOpenofEditAssignProvider && (
+      <div className="modal show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
+          
+        <Modal.Dialog>
+          <Modal.Header closeButton onClick={closeModalofAssignProvider}>
+            <Modal.Title>Assign Provider</Modal.Title>
+          </Modal.Header>
+  
+          <Modal.Body>
+                
+
+            <div className="form-row">
+              <div className="col-12 col-md-12">
+              <FormControl fullWidth style={{ marginBottom: "16px" }}>
+                <InputLabel id="provider-select-label">Select Provider</InputLabel>
+                <Select
+                    labelId="provider-select-label"
+                    id="provider-select"
+                    value={selectedAssignProvider}
+                    
+                    onChange={(e) => {
+                      const [id, name] = e.target.value.split('|'); // Split the concatenated value
+                      setSelectedAssignProvider(e.target.value);   // Update the full `id|name` in state
+                      setSelectedProviderId(id);                   // Store the provider ID
+                    }}
+                    
+                >
+                    {ProviderDataAssignProvider.length > 0 ? (
+                      ProviderDataAssignProvider.map((provider) => (
+                        
+                        <MenuItem 
+                          key={provider.id} 
+                          value={`${provider.id}|${provider.provider_first_name} ${provider.provider_last_name}`}
+                        >
+                          {provider.provider_first_name} {provider.provider_last_name}
+                        </MenuItem>
+                      ))
+
+                  
+                    ) : (
+                    <MenuItem disabled>No Providers Available</MenuItem>
+                    )}
+                </Select>
+                
+                </FormControl>
+
+              </div>
+  
+              <div className="col-12">
+                <TextField
+                  id="rate-input"
+                  label="Rate"
+                  variant="outlined"
+                  fullWidth
+                  value={inputRateAssignProvider}
+                  onChange={(e) => setInputRateAssignProvider(e.target.value)}
+                  style={{ marginBottom: "16px" }}
+                  placeholder="Enter rate"
+                />
+              </div>
+  
+              <div className="col-12 lctDropdown">
+                <div className="col-6" style={{ paddingRight: "5px" }}>
+                  <FormControl fullWidth style={{ marginBottom: "16px" }}>
+                    <InputLabel id="location-select-label">Location</InputLabel>
+                    <Select
+                      labelId="location-select-label"
+                      value={selectedAssignProviderLocation}
+                      onChange={(e) => setSelectedAssignProviderLocation(e.target.value)}
+                    >
+                      <MenuItem value="Home">Home</MenuItem>
+                      <MenuItem value="School">School</MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+  
+                <div className="col-6" style={{ paddingLeft: "5px" }}>
+                  <FormControl fullWidth style={{ marginBottom: "16px" }}>
+                    <InputLabel id="service-select-label">Service Type</InputLabel>
+                    <Select
+                      labelId="service-select-label"
+                      value={selectedAssignProviderService}
+                      onChange={(e) => setSelectedAssignProviderService(e.target.value)}
+                    >
+                      {StudentServices.length > 0 ? (
+                        StudentServices.map((service) => (
+                          <MenuItem key={service.id} value={service.service_type}>
+                            {service.service_type}
+                          </MenuItem>
+                        ))
+                      ) : (
+                        <MenuItem value="">No services available</MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                </div>
+              </div>
+              {/* ========================= */}
+              <div className="col-12 lctDropdown">
+                <div className="col-6" style={{ paddingRight: "5px" }}>
+                <TextField
+                  id="weekly-input"
+                  label="WeeklyHours"
+                  variant="outlined"
+                  fullWidth
+                  value={inputWklyHoursAssignProvider}
+                  onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
+                  style={{ marginBottom: "16px" }}
+                  placeholder="Enter Weekly Hours"
+                />
+                </div>
+  
+                <div className="col-6" style={{ paddingLeft: "5px" }}>
+                <TextField
+                  id="yearly-input"
+                  label="Yearly Hours"
+                  variant="outlined"
+                  fullWidth
+                  value={inputYearlyHoursAssignProvider}
+                  onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
+                  style={{ marginBottom: "16px" }}
+                  placeholder="Enter Yearly Hours"
+                />
+                </div>
+              </div>
+              {/* ============== */}
+  
+              <div className="col-12 lctDropdown">
+                <div className="col-6" style={{ paddingRight: "4px" }}>
+                  <DatePicker
+                    selected={assignProviderStartDate}
+                    onChange={(date) => setAssignProviderStartDate(date)}
+                    placeholdertext="Select a start date"
+                  />
+                </div>
+                <div className="col-6" style={{ paddingLeft: "5px" }}>
+                  <DatePicker
+                    selected={assignProviderEndDate}
+                    onChange={(date) => setAssignProviderEndDate(date)}
+                    placeholdertext="Select an end date"
+                  />
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+  
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeModalofAssignProvider}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handelAssignProviderData}>
+              Save changes
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </div>
+      )}
     </div>
 </div>
   );

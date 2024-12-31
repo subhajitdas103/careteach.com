@@ -94,7 +94,75 @@ public function deleteSchooldata($id)
             ->get();
         return response()->json($school);
     }
+
+    
+    public function FetchSchoolDataBYID($id)
+    {
+        try {
+            $SchoolData = SchoolModel::where('id', $id)
+                ->orderBy('id', 'desc')
+                ->get();
+    
+            if ($SchoolData->isEmpty()) {
+                return response()->json(['message' => 'No assigned providers found'], 404);
+            }
+    
+            return response()->json($SchoolData);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching Providers: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching Providers'], 500);
+        }
     }
+
+    public function editschool(Request $request, $id)
+    {
+        try {
+            // Validate the incoming data
+            $validatedData = $request->validate([
+                'schoolName' => 'required|string',
+                'principalName' => 'required|string',
+                'address' => 'required|string',
+                'phone' => 'required|string',
+                'workingDays' => 'required|string',
+                'holidays' => 'required|string',
+                'status' => 'required|string',
+                'emailAddress' => 'required|string',
+            ]);
+    
+            // Prepare the data to update
+            $dataToUpdate = [
+                'school_name' => $validatedData['schoolName'],
+                'principal_name' => $validatedData['principalName'],
+                'address' => $validatedData['address'],
+                'phone' => $validatedData['phone'],
+                'working_days' => $validatedData['workingDays'],
+                'holiday' => $validatedData['holidays'],
+                'email' => $validatedData['emailAddress'],
+                'status' => $validatedData['status'],
+            ];
+    
+            // Find the student by ID and update
+            $school = SchoolModel::find($id);
+    
+            if (!$school) {
+                return response()->json(['error' => 'Student not found'], 404);
+            }
+    
+            // Update the student's data
+            $school->update($dataToUpdate);
+    
+            // Return a success message
+            return response()->json(['message' => 'Student data updated successfully!'], 200);
+        } catch (\Exception $e) {
+            \Log::error('Error updating student data: ' . $e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
+    }
+    
+
+
+}
+
     
 
     
