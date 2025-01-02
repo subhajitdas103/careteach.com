@@ -272,10 +272,15 @@ const DeleteAssignBTN = () => {
 
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [isModalOpenofEditAssignProvider, setIsModalOpenofAssignProvider] = useState(false);
-const openModal = () => setIsModalOpen(true);
+// const openModal = () => setIsModalOpen(true);
+const openModal = () => {
+  setIsModalOpen(true);   // Open the modal
+  resetFormData();        // Reset all the form data
+};
 
 const closeModal = () => {
   setIsModalOpenofAssignProvider(false);
+  setIsModalOpen(false)
   resetFormData();
 };
 
@@ -298,25 +303,15 @@ const closeModal = () => {
     // console.log("uegf",providerDetails.provider_name);
       if (providerDetails) {
 
-       
-        // const formattedStartDate = format(new Date(providerDetails.start_date), "dd/MM/yyyy");
-        // const formattedEndDate = format(new Date(providerDetails.end_date), "dd/MM/yyyy");
-  
-
-
        setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
 
         setInputRateAssignProvider(providerDetails.provider_rate);
         setSelectedAssignProviderLocation(providerDetails.location);
         // Set the formatted dates
-      setAssignProviderStartDate(providerDetails.start_date);
-      setAssignProviderEndDate(providerDetails.end_date);
-
-
+        setAssignProviderStartDate(providerDetails.start_date);
+        setAssignProviderEndDate(providerDetails.end_date);
         setinputWklyHoursAssignProvider(providerDetails.wkly_hours );
         setInputYearlyHoursAssignProvider(providerDetails.yearly_hours );
-    
-        // Open the modal
         setIsModalOpenofAssignProvider(true);
       } else {
         console.error("Provider not found for ID:", id);
