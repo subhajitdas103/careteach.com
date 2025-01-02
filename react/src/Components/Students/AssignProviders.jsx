@@ -293,14 +293,14 @@ const closeModal = () => {
 //     };
     const closeModalofAssignProvider = () => {
       setIsModalOpenofAssignProvider(false);
-     
+      resetFormData();
     };
     
     const AssignedProviderEdit = (id) => {
       
       // Find the provider details by ID
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
-    // console.log("uegf",providerDetails.provider_name);
+    // console.log("uegf",providerDetails.service_type);
       if (providerDetails) {
 
        setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
@@ -308,6 +308,7 @@ const closeModal = () => {
         setInputRateAssignProvider(providerDetails.provider_rate);
         setSelectedAssignProviderLocation(providerDetails.location);
         // Set the formatted dates
+        setSelectedAssignProviderService(providerDetails.service_type);
         setAssignProviderStartDate(providerDetails.start_date);
         setAssignProviderEndDate(providerDetails.end_date);
         setinputWklyHoursAssignProvider(providerDetails.wkly_hours );
@@ -318,7 +319,7 @@ const closeModal = () => {
         alert("Provider details not found!");
       }
     };
-    console.log("strat date",assignProviderStartDate);
+    // console.log("strat date",assignProviderStartDate);
     
 // ==================================================
 
@@ -328,15 +329,16 @@ const openModalAssignProvider = (id, name) => {
   setIsModalOpen(true); // Open the modal
   setSelectedProviderId(id); // Set the selected provider ID
   // setSelectedAssignProvider(`${id}|${name}`); // Set the selected provider as `id|name`
+  resetFormData();
 };
 
-console.log("nnnnnnnnn",selectedProviderId);
+// console.log("nnnnnnnnn",selectedProviderId);
 
 
-  console.log("cxxxx",selectedAssignProvider);
+  // console.log("cxxxx",selectedAssignProvider);
 
   useEffect(() => {
-    console.log("Updated start date:", assignProviderStartDate); // Log the updated start date for debugging
+    // console.log("Updated start date:", assignProviderStartDate); // Log the updated start date for debugging
   }, [assignProviderStartDate]);
   return (
 <div>
@@ -513,7 +515,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                 <div className="col-6" style={{ paddingRight: "5px" }}>
                 <TextField
                   id="weekly-input"
-                  label="WeeklyHours"
+                  label="Weekly Hours"
                   variant="outlined"
                   fullWidth
                   value={inputWklyHoursAssignProvider}
@@ -541,18 +543,22 @@ console.log("nnnnnnnnn",selectedProviderId);
               <div className="col-12 lctDropdown">
                 <div className="col-6" style={{ paddingRight: "4px" }}>
                   <DatePicker
+                    label="Sart Date"
                     selected={assignProviderStartDate}
                     onChange={(date) => setAssignProviderStartDate(date)}
-                    placeholdertext="Select a start date"
+                    
                     className="datepicker_Date_of_assignProvider" 
+                    placeholderText ="Choose a start date"
                   />
                 </div>
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
                   <DatePicker
+                     label="End Date"
                     selected={assignProviderEndDate}
                     onChange={(date) => setAssignProviderEndDate(date)}
-                    placeholdertext="Select an end date"
+                    
                     className="datepicker_Date_of_assignProvider" 
+                    placeholderText="Choose a end date"
                   />
                 </div>
               </div>
@@ -732,7 +738,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                 <DatePicker
                   selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null} // Show date from DB or null if empty
                   onChange={(date) => {
-                    console.log("Selected Date:", date);
+                    // console.log("Selected Date:", date);
                     setAssignProviderStartDate(format(date, "yyyy-MM-dd")); // Update the state when a new date is selected
                   }}
                   dateFormat="dd/MM/yyyy" 
