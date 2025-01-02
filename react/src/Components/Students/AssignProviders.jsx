@@ -358,7 +358,7 @@ const openModalAssignProvider = (id, name) => {
       </div>
 
       <div className="tbl-container bdr tbl-container-student">
-        <table className="table bdr table-add-provider">
+        <table className="table bdr table-add-provider" border="1">
           <thead className="bg-red">
             <tr>
               <th>PROVIDER</th>

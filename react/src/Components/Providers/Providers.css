@@ -530,14 +530,14 @@ z
     border: 1px solid #034b74;
 }
 
-.fa-icon-img{
+/* .fa-icon-img{
     cursor: pointer;
     color: #034b74;
     border: 1px solid #034b74;
     border-radius: 5px;
     padding: 7px 7px !important;
     margin-right: 10px;
-}
+} */
 
 .fc-back-icon{
     float: inline-end;
@@ -554,11 +554,11 @@ z
     border: 1px solid #034b74;
 }
 
-.fa-icon-img:hover {
+/* .fa-icon-img:hover {
     color: #fff;
     background-color: #034b74;
     border: 1px solid #034b74;
-}
+} */
 
 .personal-profile{
     margin-right: 30px !important;
