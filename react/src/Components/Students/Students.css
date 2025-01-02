@@ -1,3 +1,16 @@
+/* .datepicker_startDate_of_assignProvider{
+    background-color: white;
+} */
+
+/* Targeting the input field within react-datepicker */
+
+.datepicker_Date_of_assignProvider {
+    background-color: white !important; /* Set background color to white */
+    border: 1px solid #ccc; /* Optional: Add a border */
+    border-radius: 8px; /* Make the corners rounded */
+    padding: 8px; /* Optional: Add padding for better spacing */
+  }
+
 /* Default styling for the search field */
 .search-field {
     border: 1px solid #ccc;

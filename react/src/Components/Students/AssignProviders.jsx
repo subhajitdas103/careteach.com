@@ -6,11 +6,21 @@ import { useParams } from 'react-router-dom'; // Import useParams
 import editIcon from '../../Assets/edit-info.png';
 import DeleteAssignProviderIcon from '../../Assets/delete_12319540.png';
 import "./Students.css";
-import { DatePicker } from 'rsuite';
+// import { DatePicker } from 'rsuite';
 import { toast , ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
-
+import { format } from "date-fns"; 
 import 'react-toastify/dist/ReactToastify.css';
+import DatePicker from 'react-datepicker';
+// import { DatePicker } from '@nextui-org/react';
+
+// import { DatePicker } from "antd";
+// import DatePicker from 'react-multi-date-picker';
+
+
+// import 'antd/dist/antd.css'; 
+
+import "react-datepicker/dist/react-datepicker.css"; 
 const AssignProviders = () => {
     const { id } = useParams();
 //   const [selectedStudentId, setSelectedStudentId] = useState(null);
@@ -23,7 +33,7 @@ const AssignProviders = () => {
 
   const [selectedAssignProvider, setSelectedAssignProvider] = useState("");
   
-  console.log("cxxxx",selectedAssignProvider);
+ 
   const [inputRateAssignProvider, setInputRateAssignProvider] = useState("");
   const [selectedAssignProviderLocation, setSelectedAssignProviderLocation] = useState("");
   const [selectedAssignProviderService, setSelectedAssignProviderService] = useState("");
@@ -265,7 +275,7 @@ const [isModalOpenofEditAssignProvider, setIsModalOpenofAssignProvider] = useSta
 const openModal = () => setIsModalOpen(true);
 
 const closeModal = () => {
-  setIsModalOpen(false);
+  setIsModalOpenofAssignProvider(false);
   resetFormData();
 };
 
@@ -282,17 +292,27 @@ const closeModal = () => {
     };
     
     const AssignedProviderEdit = (id) => {
+      
       // Find the provider details by ID
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
     // console.log("uegf",providerDetails.provider_name);
       if (providerDetails) {
-        // Populate modal fields with provider details
-        setSelectedAssignProvider(`${providerDetails.provider_name}`);
+
+       
+        // const formattedStartDate = format(new Date(providerDetails.start_date), "dd/MM/yyyy");
+        // const formattedEndDate = format(new Date(providerDetails.end_date), "dd/MM/yyyy");
+  
+
+
+       setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
 
         setInputRateAssignProvider(providerDetails.provider_rate);
         setSelectedAssignProviderLocation(providerDetails.location);
-        setAssignProviderStartDate(new Date(providerDetails.start_date));
-        setAssignProviderEndDate(new Date(providerDetails.end_date));
+        // Set the formatted dates
+      setAssignProviderStartDate(providerDetails.start_date);
+      setAssignProviderEndDate(providerDetails.end_date);
+
+
         setinputWklyHoursAssignProvider(providerDetails.wkly_hours );
         setInputYearlyHoursAssignProvider(providerDetails.yearly_hours );
     
@@ -303,22 +323,26 @@ const closeModal = () => {
         alert("Provider details not found!");
       }
     };
-    
+    console.log("strat date",assignProviderStartDate);
     
 // ==================================================
 
 const [selectedProviderId, setSelectedProviderId] = useState(null);
 
-const openModalAssignProvider = (id) => {
- 
-    setIsModalOpen(true); // Open the modal
-    setSelectedProviderId(id); // Optionally store the ID for further use
+const openModalAssignProvider = (id, name) => {
+  setIsModalOpen(true); // Open the modal
+  setSelectedProviderId(id); // Set the selected provider ID
+  // setSelectedAssignProvider(`${id}|${name}`); // Set the selected provider as `id|name`
 };
+
 console.log("nnnnnnnnn",selectedProviderId);
-// setSelectedProviderId
-// const [selectedProviderId, setSelectedProviderId] = useState(null);
 
 
+  console.log("cxxxx",selectedAssignProvider);
+
+  useEffect(() => {
+    console.log("Updated start date:", assignProviderStartDate); // Log the updated start date for debugging
+  }, [assignProviderStartDate]);
   return (
 <div>
     <ToastContainer />
@@ -412,6 +436,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                     labelId="provider-select-label"
                     id="provider-select"
                     value={selectedAssignProvider}
+                    
                     onChange={(e) => {
                       const [id, name] = e.target.value.split('|'); // Split the concatenated value
                       setSelectedAssignProvider(e.target.value);   // Update the full `id|name` in state
@@ -524,6 +549,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                     selected={assignProviderStartDate}
                     onChange={(date) => setAssignProviderStartDate(date)}
                     placeholdertext="Select a start date"
+                    className="datepicker_Date_of_assignProvider" 
                   />
                 </div>
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
@@ -531,6 +557,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                     selected={assignProviderEndDate}
                     onChange={(date) => setAssignProviderEndDate(date)}
                     placeholdertext="Select an end date"
+                    className="datepicker_Date_of_assignProvider" 
                   />
                 </div>
               </div>
@@ -601,6 +628,7 @@ console.log("nnnnnnnnn",selectedProviderId);
                       const [id, name] = e.target.value.split('|'); // Split the concatenated value
                       setSelectedAssignProvider(e.target.value);   // Update the full `id|name` in state
                       setSelectedProviderId(id);                   // Store the provider ID
+                      
                     }}
                     
                 >
@@ -706,17 +734,22 @@ console.log("nnnnnnnnn",selectedProviderId);
   
               <div className="col-12 lctDropdown">
                 <div className="col-6" style={{ paddingRight: "4px" }}>
-                  <DatePicker
-                    selected={assignProviderStartDate}
-                    onChange={(date) => setAssignProviderStartDate(date)}
-                    placeholdertext="Select a start date"
-                  />
+                <DatePicker
+                  selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null} // Show date from DB or null if empty
+                  onChange={(date) => {
+                    console.log("Selected Date:", date);
+                    setAssignProviderStartDate(format(date, "yyyy-MM-dd")); // Update the state when a new date is selected
+                  }}
+                  dateFormat="dd/MM/yyyy" 
+                  className="datepicker_Date_of_assignProvider" 
+                />
                 </div>
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
                   <DatePicker
                     selected={assignProviderEndDate}
                     onChange={(date) => setAssignProviderEndDate(date)}
                     placeholdertext="Select an end date"
+                    className="datepicker_Date_of_assignProvider" 
                   />
                 </div>
               </div>
