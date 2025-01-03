@@ -88,33 +88,20 @@ const Providers = () => {
 const [isOpen, setIsOpen] = useState(false);
 const [isModalOpen, setIsModalOpen] = useState(false);
 const handleOpenModal = () => setIsOpen(true);
-// const handleCloseModal = () => setIsOpen(false);
-// Define the function that handles the modal opening
 const ViewStudentModalClick = (id) => {
-  alert(id);
   setIsModalOpen(true); 
-  // Open the modal when this function is called
-  // setAssignofStudentData(data);
+ 
   StudentOfAssignedProviders(id);
 };
 const redirectToEditProviders = (id) => {
-  alert(id);
   navigate(`/EditProviders/${id}`);
-  // Open the modal when this function is called
-  // setAssignofStudentData(data);
-  // StudentOfAssignedProviders(id);
 };
 
-
-
-// Function to close the modal
 const handleCloseModal = () => {
   setIsModalOpen(false);
-  // setAssignofStudentData([]); 
 };
 // =============================
 const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
-// console.log("mmmmmmmm",ProviderDataAssignProvider);
 const StudentOfAssignedProviders = async (id) => {
   try {
     const response = await fetch(`api/FetchStudentOfAssignedProviders/${id}`, {
@@ -122,13 +109,12 @@ const StudentOfAssignedProviders = async (id) => {
     });
 
     if (!response.ok) {
-      // Handle non-JSON or error responses
       const errorText = await response.text();
       console.error("Error Response:", errorText);
       throw new Error(`Server Error: ${response.status}`);
     }
 
-    const data = await response.json(); // Parse JSON only if response is valid
+    const data = await response.json();
     console.log("API Response Provider Data:", data);
     setAssignofStudentData(data);
   } catch (error) {
@@ -138,7 +124,7 @@ const StudentOfAssignedProviders = async (id) => {
 };
 
 const handleStudentClick = (studentId) => {
-  navigate('/students'); // Adjust the path as per your route setup
+  navigate('/students');
 };
  
   // ===========Search Result====================
@@ -250,7 +236,7 @@ const handleStudentClick = (studentId) => {
               ))
             ) : (
               <tr>
-                <td colSpan="7">No providers available.</td>
+              <td colSpan="9" className="text-center">No Providers Available</td>
               </tr>
             )}
           </tbody>

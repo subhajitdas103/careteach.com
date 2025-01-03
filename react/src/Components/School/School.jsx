@@ -196,7 +196,7 @@ const School = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5">No schools found.</td>
+                <td colSpan="9" className="text-center">No schools found.</td>
               </tr>
             )}
           </tbody>

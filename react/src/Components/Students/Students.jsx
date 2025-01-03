@@ -215,7 +215,7 @@ const fetchStudentDetails = async () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7">No Students available.</td>
+                <td colSpan="9" className='text-center'>No Students available.</td>
               </tr>
             )}
           </tbody>

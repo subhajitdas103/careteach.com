@@ -39,7 +39,7 @@ const Dashboard = () => {
           <h3>
             <i className="fa fa-home fa-1x home-icon-dashbord"></i>Dashboard
           </h3>
-          <p>(Admin Portal)</p>
+          {/* <p>(Admin Portal)</p> */}
         </div>
 
         <DashboardCard
@@ -54,7 +54,7 @@ const Dashboard = () => {
           title="Billing"
           iconClass="fa-credit-card"
           onClick={() => {
-            alert("This feature is under ongoing work.");
+            alert("Under development.. ");
           // navigate("/Billing");
           }}
           style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
@@ -86,7 +86,7 @@ const Dashboard = () => {
           title="Calendar"
           iconClass="fa-calendar-alt"
           onClick={() => {
-            alert("This feature is under ongoing work.");
+            alert("Under development.. ");
             // Optionally, you can add a condition to prevent navigation
           }}
           style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
@@ -96,7 +96,7 @@ const Dashboard = () => {
           title="Holidays"
           iconClass="fa-glass-cheers"
           onClick={() => {
-            alert("This feature is under ongoing work.");
+            alert("Under development.. ");
           // navigate("/Holidays");
           }}
           style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance

@@ -421,7 +421,7 @@ setTimeout(() => {
           </div>
 
 
-  <div className="stu-pro-field-div">
+    <div className="stu-pro-field-div">
       <div className="col-md-6 student-profile-field">
           <label>Grades Approved for:</label>
           <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
@@ -457,21 +457,21 @@ setTimeout(() => {
       </div>
             
 
-            <div className="col-md-6 student-profile-field">
-              <FormControl>
-                <FormLabel id="license-exp-date-applicable">License Exp Date Applicable?</FormLabel>
-                <RadioGroup
-                  aria-labelledby="license-exp-date-applicable"
-                  name="controlled-radio-buttons-group"
-                  value={licenseExpDateApplicable}
-                  onChange={handleLicenseExpDateChange}
-                >
-                  <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                  <FormControlLabel value="No" control={<Radio />} label="No" />
-                </RadioGroup>
-              </FormControl>
-            </div>
+          <div className="col-md-6 student-profile-field">
+            <FormControl>
+              <FormLabel id="license-exp-date-applicable">License Exp Date Applicable?</FormLabel>
+              <RadioGroup
+                aria-labelledby="license-exp-date-applicable"
+                name="controlled-radio-buttons-group"
+                value={licenseExpDateApplicable}
+                onChange={handleLicenseExpDateChange}
+              >
+                <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                <FormControlLabel value="No" control={<Radio />} label="No" />
+              </RadioGroup>
+            </FormControl>
           </div>
+        </div>
 
         <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
@@ -486,41 +486,41 @@ setTimeout(() => {
             </div>
 
                
-        <div className="col-md-6 student-profile-field">
-          <label>Pet Status:</label>
-          <div className="dropdown">
-            <button
-              className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-              type="button"
-              id="dropdownMenuButton"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              {petStatus}
-            </button>
-            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handlePetStatusChange("Service A")}
-                >
-                  Service A
-                </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handlePetStatusChange("Service B")}
-                >
-                  Service B
-                </button>
-              </li>
-            </ul>
+          <div className="col-md-6 student-profile-field">
+            <label>Pet Status:</label>
+            <div className="dropdown">
+              <button
+                className="btn btn-secondary dropdown-toggle stu-pro-input-field"
+                type="button"
+                id="dropdownMenuButton"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {petStatus}
+              </button>
+              <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handlePetStatusChange("Service A")}
+                  >
+                    Service A
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handlePetStatusChange("Service B")}
+                  >
+                    Service B
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
         
-        <div className="stu-pro-field-div">
+            <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
                 <label>PETS Approval Date:</label>
                 <DatePicker
@@ -545,9 +545,9 @@ setTimeout(() => {
                     </RadioGroup>
                   </FormControl>
                 </div>
-        </div>
+            </div>
 
-            <div className="stu-pro-field-div">
+              <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field attachmentcss">
                     <label htmlFor="ssn-input">Social Security Number:</label>
                     <input
@@ -589,7 +589,7 @@ setTimeout(() => {
               </FormControl>
             </div>
           </div>
-      </div>
+     </div>
 
         <div>
               <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>

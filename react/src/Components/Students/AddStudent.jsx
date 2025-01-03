@@ -128,11 +128,7 @@ const removeService = (index) => {
       setLastName(event.target.value);
      
     };
-    const handleSchoolNameChange = (event) => {
-      setSchoolName(event.target.value);
-    
-    };
-
+   
     const handleHomeAddress = (event) => {
       setHomeaddress(event.target.value);
       
@@ -213,7 +209,11 @@ console.log(schools);
 };
     // ===================================================================
    
-  
+    const handleSchoolNameChange = (event) => {
+      setSchoolName(event.target.value);
+    
+    };
+
     const handleAddStudent   = async (event) => {
       console.log("handleAddStudent triggered");
       if (!first_name) {
@@ -246,8 +246,17 @@ console.log(schools);
     }else if (!parent_email) {
       toast.error('Please Enter Parent Email!');
       return;
+    }else if (!selectedSchool) {
+      toast.error('Please Choose School!');
+      return;
+    }else if (!parent_type) {
+      toast.error('Please Choose Parent Type!');
+      return;
+    }else if (!parent_phnumber) {
+      toast.error('Please Enter Phone Number!');
+      return;
     }
-
+    
     
       const formData = {
         first_name,
@@ -379,27 +388,96 @@ console.log(schools);
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleGradeChange("A")}>
-                      A
+                      onClick={() => handleGradeChange("K")}>
+                      K
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleGradeChange("AA")}>
-                      AA
+                      onClick={() => handleGradeChange("1")}>
+                      1
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleGradeChange("AB")}>
-                      AB
+                      onClick={() => handleGradeChange("2")}>
+                      2
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("3")}>
+                      3
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("4")}>
+                      4
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("5")}>
+                      5
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("6")}>
+                      6
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("7")}>
+                      7
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("8")}>
+                      8
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("9")}>
+                      9
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("10")}>
+                      10
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("11")}>
+                      11
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("12")}>
+                      12
                     </button>
                   </li>
                 </ul>
               </div>
-            
           </div>
       </div>
 
@@ -465,9 +543,6 @@ console.log(schools);
                 </ul>
               </div>
             </div>
-
-        
-
     
             <div className="col-md-6 student-profile-field widthcss">
                 <label>Classification Disability:</label>
@@ -484,24 +559,109 @@ console.log(schools);
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handelDisability("A")}>
-                      A
+                      onClick={() => handelDisability("Autism")}>
+                      Autism
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handelDisability("AA")}>
-                      AA
+                      onClick={() => handelDisability("Deafness")}>
+                      Deafness
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handelDisability("AB")}>
-                      AB
+                      onClick={() => handelDisability("Deaf-Blindness")}>
+                      Deaf-Blindness
                     </button>
                   </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Emotional-disturbance")}>
+                      Emotional-disturbance
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Hearring Impairment")}>
+                      Hearring Impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Intellectual disability")}>
+                      Intellectual disability
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Learning disability")}>
+                      Learning disability
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Multiple disabilities")}>
+                      Multiple disabilities
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Orthopedic impairment")}>
+                      Orthopedic impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Other health-impairment")}>
+                      Other health-impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Speech or language impairment")}>
+                      Speech or language impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Traumatic brain injury")}>
+                      Traumatic brain injury
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Visual impairment")}>
+                      Visual impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Preschool Student with a Disability")}>
+                      Preschool Student with a Disability
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Other")}>
+                      Other
+                    </button>
+                  </li>
+
                 </ul>
               </div>
             </div>
@@ -691,15 +851,50 @@ console.log(schools);
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "Service A")}>
-                            Service A
+                            onClick={() => handleServiceTypeChange(index, "SEIT")}>
+                            SEIT
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "Service B")}>
-                            Servive B
+                            onClick={() => handleServiceTypeChange(index, "SETSS")}>
+                            SETSS
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "PT")}>
+                            PT
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "OT")}>
+                            OT
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "SPEECH")}>
+                            SPEECH
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "HEALTH PARA")}>
+                            HEALTH PARA
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "COUNSELING")}>
+                            COUNSELING
                           </button>
                         </li>
                       </ul>

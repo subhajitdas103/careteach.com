@@ -51,7 +51,7 @@ const { id } = useParams();
     try {
       const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
       const data = await response.json();
-      console.log("API Response:", data); 
+      // console.log("API Response:", data); 
 
       if (data.studentDetails) setStudentDetails(data.studentDetails);
       if (data.Parents) setParentsDetails(data.Parents);
@@ -149,7 +149,7 @@ const { id } = useParams();
 
 // =================Edit Assign Provider=========================
 const [AssignEditID, setAssignID] = useState("");
-console.log("Log Id",AssignEditID)
+
 const AssignProviderEditID = selectedAssignProvider.split("|")[0];
 const handelAssignProviderDataEdit = async () => {
   console.log("handleAssignProvider triggered");
@@ -226,7 +226,7 @@ const fetchAssignedProviderDetails = async () => {
       const response = await fetch(`/api/FetchAssignedProviders/${id}`);
       const data = await response.json();
       setAssignedProviders(data);
-      console.log("API Response Assigned:", data);
+      // console.log("API Response Assigned:", data);
     } catch (error) {
       console.error('Error fetching provider details:', error);
     }
@@ -249,7 +249,7 @@ const fetchAssignedProviderDetails = async () => {
       try {
         const response = await fetch("/api/ViewProviders");
         const data = await response.json();
-        console.log("API Response Provider Data:", data);
+        // console.log("API Response Provider Data:", data);
         if (Array.isArray(data) && data.length > 0) {
           setProviderData(data);
         } else {
@@ -416,14 +416,14 @@ const openModalAssignProvider = (id, name) => {
                             style={{ backgroundColor: 'white', display: 'inline-block' }}
                             title="Edit Assigned Provider"
                             >
-                            <img src={editIcon} alt="Edit" style={{ width: '40px', marginRight: '5px' }} />
+                            <i className = "fa fa-edit fa-1x fa-icon-img" alt="Edit" style={{ width: '31px', marginRight: '2px' }} />
                             </button>
 
                             <button onClick={() => AssignedProviderDelete(provider.id)}
                             style={{ backgroundColor: 'white', display: 'inline-block' }}
                             title="Delete Assigned Provider"
                             >
-                            <img src={DeleteAssignProviderIcon} alt="Delete" style={{ width: '40px', marginRight: '5px' }} />
+                            <i className="fa fa-trash fa-1x fa-icon-img" alt="Delete" style={{ width: '33px', marginRight: '10px' }} />
                             </button>
                         </div>
                         </td>
@@ -431,7 +431,7 @@ const openModalAssignProvider = (id, name) => {
                     ))
                     ) : (
                     <tr>
-                    <td colSpan="9" className="text-center">No Providers Available</td>
+                    <td colSpan="9" className="text-center">No Service Available</td>
                     </tr>
                     )}
                 </tbody>
@@ -467,7 +467,7 @@ const openModalAssignProvider = (id, name) => {
                     }}
                     
                 >
-                    {ProviderDataAssignProvider.length > 0 ? (
+                    {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
                       ProviderDataAssignProvider.map((provider) => (
                         <MenuItem 
                           key={provider.id} 

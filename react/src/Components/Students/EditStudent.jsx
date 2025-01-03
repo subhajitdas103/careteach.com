@@ -502,25 +502,95 @@ useEffect(() => {
                       {grade || "Choose Grade"}
                     </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
+                <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleGradeChange("A")}>
-                      A
+                      onClick={() => handleGradeChange("K")}>
+                      K
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleGradeChange("AA")}>
-                      AA
+                      onClick={() => handleGradeChange("1")}>
+                      1
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleGradeChange("AB")}>
-                      AB
+                      onClick={() => handleGradeChange("2")}>
+                      2
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("3")}>
+                      3
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("4")}>
+                      4
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("5")}>
+                      5
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("6")}>
+                      6
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("7")}>
+                      7
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("8")}>
+                      8
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("9")}>
+                      9
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("10")}>
+                      10
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("11")}>
+                      11
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handleGradeChange("12")}>
+                      12
                     </button>
                   </li>
                 </ul>
@@ -606,25 +676,109 @@ useEffect(() => {
                       {disability || "Choose"}
                     </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
+                <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handelDisability("A")}>
-                      A
+                      onClick={() => handelDisability("Autism")}>
+                      Autism
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handelDisability("AA")}>
-                      AA
+                      onClick={() => handelDisability("Deafness")}>
+                      Deafness
                     </button>
                   </li>
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handelDisability("AB")}>
-                      AB
+                      onClick={() => handelDisability("Deaf-Blindness")}>
+                      Deaf-Blindness
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Emotional-disturbance")}>
+                      Emotional-disturbance
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Hearring Impairment")}>
+                      Hearring Impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Intellectual disability")}>
+                      Intellectual disability
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Learning disability")}>
+                      Learning disability
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Multiple disabilities")}>
+                      Multiple disabilities
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Orthopedic impairment")}>
+                      Orthopedic impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Other health-impairment")}>
+                      Other health-impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Speech or language impairment")}>
+                      Speech or language impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Traumatic brain injury")}>
+                      Traumatic brain injury
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Visual impairment")}>
+                      Visual impairment
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Preschool Student with a Disability")}>
+                      Preschool Student with a Disability
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handelDisability("Other")}>
+                      Other
                     </button>
                   </li>
                 </ul>
@@ -817,37 +971,69 @@ useEffect(() => {
                         {formData.service_type || "Choose Service Type"}
                       </button>
                       <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li>
+                      <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "Service A")}>
-                            Service A
+                            onClick={() => handleServiceTypeChange(index, "SEIT")}>
+                            SEIT
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "Service B")}>
-                            Servive B
+                            onClick={() => handleServiceTypeChange(index, "SETSS")}>
+                            SETSS
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "PT")}>
+                            PT
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "OT")}>
+                            OT
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "SPEECH")}>
+                            SPEECH
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "HEALTH PARA")}>
+                            HEALTH PARA
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleServiceTypeChange(index, "COUNSELING")}>
+                            COUNSELING
                           </button>
                         </li>
                       </ul>
                     </div>
                   </div>
 
-                    <div className="col-md-6 student-profile-field widthcss">
-                        <label>Start Date:</label>
-                        <DatePicker
-                            className=""
-                            value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
-                            placeholder="Enter Start Date"
-                            onChange={(value) => handleInputChange(index, 'startDate', value)}  // Handle Date object change
-                            style={{ width: '100%' }}  // Optional: Set width to match the input field's size
-                        />
-                    </div>
-
-
-
+                  <div className="col-md-6 student-profile-field widthcss">
+                      <label>Start Date:</label>
+                      <DatePicker
+                          className=""
+                          value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
+                          placeholder="Enter Start Date"
+                          onChange={(value) => handleInputChange(index, 'startDate', value)}  // Handle Date object change
+                          style={{ width: '100%' }}  // Optional: Set width to match the input field's size
+                      />
+                  </div>
                   {/* -------Delete Button of services----------- */}
                   
                 {/* ----End---Delete Button of services----------- */}
