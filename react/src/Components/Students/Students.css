@@ -616,10 +616,7 @@ z
     border: 1px solid #4979a0 !important;
 }
 
-.student-name:hover {
-    text-decoration: underline;
-    cursor: pointer;
-}
+
 
 .status-area{
     display: flex;
