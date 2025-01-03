@@ -89,11 +89,11 @@ const ProviderForm = () => {
 
 const handleCompanyNameChange = (e) => {
   const value = e.target.value;
-  setCompanyName(value); // Update the company name state
+  setCompanyName(value);
 };
 
 const handleFormChange = (e) => {
-  setForm(e.target.value); // Update the selected form value (F1 or F2)
+  setForm(e.target.value);
 };
 
 const handleGradeChange = (event) => {
