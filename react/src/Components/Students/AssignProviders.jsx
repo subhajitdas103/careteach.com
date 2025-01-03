@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"; 
 import { Modal, Button } from "react-bootstrap";
-import axios from "axios"; // Axios for making HTTP requests
+import axios from "axios";
 import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Import useParams
 import editIcon from '../../Assets/edit-info.png';
@@ -12,28 +12,16 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns"; 
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
-// import { DatePicker } from '@nextui-org/react';
 
-// import { DatePicker } from "antd";
-// import DatePicker from 'react-multi-date-picker';
-
-
-// import 'antd/dist/antd.css'; 
 
 import "react-datepicker/dist/react-datepicker.css"; 
 const AssignProviders = () => {
-    const { id } = useParams();
-    
-//   const [selectedStudentId, setSelectedStudentId] = useState(null);
+const { id } = useParams();
 
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  
   const [studentDetails, setStudentDetails] = useState(null);
   const [StudentServices, setStudentServices] = useState([]);
   const [parentsDetails, setParentsDetails] = useState(null);
-
   const [selectedAssignProvider, setSelectedAssignProvider] = useState("");
-
   const [inputRateAssignProvider, setInputRateAssignProvider] = useState("");
   const [selectedAssignProviderLocation, setSelectedAssignProviderLocation] = useState("");
   const [selectedAssignProviderService, setSelectedAssignProviderService] = useState("");
@@ -56,12 +44,10 @@ const AssignProviders = () => {
 // After Modal close of Assign provider , Reset all data in modal
 
 
-  
 //   -------------------Fetch Student Details -----------------
 
   const fetchStudentDetails = async () => {
-   
-    // if (!selectedStudentId) return;
+
     try {
       const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
       const data = await response.json();
@@ -82,8 +68,7 @@ const AssignProviders = () => {
 //   ----------------Saved Assign Provider Data-----------------------
 
   const handelAssignProviderData = async () => {
-    console.log("handleAssignProvider triggered");
-  // Process the selectedAssignProvider to extract the first name
+  console.log("handleAssignProvider triggered");
   const [providerId, full_name] = selectedAssignProvider.split('|');
 
   const FormatassignProviderStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toISOString().split('T')[0] : null;
@@ -122,9 +107,6 @@ const AssignProviders = () => {
   toast.error('Please Select a End Date!');
   return;
   }
-  
-
-
     const formData = {
       id,
       selectedProviderId,
@@ -138,9 +120,7 @@ const AssignProviders = () => {
       assignProviderEndDate : FormatassignProviderEndDate ,
       
     };
-
     console.log('Form data of assign Provider Modal:', formData);
-
     try {
       const response = await axios.post('/api/AssignProvider', JSON.stringify(formData), {
         headers: {
@@ -149,9 +129,7 @@ const AssignProviders = () => {
       });
      
       fetchAssignedProviderDetails();
-     
       setIsModalOpen(false);
-    
       setTimeout(() => {
         toast.success("Provider assigned successfully", {
           position: "top-right",
@@ -167,6 +145,8 @@ const AssignProviders = () => {
       console.error('There was an error sending data:', error.response?.data || error.message);
     }
   };
+
+
 // =================Edit Assign Provider=========================
 const [AssignEditID, setAssignID] = useState("");
 console.log("Log Id",AssignEditID)
@@ -241,14 +221,11 @@ const handelAssignProviderDataEdit = async () => {
 //-----------Start-----------Fetch  AssgniedProvider data------------
 const [assignedProviders, setAssignedProviders] = useState([]);
 const [AssignProviderID, setAssignProviderID] = useState(null);
-const [selectedProviderName, setSelectedProviderName] = useState('');
-// console.log("frtgrhyuj",AssignProviderID);
 const fetchAssignedProviderDetails = async () => {
     try {
       const response = await fetch(`/api/FetchAssignedProviders/${id}`);
       const data = await response.json();
-      setAssignedProviders(data); // Store the response in state
-      // setAssignProviderID(data[0].id);
+      setAssignedProviders(data);
       console.log("API Response Assigned:", data);
     } catch (error) {
       console.error('Error fetching provider details:', error);
@@ -273,10 +250,8 @@ const fetchAssignedProviderDetails = async () => {
         const response = await fetch("/api/ViewProviders");
         const data = await response.json();
         console.log("API Response Provider Data:", data);
-    
-        // Directly check if 'data' is an array and has content
         if (Array.isArray(data) && data.length > 0) {
-          setProviderData(data);  // Set the fetched data to the state
+          setProviderData(data);
         } else {
           console.log("No providerData in response.");
         }
@@ -284,24 +259,23 @@ const fetchAssignedProviderDetails = async () => {
         console.error("Error fetching provider data:", error);
       }
     };
-    
     useEffect(() => {
       fetchProviderData();
     }, []);
   //   -----------End------------------Fetch Provider data--------------------------------------
 
-// ==============Back Button============
-const navigate = useNavigate();
- const backToStudent = () => {
-     navigate('/students');
-   };
+    // ==============Back Button============
+    const navigate = useNavigate();
+    const backToStudent = () => {
+        navigate('/students');
+      };
 
 
    const [show, setShow] = useState(false);
    const [selectedStudent, setSelectedStudent] = useState("");
 
    const AssignedProviderDelete = (id) => {
-    setSelectedStudent(id); // You can also set more data about the student if needed
+    setSelectedStudent(id);
     setShow(true); // Opens the modal
     console.log("xxxxxxxx",id);
   };
@@ -311,6 +285,7 @@ const navigate = useNavigate();
   const handleClose = () => {
     setShow(false);  // Closes the modal
   };
+
 // ==========Delete Assigned Providers================
 
 const DeleteAssignBTN = () => {
@@ -318,20 +293,20 @@ const DeleteAssignBTN = () => {
 
   axios.delete(`/api/DeleteAssignedProviders/${selectedStudent}`)
     .then((response) => {
-      console.log('Provider deleted successfully:', response.data); // Log the actual response data
+      console.log('Provider deleted successfully:', response.data);
       fetchAssignedProviderDetails();
       setShow(false);
+      toast.success("Service successfully Deleted!", {
+                  position: "top-right", 
+                  autoClose: 5000,
+                });
     })
     .catch((error) => {
       if (error.response) {
-        // Server responded with a status other than 2xx
         console.error('Error deleting provider (response):', error.response);
-       
       } else if (error.request) {
-        // Request was made but no response was received
         console.error('Error deleting provider (request):', error.request);
       } else {
-        // Something else happened in setting up the request
         console.error('Error deleting provider (message):', error.message);
       }
     });
@@ -340,7 +315,6 @@ const DeleteAssignBTN = () => {
 
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [isModalOpenofEditAssignProvider, setIsModalOpenofAssignProvider] = useState(false);
-// const openModal = () => setIsModalOpen(true);
 const openModal = () => {
   setIsModalOpen(true);   // Open the modal
   resetFormData();        // Reset all the form data
@@ -353,30 +327,22 @@ const closeModal = () => {
 };
 
 // =====================Edit of Assign Provider Modal==============================
-// console.log("cccccccccc",assignedProviders);
-// const AssignedProviderEdit = (id) => {
-//   alert(id);
-//   setIsModalOpenofAssignProvider(true)
-      // console.log("xxxxxxxx",id);
-//     };
+
     const closeModalofAssignProvider = () => {
       setIsModalOpenofAssignProvider(false);
       resetFormData();
     };
     
     const AssignedProviderEdit = (id) => {
-      
-      // Find the provider details by ID
+ 
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
     // console.log("uegf",providerDetails.service_type);
       if (providerDetails) {
 
        setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
        setAssignID(providerDetails.id);
-
         setInputRateAssignProvider(providerDetails.provider_rate);
         setSelectedAssignProviderLocation(providerDetails.location);
-        // Set the formatted dates
         setSelectedAssignProviderService(providerDetails.service_type);
         setAssignProviderStartDate(providerDetails.start_date);
         setAssignProviderEndDate(providerDetails.end_date);
@@ -388,28 +354,19 @@ const closeModal = () => {
         alert("Provider details not found!");
       }
     };
-    // console.log("strat date",assignProviderStartDate);
     
 // ==================================================
 
 const [selectedProviderId, setSelectedProviderId] = useState(null);
-// console.log("ccccccc",selectedProviderId);
 const openModalAssignProvider = (id, name) => {
   setIsModalOpen(true); // Open the modal
   setSelectedProviderId(id); // Set the selected provider ID
-  // setSelectedAssignProvider(`${id}|${name}`); // Set the selected provider as `id|name`
-  // console.log("vvv",selectedProviderId);
   resetFormData();
 };
-
-// console.log("nnnnnnnnn",selectedProviderId);
-
-
-  // console.log("cxxxx",selectedAssignProvider);
-
   useEffect(() => {
-    // console.log("Updated start date:", assignProviderStartDate); // Log the updated start date for debugging
   }, [assignProviderStartDate]);
+
+
   return (
 <div>
     <ToastContainer />
@@ -420,7 +377,6 @@ const openModalAssignProvider = (id, name) => {
             <div onClick={backToStudent}>
                 <i className="fa fa-backward fc-back-icon" aria-hidden="true" id="back_student_click"></i>
             </div>
-         
         </div>
       </div>
       <div className="add-student-btn" onClick={() => openModalAssignProvider(id)}>
@@ -700,8 +656,7 @@ const openModalAssignProvider = (id, name) => {
                       setSelectedAssignProvider(e.target.value);   // Update the full `id|name` in state
                       setSelectedProviderId(id);                   // Store the provider ID
                       
-                    }}
-                    
+                    }}  
                 >
                     {ProviderDataAssignProvider.length > 0 ? (
                       ProviderDataAssignProvider.map((provider) => (
@@ -713,8 +668,6 @@ const openModalAssignProvider = (id, name) => {
                           {provider.provider_first_name} {provider.provider_last_name}
                         </MenuItem>
                       ))
-
-                  
                     ) : (
                     <MenuItem disabled>No Providers Available</MenuItem>
                     )}
@@ -806,10 +759,10 @@ const openModalAssignProvider = (id, name) => {
               <div className="col-12 lctDropdown">
                 <div className="col-6" style={{ paddingRight: "4px" }}>
                 <DatePicker
-                  selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null} // Show date from DB or null if empty
+                  selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null}
                   onChange={(date) => {
                     // console.log("Selected Date:", date);
-                    setAssignProviderStartDate(format(date, "yyyy-MM-dd")); // Update the state when a new date is selected
+                    setAssignProviderStartDate(format(date, "yyyy-MM-dd"));
                   }}
                   dateFormat="dd/MM/yyyy" 
                   className="datepicker_Date_of_assignProvider" 
