@@ -23,6 +23,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css"; 
 const AssignProviders = () => {
     const { id } = useParams();
+    
 //   const [selectedStudentId, setSelectedStudentId] = useState(null);
 
   // const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,8 +33,7 @@ const AssignProviders = () => {
   const [parentsDetails, setParentsDetails] = useState(null);
 
   const [selectedAssignProvider, setSelectedAssignProvider] = useState("");
-  
- 
+
   const [inputRateAssignProvider, setInputRateAssignProvider] = useState("");
   const [selectedAssignProviderLocation, setSelectedAssignProviderLocation] = useState("");
   const [selectedAssignProviderService, setSelectedAssignProviderService] = useState("");
@@ -167,7 +167,74 @@ const AssignProviders = () => {
       console.error('There was an error sending data:', error.response?.data || error.message);
     }
   };
+// =================Edit Assign Provider=========================
+const [AssignEditID, setAssignID] = useState("");
+console.log("Log Id",AssignEditID)
+const AssignProviderEditID = selectedAssignProvider.split("|")[0];
+const handelAssignProviderDataEdit = async () => {
+  console.log("handleAssignProvider triggered");
 
+  if (!selectedAssignProvider) {
+    toast.error("Please Select a Provider!");
+    return;
+  }
+
+  const [providerId, full_name] = selectedAssignProvider.split('|');
+  const formattedStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toISOString().split('T')[0] : null;
+  const formattedEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toISOString().split('T')[0] : null;
+
+  const requiredFields = [
+    { value: inputRateAssignProvider, message: 'Please Enter Rate!' },
+    { value: selectedAssignProviderService, message: 'Please Select a Service!' },
+    { value: selectedAssignProviderLocation, message: 'Please Select a Location!' },
+    { value: inputWklyHoursAssignProvider, message: 'Please Enter Weekly Hours!' },
+    { value: inputYearlyHoursAssignProvider, message: 'Please Enter Yearly Hours!' },
+    { value: assignProviderStartDate, message: 'Please Select a Start Date!' },
+    { value: assignProviderEndDate, message: 'Please Select an End Date!' },
+  ];
+
+  for (const field of requiredFields) {
+    if (!field.value) {
+      toast.error(field.message);
+      return;
+    }
+  }
+
+  const formData = {
+    id,
+    providerId,
+    full_name,
+    inputRateAssignProvider,
+    selectedAssignProviderLocation,
+    selectedAssignProviderService,
+    inputWklyHoursAssignProvider,
+    inputYearlyHoursAssignProvider,
+    assignProviderStartDate: formattedStartDate,
+    assignProviderEndDate: formattedEndDate,
+  };
+
+  console.log('Form data of assign Provider Modal:', formData);
+
+  try {
+    const response = await axios.post(
+      `/api/UpdateAssignProvider/${AssignEditID}`,
+      formData,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    fetchAssignedProviderDetails();
+    setIsModalOpenofAssignProvider(false);
+
+    setTimeout(() => {
+      toast.success("Assigned provider update successfully", { position: "top-right", autoClose: 5000 });
+    }, 500);
+
+    console.log('Data sent successfully:', response.data);
+  } catch (error) {
+    toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
+    console.error('Error during API call:', error.response?.data || error.message);
+  }
+};
 
 //   =================Modal Open==================
 
@@ -175,12 +242,13 @@ const AssignProviders = () => {
 const [assignedProviders, setAssignedProviders] = useState([]);
 const [AssignProviderID, setAssignProviderID] = useState(null);
 const [selectedProviderName, setSelectedProviderName] = useState('');
-
+// console.log("frtgrhyuj",AssignProviderID);
 const fetchAssignedProviderDetails = async () => {
     try {
       const response = await fetch(`/api/FetchAssignedProviders/${id}`);
       const data = await response.json();
       setAssignedProviders(data); // Store the response in state
+      // setAssignProviderID(data[0].id);
       console.log("API Response Assigned:", data);
     } catch (error) {
       console.error('Error fetching provider details:', error);
@@ -235,7 +303,7 @@ const navigate = useNavigate();
    const AssignedProviderDelete = (id) => {
     setSelectedStudent(id); // You can also set more data about the student if needed
     setShow(true); // Opens the modal
-    // console.log("xxxxxxxx",id);
+    console.log("xxxxxxxx",id);
   };
 
  
@@ -304,6 +372,7 @@ const closeModal = () => {
       if (providerDetails) {
 
        setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
+       setAssignID(providerDetails.id);
 
         setInputRateAssignProvider(providerDetails.provider_rate);
         setSelectedAssignProviderLocation(providerDetails.location);
@@ -324,11 +393,12 @@ const closeModal = () => {
 // ==================================================
 
 const [selectedProviderId, setSelectedProviderId] = useState(null);
-
+// console.log("ccccccc",selectedProviderId);
 const openModalAssignProvider = (id, name) => {
   setIsModalOpen(true); // Open the modal
   setSelectedProviderId(id); // Set the selected provider ID
   // setSelectedAssignProvider(`${id}|${name}`); // Set the selected provider as `id|name`
+  // console.log("vvv",selectedProviderId);
   resetFormData();
 };
 
@@ -610,7 +680,7 @@ const openModalAssignProvider = (id, name) => {
           
         <Modal.Dialog>
           <Modal.Header closeButton onClick={closeModalofAssignProvider}>
-            <Modal.Title>Assign Provider</Modal.Title>
+            <Modal.Title>Edit of Assign Provider</Modal.Title>
           </Modal.Header>
   
           <Modal.Body>
@@ -761,7 +831,7 @@ const openModalAssignProvider = (id, name) => {
             <Button variant="secondary" onClick={closeModalofAssignProvider}>
               Close
             </Button>
-            <Button variant="primary" onClick={handelAssignProviderData}>
+            <Button variant="primary" onClick={handelAssignProviderDataEdit}>
               Save changes
             </Button>
           </Modal.Footer>

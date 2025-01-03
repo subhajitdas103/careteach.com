@@ -292,7 +292,67 @@ public function searchProvider(Request $request)
         ->get();
     return response()->json($Providers);
 }
+
+
+
+
+
+public function updateAssignProvider(Request $request, $id)
+{
+    // Validate the incoming request
+    $validatedData = $request->validate([
+        'providerId' => 'required',
+        'full_name' => 'required|string|max:255',
+        'inputRateAssignProvider' => 'required|numeric',
+        'selectedAssignProviderLocation' => 'required|string',
+        'selectedAssignProviderService' => 'required|string',
+        'inputWklyHoursAssignProvider' => 'required|numeric',
+        'inputYearlyHoursAssignProvider' => 'required|numeric',
+        'assignProviderStartDate' => 'required|date',
+        'assignProviderEndDate' => 'required|date',
+        'id' => 'required|integer',
+    ]);
+
+    // Prepare the data for update
+    $updateData = [
+        'provider_id' => $validatedData['providerId'],
+        'provider_name' => $validatedData['full_name'],
+        'provider_rate' => $validatedData['inputRateAssignProvider'],
+        'location' => $validatedData['selectedAssignProviderLocation'],
+        'service_type' => $validatedData['selectedAssignProviderService'],
+        'wkly_hours' => $validatedData['inputWklyHoursAssignProvider'],
+        'yearly_hours' => $validatedData['inputYearlyHoursAssignProvider'],
+        'start_date' => $validatedData['assignProviderStartDate'],
+        'end_date' => $validatedData['assignProviderEndDate'],
+        'student_id' => $validatedData['id'],
+    ];
+
+    try {
+        // Log the data for debugging
+        \Log::info('Assign Provider Update Data:', $updateData);
+
+        // Find the record and update it
+        $provider = AssignProviderModel::findOrFail($id);
+        $isUpdated = $provider->update($updateData);
+        
+        // Log the update status
+        \Log::info('Update Status:', [$isUpdated]);
+
+        if (!$isUpdated) {
+            return response()->json(['error' => 'Failed to update the provider.'], 500);
+        }
+
+        return response()->json(['message' => 'Assign Provider updated successfully.'], 200);
+    } catch (Exception $e) {
+        return response()->json(['error' => 'An error occurred while updating the provider.', 'details' => $e->getMessage()], 500);
     }
+}
+
+
+}
+
+
+  
     
 
     
