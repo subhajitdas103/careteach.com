@@ -102,6 +102,7 @@ const handleCloseModal = () => {
 };
 // =============================
 const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
+
 const StudentOfAssignedProviders = async (id) => {
   try {
     const response = await fetch(`api/FetchStudentOfAssignedProviders/${id}`, {
