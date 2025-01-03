@@ -61,26 +61,20 @@ const School = () => {
     navigate('/Dashboard');
   };
 
-  // const handleSearchSchoolChange = (e) => {
-  //   setSearchQuery(e.target.value); // Update search query state
-  // };
 
 
   const editSchool =(id) =>{
-    alert(id);
-    // navigate('/EditSchool');
+
     navigate(`/EditSchool/${id}`);
   }
   const handleShow = (id) => {
     setShow(true);
     setIDSchool(id);
-    // alert(id);
   };
   const handleClose = () => {
     setShow(false);
    
   };
-// alert(IDSchool);
   // =========Start==========Delete School ====================
   const confirmDeleteSchool = () => {
    
@@ -88,18 +82,16 @@ const School = () => {
       axios
         .delete(`/api/DeleteSchool/${IDSchool}`)
         .then(() => {
-          setShow(false); // Hides the modal or updates the state
+          setShow(false);
           console.log('School deleted successfully');
            toast.success("School successfully Deleted!", {
                       position: "top-right", 
                       autoClose: 5000,
                     });
-          // Optionally refresh the list or update the state
           fetchSchoolDetails();
         })
         .catch((error) => {
           console.error('Error deleting school:', error);
-          // Show an error notification or message to the user
         });
     
   };
@@ -111,7 +103,7 @@ const School = () => {
        event.preventDefault();
        try {
            const response = await axios.get(`/api/searchschool?query=${searchQuery}`);
-           setSchools(response.data); // Update the student list with the search results
+           setSchools(response.data);
        } catch (error) {
            console.error('Error fetching by Search:', error);
        }
