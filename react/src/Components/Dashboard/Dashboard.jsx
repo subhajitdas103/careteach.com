@@ -54,9 +54,10 @@ const Dashboard = () => {
           title="Billing"
           iconClass="fa-credit-card"
           onClick={() => {
-          console.log("Navigating to /students");
-          navigate("/Billing");
+            alert("This feature is under ongoing work.");
+          // navigate("/Billing");
           }}
+          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
         />
         <DashboardCard
           title="Providers"
@@ -73,20 +74,32 @@ const Dashboard = () => {
           navigate("/School");
           }}
         />
-        <DashboardCard
+        {/* <DashboardCard
           title="Calendar"
           iconClass="fa-calendar-alt"
           onClick={() => {
           navigate("/Calendar");
           }}
+        /> */}
+
+        <DashboardCard
+          title="Calendar"
+          iconClass="fa-calendar-alt"
+          onClick={() => {
+            alert("This feature is under ongoing work.");
+            // Optionally, you can add a condition to prevent navigation
+          }}
+          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
         />
-        
+
         <DashboardCard
           title="Holidays"
           iconClass="fa-glass-cheers"
           onClick={() => {
-          navigate("/Holidays");
+            alert("This feature is under ongoing work.");
+          // navigate("/Holidays");
           }}
+          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
         />
        
       </div>
