@@ -4,6 +4,7 @@ import "./style.css";
 import logo from "../../Assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate , Link } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -144,9 +145,8 @@ const Login = () => {
               {error && <p className="text-danger">{error}</p>}
               {success && <p className="text-success">{success}</p>}
               {loading && (
-                <div className="spinner-border text-primary" role="status">
-                  <span className="sr-only">Loading...</span>
-                </div>
+               
+               <BeatLoader color="#2673da" />
               )}
               <button
                 className="w-100 btn btn-lg log-in-btn"
