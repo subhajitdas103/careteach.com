@@ -8,59 +8,62 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
 
+  // Token validation function
+  const isTokenValid = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch (error) {
+      return false;
+    }
+  };
+
+  // Check if the token is valid and navigate to dashboard if valid
   useEffect(() => {
-    // Check if the user is logged in by calling the backend API
-    axios
-      .get("/api/user", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Pass the stored token
-        },
-        withCredentials: true, // Include credentials for session-based auth (if necessary)
-      })
-      .then((response) => {
-        console.log("User session data:", response); // Logging user session data
-        // If the user is authenticated, redirect to the dashboard
-        navigate("/dashboard");
-      })
-      .catch((error) => {
-        console.error("Error checking session:", error); // Log error if any
-        // If not authenticated, stay on the login page
-      });
+    const token = sessionStorage.getItem("authToken");
+    if (token && isTokenValid(token)) {
+      navigate("/dashboard");
+    } else {
+      sessionStorage.removeItem("authToken");
+    }
   }, [navigate]);
-  
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
+  // Handle the login process
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous errors
-    setSuccess(""); // Clear success message
-    setLoading(true); // Set loading to true
+    setError("");
+    setSuccess("");
+    setLoading(true);
 
     try {
       const response = await axios.post(
-        "/api/login",
+        `/api/login`, // API endpoint
         { email, password },
-        { withCredentials: true } // Send credentials to maintain session
+        { withCredentials: true }
       );
 
       if (response.data.status === "success") {
+        const token = response.data.token;
+        console.log("Received token:", token);
+
+        sessionStorage.setItem("authToken", token);
+
         setSuccess("Login successful!");
-        localStorage.setItem("authToken", response.data.token);  // Store token in localStorage
-        navigate("/dashboard");  // Redirect to dashboard
+        navigate("/Dashboard");
       } else {
-        setError(response.data.message || "Login failed. Try again.");
+        setError(response.data.message || "Login failed. Please try again.");
       }
-      
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred. Please try again.");
       setSuccess("");
     } finally {
-      setLoading(false); // Set loading to false after the request is completed
+      setLoading(false);
     }
   };
 
@@ -68,18 +71,14 @@ const Login = () => {
     <div className="login_body">
       <main className="form-signin w-100 m-auto">
         <div className="col-md-12 d-flex log-in-area">
-          {/* Left Section */}
           <div className="col-md-6">
             <img className="Klogo-image" src={logo} alt="Logo" />
             <h2 className="text-under">Care Teach</h2>
           </div>
-
-          {/* Right Section */}
           <div className="col-md-6 user-loginarea">
             <form onSubmit={handleLogin}>
               <h1 className="h3 mb-3 fw-normal">User login</h1>
               <p>Hey, enter your details to login</p>
-              {/* Email Input */}
               <div className="mb-3">
                 <input
                   type="email"
@@ -94,7 +93,6 @@ const Login = () => {
                   Email address
                 </label>
               </div>
-              {/* Password Input */}
               <div className="mb-3">
                 <input
                   type="password"
@@ -109,18 +107,15 @@ const Login = () => {
                   Password
                 </label>
               </div>
-              {/* Error or Success Messages */}
               {error && <p className="text-danger">{error}</p>}
               {success && <p className="text-success">{success}</p>}
-              {/* Loading Spinner */}
               {loading && (
                 <div className="spinner-border text-primary" role="status">
                   <span className="sr-only">Loading...</span>
                 </div>
               )}
-              {/* Login Button */}
               <button className="w-100 btn btn-lg log-in-btn" type="submit" disabled={loading}>
-                {loading ? "Logging in..." : "Login"} {/* Change button text when loading */}
+                {loading ? "Logging in..." : "Login"}
               </button>
             </form>
           </div>
