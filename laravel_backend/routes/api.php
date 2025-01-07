@@ -45,3 +45,5 @@ Route::get('/searchproviders', [ProviderController::class, 'searchProvider']);
 Route::get('/searchschool', [SchoolController::class, 'SearchSchool']);
 Route::post('/EditStudent/{id}', [StudentController::class,'editstudent']);
 Route::get('/FetchSchoolDataBYID/{id}',[SchoolController::class,'FetchSchoolDataBYID']);
+
+

@@ -17,12 +17,12 @@ import AddProviders from "./Components/Providers/AddProviders";
 import EditProviders from "./Components/Providers/EditProviders";
 import AddSchool from "./Components/School/AddSchool";
 import AssignProviders from "./Components/Students/AssignProviders";
-// import Students from "./Components/School/AddSchool";
+import ProtectedRoute from './Components/ProtectedRoute';  // Adjust path if needed
+
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-
 // Higher-Order Component to wrap routes with Navbar
-const WithNavbar = ({ component: Component }) => (
+const WithNavbar = ({ Component }) => (
   <>
     <Navbar />
     <Component />
@@ -35,24 +35,69 @@ const App = () => {
       <Routes>
         {/* Route for Login */}
         <Route path="/" element={<Login />} />
-      
-        {/* Routes for pages that include Navbar */}
-        <Route path="/Dashboard" element={<WithNavbar component={Dashboard} />} />
-        <Route path="/Students" element={<WithNavbar component={Students} />} />
-        <Route path="/Billing" element={<WithNavbar component={Billing} />} />
-        <Route path="/Providers" element={<WithNavbar component={Providers} />} />
-        <Route path="/School" element={<WithNavbar component={School} />} />
-        <Route path="/Holidays" element={<WithNavbar component={Holidays} />} />
-        <Route path="/AddHoliday" element={<WithNavbar component={AddHoliday} />} />
-        <Route path="/Calendar" element={<WithNavbar component={Calendar} />} />
-        <Route path="/AddProviders" element={<WithNavbar component={AddProviders} />} />
-        <Route path="/EditProviders/:ProviderID" element={<WithNavbar component={EditProviders} />} />
+
+        {/* Routes for pages that require authentication */}
+        <Route 
+          path="/Dashboard" 
+          element={<ProtectedRoute><WithNavbar Component={Dashboard} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/Students" 
+          element={<WithNavbar Component={Students} />} 
+        />
+        <Route 
+          path="/Billing" 
+          element={<WithNavbar Component={Billing} />} 
+        />
+        <Route 
+          path="/Providers" 
+          element={<WithNavbar Component={Providers} />} 
+        />
+        <Route 
+          path="/School" 
+          element={<WithNavbar Component={School} />} 
+        />
+        <Route 
+          path="/Holidays" 
+          element={<WithNavbar Component={Holidays} />} 
+        />
+        <Route 
+          path="/AddHoliday" 
+          element={<WithNavbar Component={AddHoliday} />} 
+        />
+        <Route 
+          path="/Calendar" 
+          element={<WithNavbar Component={Calendar} />} 
+        />
+        <Route 
+          path="/AddProviders" 
+          element={<WithNavbar Component={AddProviders} />} 
+        />
+        <Route 
+          path="/EditProviders/:ProviderID" 
+          element={<WithNavbar Component={EditProviders} />} 
+        />
         
-        <Route path="/AddSchool" element={<WithNavbar component={AddSchool} />} />
-        <Route path="/AddStudent" element={<WithNavbar component={AddStudent} />} />
-        <Route path="/EditStudent/:id" element={<WithNavbar component={EditStudent} />} />
-        <Route path="/AssignProviders/:id" element={<WithNavbar component={AssignProviders} />} />
-        <Route path="/EditSchool/:SchoolID" element={<WithNavbar component={EditSchool} />} />
+        <Route 
+          path="/AddSchool" 
+          element={<WithNavbar Component={AddSchool} />} 
+        />
+        <Route 
+          path="/AddStudent" 
+          element={<WithNavbar Component={AddStudent} />} 
+        />
+        <Route 
+          path="/EditStudent/:id" 
+          element={<WithNavbar Component={EditStudent} />} 
+        />
+        <Route 
+          path="/AssignProviders/:id" 
+          element={<WithNavbar Component={AssignProviders} />} 
+        />
+        <Route 
+          path="/EditSchool/:SchoolID" 
+          element={<WithNavbar Component={EditSchool} />} 
+        />
       </Routes>
     </Router>
   );
