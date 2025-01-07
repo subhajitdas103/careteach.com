@@ -3,7 +3,7 @@ import axios from "axios";
 import "./style.css";
 import logo from "../../Assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate , Link } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -26,6 +26,15 @@ const Login = () => {
     } else {
       sessionStorage.removeItem("authToken");
     }
+
+    // If "Remember me" is checked, load credentials from localStorage
+    const storedEmail = localStorage.getItem("email");
+    const storedPassword = localStorage.getItem("password");
+    if (storedEmail && storedPassword) {
+      setEmail(storedEmail);
+      setPassword(storedPassword);
+      setRememberMe(true);
+    }
   }, [navigate]);
 
   const [email, setEmail] = useState("");
@@ -33,6 +42,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Handle the login process
   const handleLogin = async (e) => {
@@ -56,6 +66,15 @@ const Login = () => {
 
         setSuccess("Login successful!");
         navigate("/Dashboard");
+
+        // If "Remember me" is checked, store credentials in localStorage
+        if (rememberMe) {
+          localStorage.setItem("email", email);
+          localStorage.setItem("password", password);
+        } else {
+          localStorage.removeItem("email");
+          localStorage.removeItem("password");
+        }
       } else {
         setError(response.data.message || "Login failed. Please try again.");
       }
@@ -107,6 +126,21 @@ const Login = () => {
                   Password
                 </label>
               </div>
+              <div className="checkbox mb-3 d-flex space-between">
+                <label>
+                  Remember me
+                  <input
+                    type="checkbox"
+                    className="rememberMeButton"
+                    value="remember-me"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                </label>
+                <p className="text-right">
+                <Link to="/forgot-password">Forgot password?</Link>
+                </p>
+              </div>
               {error && <p className="text-danger">{error}</p>}
               {success && <p className="text-success">{success}</p>}
               {loading && (
@@ -114,7 +148,11 @@ const Login = () => {
                   <span className="sr-only">Loading...</span>
                 </div>
               )}
-              <button className="w-100 btn btn-lg log-in-btn" type="submit" disabled={loading}>
+              <button
+                className="w-100 btn btn-lg log-in-btn"
+                type="submit"
+                disabled={loading}
+              >
                 {loading ? "Logging in..." : "Login"}
               </button>
             </form>

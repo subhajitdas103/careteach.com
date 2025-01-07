@@ -8,7 +8,7 @@ import logoutGif from "../../assets/icons8-logout.png";
 const Navbar = () => {
   const handleLogout = () => {
       // Clear user session or authentication tokens
-      localStorage.removeItem('authToken'); // Example for clearing token
+      sessionStorage.removeItem('authToken'); // Example for clearing token
       sessionStorage.clear(); // Clear all session data
       alert('You have been logged out.');
 
@@ -22,7 +22,7 @@ const Navbar = () => {
               <div className="row nav_menu " style={{ height: '74px' }}>
                   <div className="navbar nav_title" style={{ border: 0 }}>
                       <div className="nav-title-logo">
-                        <a href="/">
+                        <a href="/Dashboard">
                           <img src={logo} alt="Logo" className="header-logo" />
                         </a>
                           <h2>CARE TEACH</h2>

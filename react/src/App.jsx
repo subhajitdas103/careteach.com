@@ -18,7 +18,7 @@ import EditProviders from "./Components/Providers/EditProviders";
 import AddSchool from "./Components/School/AddSchool";
 import AssignProviders from "./Components/Students/AssignProviders";
 import ProtectedRoute from './Components/ProtectedRoute';  // Adjust path if needed
-
+import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 // Higher-Order Component to wrap routes with Navbar
@@ -35,7 +35,7 @@ const App = () => {
       <Routes>
         {/* Route for Login */}
         <Route path="/" element={<Login />} />
-
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         {/* Private Route for Dashboard */}
         <Route 
           path="/Dashboard" 
