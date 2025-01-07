@@ -3,13 +3,12 @@ import axios from "axios";
 import "./style.css";
 import logo from "../../Assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate , Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { BeatLoader } from "react-spinners";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  // Token validation function
   const isTokenValid = (token) => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -19,7 +18,6 @@ const Login = () => {
     }
   };
 
-  // Check if the token is valid and navigate to dashboard if valid
   useEffect(() => {
     const token = sessionStorage.getItem("authToken");
     if (token && isTokenValid(token)) {
@@ -28,7 +26,6 @@ const Login = () => {
       sessionStorage.removeItem("authToken");
     }
 
-    // If "Remember me" is checked, load credentials from localStorage
     const storedEmail = localStorage.getItem("email");
     const storedPassword = localStorage.getItem("password");
     if (storedEmail && storedPassword) {
@@ -45,7 +42,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Handle the login process
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -54,21 +50,18 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `/api/login`, // API endpoint
+        `/api/login`, 
         { email, password },
         { withCredentials: true }
       );
 
       if (response.data.status === "success") {
         const token = response.data.token;
-        console.log("Received token:", token);
-
         sessionStorage.setItem("authToken", token);
 
         setSuccess("Login successful!");
         navigate("/Dashboard");
 
-        // If "Remember me" is checked, store credentials in localStorage
         if (rememberMe) {
           localStorage.setItem("email", email);
           localStorage.setItem("password", password);
@@ -81,7 +74,6 @@ const Login = () => {
       }
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred. Please try again.");
-      setSuccess("");
     } finally {
       setLoading(false);
     }
@@ -90,12 +82,12 @@ const Login = () => {
   return (
     <div className="login_body">
       <main className="form-signin w-100 m-auto">
-        <div className="col-md-12 d-flex log-in-area">
-          <div className="col-md-6">
+        <div className="row justify-content-center align-items-center">
+          <div className="col-12 col-md-6 text-center">
             <img className="Klogo-image" src={logo} alt="Logo" />
             <h2 className="text-under">Care Teach</h2>
           </div>
-          <div className="col-md-6 user-loginarea">
+          <div className="col-12 col-md-6 user-loginarea">
             <form onSubmit={handleLogin}>
               <h1 className="h3 mb-3 fw-normal">User login</h1>
               <p>Hey, enter your details to login</p>
@@ -127,7 +119,7 @@ const Login = () => {
                   Password
                 </label>
               </div>
-              <div className="checkbox mb-3 d-flex space-between">
+              <div className="checkbox mb-3 d-flex justify-content-between">
                 <label>
                   Remember me
                   <input
@@ -139,15 +131,12 @@ const Login = () => {
                   />
                 </label>
                 <p className="text-right">
-                <Link to="/forgot-password">Forgot password?</Link>
+                  <Link to="/forgot-password">Forgot password?</Link>
                 </p>
               </div>
               {error && <p className="text-danger">{error}</p>}
               {success && <p className="text-success">{success}</p>}
-              {loading && (
-               
-               <BeatLoader color="#2673da" />
-              )}
+              {loading && <BeatLoader color="#2673da" />}
               <button
                 className="w-100 btn btn-lg log-in-btn"
                 type="submit"
