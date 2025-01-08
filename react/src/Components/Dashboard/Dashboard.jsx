@@ -1,4 +1,4 @@
-import React from "react";
+import {React,useEffect , useState} from "react";
 import { useNavigate } from "react-router-dom";
 const DashboardCard = ({ title, iconClass, onClick }) => (
 
@@ -30,8 +30,43 @@ const DashboardCard = ({ title, iconClass, onClick }) => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [UserData, setUserData] = useState([]);
+
+  useEffect(() => {
+    const FetchUserDetails = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.error('No authentication token found.');
+        return;  // Exit if no token is available
+      }
+  
+      try {
+        const response = await fetch('/api/FetchUserDetails/', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to fetch user details');
+        }
+  
+        const data = await response.json();
+        console.log("Users", data);
+        setUserData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+  
+    FetchUserDetails();
+  }, []);  // This will run once when the component mounts
   
 
+
+ 
+  // const hasRollId2 = UserData.some(user => user.roll_id === 2);
   return (
     <div className="dashbord-container">
       <div className="row dashbord-list">
@@ -73,16 +108,17 @@ const Dashboard = () => {
           onClick={() => {
           navigate("/School");
           }}
+          style={UserData?.roll_id === 2 ? { display: 'none' } : {}}
         />
-        {/* <DashboardCard
+        <DashboardCard
           title="Calendar"
           iconClass="fa-calendar-alt"
           onClick={() => {
           navigate("/Calendar");
           }}
-        /> */}
+        />
 
-        <DashboardCard
+        {/* <DashboardCard
           title="Calendar"
           iconClass="fa-calendar-alt"
           onClick={() => {
@@ -90,7 +126,7 @@ const Dashboard = () => {
             // Optionally, you can add a condition to prevent navigation
           }}
           style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
-        />
+        /> */}
 
         <DashboardCard
           title="Holidays"

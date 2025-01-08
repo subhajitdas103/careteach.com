@@ -58,7 +58,7 @@ const Login = () => {
       if (response.data.status === "success") {
         const token = response.data.token;
         sessionStorage.setItem("authToken", token);
-
+console.log(token);
         setSuccess("Login successful!");
         navigate("/Dashboard");
 
