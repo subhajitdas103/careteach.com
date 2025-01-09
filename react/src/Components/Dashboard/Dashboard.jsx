@@ -1,5 +1,6 @@
 import {React,useEffect , useState} from "react";
 import { useNavigate } from "react-router-dom";
+
 const DashboardCard = ({ title, iconClass, onClick }) => (
 
   <div className="col-lg-3 col-md-6">
@@ -30,43 +31,15 @@ const DashboardCard = ({ title, iconClass, onClick }) => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [UserData, setUserData] = useState([]);
-
+  const [userRollName, setRollName] = useState(null);
+// ============Getting Roll Name from Session=========
   useEffect(() => {
-    const FetchUserDetails = async () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        console.error('No authentication token found.');
-        return;  // Exit if no token is available
-      }
-  
-      try {
-        const response = await fetch('/api/FetchUserDetails/', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        if (!response.ok) {
-          throw new Error('Failed to fetch user details');
-        }
-  
-        const data = await response.json();
-        console.log("Users", data);
-        setUserData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error.message);
-      }
-    };
-  
-    FetchUserDetails();
-  }, []);  // This will run once when the component mounts
-  
-
-
- 
-  // const hasRollId2 = UserData.some(user => user.roll_id === 2);
+    const rollName = sessionStorage.getItem("authRollName");
+      setRollName(rollName);
+      console.log("Roll ID after refresh:", rollName);
+    
+  }, []);
+// ===============================
   return (
     <div className="dashbord-container">
       <div className="row dashbord-list">
@@ -74,7 +47,7 @@ const Dashboard = () => {
           <h3>
             <i className="fa fa-home fa-1x home-icon-dashbord"></i>Dashboard
           </h3>
-          {/* <p>(Admin Portal)</p> */}
+          <p>{userRollName === "Provider" ? "Provider Portal" : "Admin Portal"}</p>
         </div>
 
         <DashboardCard
@@ -92,7 +65,7 @@ const Dashboard = () => {
             alert("Under development.. ");
           // navigate("/Billing");
           }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
+          style={{ cursor: 'not-allowed', opacity: 0.5 }}
         />
         <DashboardCard
           title="Providers"
@@ -102,14 +75,16 @@ const Dashboard = () => {
           }}
         />
 
+        {userRollName !== "Provider" && (
         <DashboardCard
           title="School"
           iconClass="fa-school"
           onClick={() => {
-          navigate("/School");
+            navigate("/School");
           }}
-          style={UserData?.roll_id === 2 ? { display: 'none' } : {}}
         />
+          )}
+
         <DashboardCard
           title="Calendar"
           iconClass="fa-calendar-alt"

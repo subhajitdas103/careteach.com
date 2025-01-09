@@ -56,9 +56,10 @@ const Login = () => {
       );
 
       if (response.data.status === "success") {
-        const token = response.data.token;
+        const { token,roll_name} = response.data;
         sessionStorage.setItem("authToken", token);
-console.log(token);
+        sessionStorage.setItem("authRollName",roll_name );
+        console.log(roll_name);
         setSuccess("Login successful!");
         navigate("/Dashboard");
 
