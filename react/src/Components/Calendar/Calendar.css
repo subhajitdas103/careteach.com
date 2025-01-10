@@ -1,4 +1,12 @@
 /* ========================================login css================================ */
+
+.rs-dropdown-toggle, .rs-dropdown-toggle.rs-btn{
+    width: 29rem;
+}
+
+.rs-dropdown-item{
+    width: 29rem;
+}
 .modal {
     position: fixed;
     top: 0;

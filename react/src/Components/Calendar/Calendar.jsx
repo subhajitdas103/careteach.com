@@ -6,7 +6,7 @@ import './Calendar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
 import { Modal, Button } from 'react-bootstrap'; // Importing Bootstrap Modal
-import { TimePicker ,DatePicker , Form} from 'rsuite';
+import { TimePicker ,DatePicker , Form , Dropdown } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css'; 
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
@@ -67,9 +67,13 @@ const CalendarComponent = () => {
     setSelectedStudent(student);
   };
 
+
+  const [clickedDate, setClickedDate] = useState(null);
   // Handle the click on the plus icon
   const handlePlusClick = (date) => {
     console.log('Plus icon clicked for date:', date);
+    setFormValue({ ...formValue, date });
+    setClickedDate(date);
     setShowModal(true); // Show the modal when the plus icon is clicked
   };
 
@@ -79,22 +83,24 @@ const CalendarComponent = () => {
 
   const [formValue, setFormValue] = useState({ time: null });
 
+  const [StartTimeValue, setStartTimeValue] = useState({ time: null });
+  const [EndTimeValue, setEndTimeValue] = useState({ time: null });
 
-  const handleStartDateChange = (value) => {
-    setFormValue({ time: value }); // Update time value
+  const handleStartimeChange = (value) => {
+    setStartTimeValue({ time: value }); // Update time value
   };
 
-  const handleEndDateChange = (value) => {
-    setFormValue({ time: value }); // Update time value
+  const handleEndtimeChange = (value) => {
+    setEndTimeValue({ time: value }); // Update time value
   };
 
   const handleDateChange = (value) => {
     setFormValue({
       ...formValue,
-      date: value
+      date: value,
     });
   };
-
+  
   const handleSubmit = () => {
     // Handle form submission
     alert(`Selected Time: ${formValue.time}`);
@@ -103,96 +109,81 @@ const CalendarComponent = () => {
     <div style={{ color: '#4979a0' }}>
       <h2>Calendar</h2>
       <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 500 }}
-        view={view} // Controlled view based on state
-        date={currentDate} // Set the current date for navigation
-        onView={handleViewChange} // View change handler
-        onNavigate={handleNavigate} // Automatically handles navigation by updating the current date
-        components={{
-          toolbar: ({ label }) => (
-            <div
-              className="rbc-toolbar"
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div className="rbc-btn-group">
-                <button onClick={() => setView('month')}>Month</button>
-                <button onClick={() => setView('week')}>Week</button>
-                <button onClick={() => setView('day')}>Day</button>
-                <button onClick={() => setView('agenda')}>Agenda</button>
-              </div>
-
-              <div
-                className="rbc-toolbar-label"
-                style={{
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  textAlign: 'center',
-                  flex: 1, // Take the remaining space
-                }}
-              >
-                {label}
-              </div>
-
-              <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
-                <button onClick={() => handleNavigate('PREV')}>Prev</button>
-                <button onClick={() => handleNavigate('TODAY')}>Today</button>
-                <button onClick={() => handleNavigate('NEXT')}>Next</button>
-
-                <div className="dropdown" style={{ marginLeft: '10px' }}>
-                  <button
-                    className="btn btn-secondary dropdown-toggle"
-                    type="button"
-                    id="dropdownMenuButton"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    {selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}
-                  </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    {studentData.map((student, index) => (
-                      <li key={index}>
-                        <span
-                          className="dropdown-item custom-dropdown-item"
-                          onClick={() => handleStudentSelect(student)}
-                        >
-                          {student.first_name} {student.last_name}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ),
-          dateCellWrapper: ({ children, value }) => (
-            <div className="rbc-day-bg" role="cell">
-              {children}
-              <button
-                type="button"
-                className="rbc-button-link"
-                style={{
-                  position: 'relative',
-                  marginLeft: '4px',
-                  // right: '-5px',
-                  top: '5px',
-                  zIndex: 10,
-                }}
-                onClick={() => handlePlusClick(value)}
-              >
-                <FontAwesomeIcon icon={faPlusCircle} />
-              </button>
-            </div>
-          ),
+  localizer={localizer}
+  events={events}
+  startAccessor="start"
+  endAccessor="end"
+  style={{ height: 500 }}
+  view={view} // Controlled view based on state
+  date={currentDate} // Set the current date for navigation
+  onView={handleViewChange} // View change handler
+  onNavigate={handleNavigate} // Automatically handles navigation by updating the current date
+  components={{
+    toolbar: ({ label }) => (
+      <div
+        className="rbc-toolbar"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
-      />
+      >
+        <div className="rbc-btn-group">
+          <button onClick={() => setView('month')}>Month</button>
+          <button onClick={() => setView('week')}>Week</button>
+          <button onClick={() => setView('day')}>Day</button>
+          <button onClick={() => setView('agenda')}>Agenda</button>
+        </div>
+
+        <div
+          className="rbc-toolbar-label"
+          style={{
+            fontSize: '18px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            flex: 1, // Take the remaining space
+          }}
+        >
+          {label}
+        </div>
+
+        <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
+          <button onClick={() => handleNavigate('PREV')}>Prev</button>
+          <button onClick={() => handleNavigate('TODAY')}>Today</button>
+          <button onClick={() => handleNavigate('NEXT')}>Next</button>
+        </div>
+      </div>
+    ),
+    dateCellWrapper: ({ children, value }) => {
+      const isCurrentMonth = value.getMonth() === currentDate.getMonth();
+      return (
+        <div
+          className="rbc-day-bg"
+          role="cell"
+          style={{
+            backgroundColor: isCurrentMonth ? 'white' : '#f0f0f0', // Grey color for non-current month dates
+            color: isCurrentMonth ? 'inherit' : '#a0a0a0', // Greyed-out text color for non-current month dates
+          }}
+        >
+          {children}
+          <button
+            type="button"
+            className="rbc-button-link"
+            style={{
+              position: 'relative',
+              marginLeft: '4px',
+              top: '5px',
+              zIndex: 10,
+            }}
+            onClick={() => handlePlusClick(value)}
+          >
+            <FontAwesomeIcon icon={faPlusCircle} />
+          </button>
+        </div>
+      );
+    },
+  }}
+/>
 
       {/* Modal */}
       {showModal && (
@@ -202,7 +193,17 @@ const CalendarComponent = () => {
               <Modal.Title>Add Session</Modal.Title>
             </Modal.Header>
 
+
             <Modal.Body>
+              <label>Student</label>
+            <Dropdown title={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}>
+              {studentData.map((student, index) => (
+                <Dropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
+                  {`${student.first_name} ${student.last_name}`}
+                </Dropdown.Item>
+              ))}
+            </Dropdown>
+    
             <Form.Group controlId="date">
                 <Form.ControlLabel>Choose Date</Form.ControlLabel>
                 <DatePicker
@@ -215,20 +216,25 @@ const CalendarComponent = () => {
                 <Form.Group controlId="time">
                   <Form.ControlLabel>Start Time</Form.ControlLabel>
                   <TimePicker
-                    value={formValue.time}
-                    onChange={handleStartDateChange}
-                    format="HH:mm" // Time format (24-hour)
+                    value={StartTimeValue.time}
+                    onChange={handleStartimeChange}
+                    format="hh:mm a " 
+                    showMeridian 
+                  
                   />
                 </Form.Group>
 
                 <Form.Group controlId="time">
                   <Form.ControlLabel>End Time</Form.ControlLabel>
                   <TimePicker
-                    value={formValue.time}
-                    onChange={handleEndDateChange}
-                    format="HH:mm" // Time format (24-hour)
+                    value={EndTimeValue.time}
+                    onChange={handleEndtimeChange}
+                    format="hh:mm a"
+                    showMeridian 
                   />
                 </Form.Group>
+
+                
               </div>
 
             </Modal.Body>
