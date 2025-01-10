@@ -12,7 +12,15 @@ import 'rsuite/dist/rsuite.min.css';
 const localizer = momentLocalizer(moment);
 
 const CalendarComponent = () => {
-
+  const [userRollName, setRollName] = useState(null);
+// ============Getting Roll Name from Session=========
+  useEffect(() => {
+    const rollName = sessionStorage.getItem("authRollName");
+      setRollName(rollName);
+      console.log("Roll ID after refresh:", rollName);
+    
+  }, []);
+  // ==========End of getting RollName================
   
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -109,16 +117,16 @@ const CalendarComponent = () => {
     <div style={{ color: '#4979a0' }}>
       <h2>Calendar</h2>
       <Calendar
-  localizer={localizer}
-  events={events}
-  startAccessor="start"
-  endAccessor="end"
-  style={{ height: 500 }}
-  view={view} // Controlled view based on state
-  date={currentDate} // Set the current date for navigation
-  onView={handleViewChange} // View change handler
-  onNavigate={handleNavigate} // Automatically handles navigation by updating the current date
-  components={{
+      localizer={localizer}
+      events={events}
+      startAccessor="start"
+      endAccessor="end"
+      style={{ height: 500 }}
+      view={view} // Controlled view based on state
+      date={currentDate} // Set the current date for navigation
+      onView={handleViewChange} // View change handler
+      onNavigate={handleNavigate} // Automatically handles navigation by updating the current date
+      components={{
     toolbar: ({ label }) => (
       <div
         className="rbc-toolbar"
@@ -154,7 +162,10 @@ const CalendarComponent = () => {
         </div>
       </div>
     ),
-    dateCellWrapper: ({ children, value }) => {
+    // ==============Start of Add Session===========
+    dateCellWrapper:userRollName === 'Provider' ? 
+    
+    ({ children, value }) => {
       const isCurrentMonth = value.getMonth() === currentDate.getMonth();
       return (
         <div
@@ -181,7 +192,9 @@ const CalendarComponent = () => {
           </button>
         </div>
       );
-    },
+    }
+    : undefined,
+    //  ==========End of Add Session Click=======
   }}
 />
 
