@@ -1,16 +1,21 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
+import { Modal, Button } from 'react-bootstrap'; // Importing Bootstrap Modal
+import { TimePicker ,DatePicker , Form} from 'rsuite';
+import 'rsuite/dist/rsuite.min.css'; 
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
 
 const CalendarComponent = () => {
+
+  
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  // Sample events
   const [events, setEvents] = useState([
     {
       title: 'Meeting with Team',
@@ -23,25 +28,14 @@ const CalendarComponent = () => {
       end: new Date(2024, 11, 3, 14, 0),   // Dec 3, 2024, 2:00 PM
     },
   ]);
-
-  // Sample student list
-  const [students] = useState([
-    'John Doe',
-    'Jane Smith',
-    'Alice Johnson',
-    'Bob Brown',
-  ]);
-
-  // State to track the current view and date
   const [view, setView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
-  // Function to handle view changes
   const handleViewChange = (viewType) => {
     setView(viewType);
   };
 
-  // Function to handle navigation (Prev, Today, Next)
   const handleNavigate = (action) => {
     const current = new Date(currentDate);
     if (action === 'PREV') {
@@ -49,15 +43,12 @@ const CalendarComponent = () => {
     } else if (action === 'NEXT') {
       current.setMonth(current.getMonth() + 1); // Move to next month
     } else if (action === 'TODAY') {
-      // Reset to today's date and update the month view
       const today = new Date();
       setCurrentDate(today); // Set the current date to today
-      // Set the calendar view to current month when Today is clicked
       current.setFullYear(today.getFullYear(), today.getMonth(), today.getDate());
     }
     setCurrentDate(current); // Update the current date after the action
   };
-
 
   useEffect(() => {
     const FetchStudentDetails = async () => {
@@ -69,15 +60,45 @@ const CalendarComponent = () => {
         console.error("Error fetching data:", error);
       }
     };
-
     FetchStudentDetails();
   }, []);
 
+  const handleStudentSelect = (student) => {
+    setSelectedStudent(student);
+  };
 
-console.log("all_student",studentData)
-const handleStudentSelect = (student) => {
-  setSelectedStudent(student);
-};
+  // Handle the click on the plus icon
+  const handlePlusClick = (date) => {
+    console.log('Plus icon clicked for date:', date);
+    setShowModal(true); // Show the modal when the plus icon is clicked
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false); // Hide the modal
+  };
+
+  const [formValue, setFormValue] = useState({ time: null });
+
+
+  const handleStartDateChange = (value) => {
+    setFormValue({ time: value }); // Update time value
+  };
+
+  const handleEndDateChange = (value) => {
+    setFormValue({ time: value }); // Update time value
+  };
+
+  const handleDateChange = (value) => {
+    setFormValue({
+      ...formValue,
+      date: value
+    });
+  };
+
+  const handleSubmit = () => {
+    // Handle form submission
+    alert(`Selected Time: ${formValue.time}`);
+  };
   return (
     <div style={{ color: '#4979a0' }}>
       <h2>Calendar</h2>
@@ -101,7 +122,6 @@ const handleStudentSelect = (student) => {
                 alignItems: 'center',
               }}
             >
-              {/* Left side: View buttons (Month, Week, Day, Agenda) */}
               <div className="rbc-btn-group">
                 <button onClick={() => setView('month')}>Month</button>
                 <button onClick={() => setView('week')}>Week</button>
@@ -109,7 +129,6 @@ const handleStudentSelect = (student) => {
                 <button onClick={() => setView('agenda')}>Agenda</button>
               </div>
 
-              {/* Center: Month name */}
               <div
                 className="rbc-toolbar-label"
                 style={{
@@ -122,13 +141,11 @@ const handleStudentSelect = (student) => {
                 {label}
               </div>
 
-              {/* Right side: Navigation buttons (Prev, Today, Next) */}
               <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
                 <button onClick={() => handleNavigate('PREV')}>Prev</button>
                 <button onClick={() => handleNavigate('TODAY')}>Today</button>
                 <button onClick={() => handleNavigate('NEXT')}>Next</button>
 
-                {/* Student Dropdown */}
                 <div className="dropdown" style={{ marginLeft: '10px' }}>
                   <button
                     className="btn btn-secondary dropdown-toggle"
@@ -137,17 +154,17 @@ const handleStudentSelect = (student) => {
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                   {selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}
+                    {selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}
                   </button>
                   <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     {studentData.map((student, index) => (
                       <li key={index}>
-                     <span
-                        className="dropdown-item custom-dropdown-item"
-                        onClick={() => handleStudentSelect(student)} // Update selected student on click
-                      >
-                        {student.first_name} {student.last_name}
-                      </span>
+                        <span
+                          className="dropdown-item custom-dropdown-item"
+                          onClick={() => handleStudentSelect(student)}
+                        >
+                          {student.first_name} {student.last_name}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -155,8 +172,74 @@ const handleStudentSelect = (student) => {
               </div>
             </div>
           ),
+          dateCellWrapper: ({ children, value }) => (
+            <div className="rbc-day-bg" role="cell">
+              {children}
+              <button
+                type="button"
+                className="rbc-button-link"
+                style={{
+                  position: 'relative',
+                  marginLeft: '4px',
+                  // right: '-5px',
+                  top: '5px',
+                  zIndex: 10,
+                }}
+                onClick={() => handlePlusClick(value)}
+              >
+                <FontAwesomeIcon icon={faPlusCircle} />
+              </button>
+            </div>
+          ),
         }}
       />
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal show" style={{ display: 'block' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton onClick={handleCloseModal}>
+              <Modal.Title>Add Session</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+            <Form.Group controlId="date">
+                <Form.ControlLabel>Choose Date</Form.ControlLabel>
+                <DatePicker
+                  value={formValue.date}
+                  onChange={handleDateChange}
+                  format="yyyy-MM-dd" // Correct date format
+                />
+              </Form.Group>
+              <div className="stu-pro-field-div">
+                <Form.Group controlId="time">
+                  <Form.ControlLabel>Start Time</Form.ControlLabel>
+                  <TimePicker
+                    value={formValue.time}
+                    onChange={handleStartDateChange}
+                    format="HH:mm" // Time format (24-hour)
+                  />
+                </Form.Group>
+
+                <Form.Group controlId="time">
+                  <Form.ControlLabel>End Time</Form.ControlLabel>
+                  <TimePicker
+                    value={formValue.time}
+                    onChange={handleEndDateChange}
+                    format="HH:mm" // Time format (24-hour)
+                  />
+                </Form.Group>
+              </div>
+
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+              <Button variant="primary">Save changes</Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </div>
+      )}
     </div>
   );
 };

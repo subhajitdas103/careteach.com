@@ -10,7 +10,7 @@ import Billing from "./Components/Billing/Billing";
 import Providers from "./Components/Providers/Providers";
 import School from "./Components/School/School";
 import EditSchool from "./Components/School/EditSchool";
-import Calendar from "./Components/Calendar/Calendar";
+import CalendarComponent from "./Components/Calendar/Calendar";
 import Holidays from "./Components/Holidays/Holidays";
 import AddHoliday from "./Components/Holidays/AddHoliday";
 import AddProviders from "./Components/Providers/AddProviders";
@@ -69,7 +69,7 @@ const App = () => {
         />
         <Route 
           path="/Calendar" 
-          element={<ProtectedRoute><WithNavbar Component={Calendar} /></ProtectedRoute>} 
+          element={<ProtectedRoute><WithNavbar Component={CalendarComponent} /></ProtectedRoute>} 
         />
         <Route 
           path="/AddProviders" 
