@@ -6,7 +6,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\SchoolController;
-
+use App\Http\Controllers\CalendarController;
 Route::get('/user', function (Request $request) { 
     return $request->user();
 })->middleware('auth:sanctum');
@@ -46,4 +46,5 @@ Route::get('/searchschool', [SchoolController::class, 'SearchSchool']);
 Route::post('/EditStudent/{id}', [StudentController::class,'editstudent']);
 Route::get('/FetchSchoolDataBYID/{id}',[SchoolController::class,'FetchSchoolDataBYID']);
 Route::get('/FetchUserDetails',[AuthController::class,'fetchUser']);
+Route::post('/AddSingleSessions', [CalendarController::class,'AddSingleSessions']);
 

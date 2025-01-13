@@ -14,7 +14,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { Popover, List, ListItem,  Checkbox } from '@mui/material';
-
+import axios from 'axios';
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
 
@@ -78,10 +78,11 @@ const CalendarComponent = () => {
     FetchStudentDetails();
   }, []);
 
-  const handleStudentSelect = (student) => {
-    setSelectedStudent(student);
-  };
 
+  const handleStudentSelect = (student) => {
+    // const name = `${student.first_name} ${student.last_name}`;
+    setSelectedStudent(student); // Update state with the full name
+  };
 
   const [clickedDate, setClickedDate] = useState(null);
   // Handle the click on the plus icon
@@ -145,6 +146,39 @@ const CalendarComponent = () => {
       checked ? [...prev, name] : prev.filter(day => day !== name)
     );
   };
+  const slectedStudentID = selectedStudent?.id || null;
+const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
+
+
+const formattedDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
+const SingleSessionStartTime = StartTimeValue.time.toISOString().split('T')[1].split('.')[0];
+const SingleSessionEndTime = EndTimeValue.time.toISOString().split('T')[1].split('.')[0];
+  // =======================================
+  const addSingleSession = async () => {
+    const sessionData = {
+        id: slectedStudentID,
+        selected_student : SelectedStudentName,
+        sessionType: selectedValueRadio,
+        date: formattedDate,
+        startTime: SingleSessionStartTime,
+        endTime: SingleSessionEndTime ,
+    };
+    console.log(sessionData);
+    try {
+        const response = await axios.post('/api/AddSingleSessions', sessionData);
+        if (response.status === 201) {
+            setShowModal(false);
+            alert('Session created successfully!');
+        } else {
+            throw new Error('Failed to create session');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('There was an error creating the session.');
+    }
+};
+
+  
   return (
     <div style={{ color: '#4979a0' }}>
       <h2>Calendar</h2>
@@ -251,7 +285,7 @@ const CalendarComponent = () => {
                     inputProps={{ "aria-label": "Single" }}
                     className="text-blue-600"
                   />
-                  <span>Single</span>
+                  <span>Single Session</span>
                 </label>
 
                 <label className="flex items-center space-x-2">
@@ -263,7 +297,7 @@ const CalendarComponent = () => {
                     inputProps={{ "aria-label": "bulk" }}
                     className="text-blue-600"
                   />
-                  <span>Bulk</span>
+                  <span>Bulk Session</span>
                 </label>
               </div>
           
@@ -382,7 +416,12 @@ const CalendarComponent = () => {
 
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
-              <Button variant="primary">Save changes</Button>
+              {selectedValueRadio === "bulk" && (
+              <Button variant="primary" onClick={add_session}>Save changes B</Button>
+              )}
+              {selectedValueRadio === "single" && (
+                  <Button variant="primary" onClick={addSingleSession}>Save changes S</Button>
+              )}
             </Modal.Footer>
           </Modal.Dialog>
         </div>
