@@ -8,6 +8,13 @@ import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing t
 import { Modal, Button } from 'react-bootstrap'; // Importing Bootstrap Modal
 import { TimePicker ,DatePicker , Form , Dropdown } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css'; 
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import { Popover, List, ListItem,  Checkbox } from '@mui/material';
+
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
 
@@ -113,6 +120,31 @@ const CalendarComponent = () => {
     // Handle form submission
     alert(`Selected Time: ${formValue.time}`);
   };
+  const [selectedValueRadio, setSelectedValueRadio] = useState('single');
+  const handleChange = (event) => {
+    setSelectedValueRadio(event.target.value);
+  };
+
+
+  const [SelectedWorkingDays, setSelectedWorkingDays] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  
+  const handleDropdownClick = (event) => {
+    setAnchorEl(event.currentTarget);
+    setOpen(true);
+  };
+
+  const handleCloseDropdown = () => {
+    setOpen(false);
+  };
+
+  const handelWorkingDayChange = (event) => {
+    const { name, checked } = event.target;
+    setSelectedWorkingDays((prev) => 
+      checked ? [...prev, name] : prev.filter(day => day !== name)
+    );
+  };
   return (
     <div style={{ color: '#4979a0' }}>
       <h2>Calendar</h2>
@@ -205,40 +237,138 @@ const CalendarComponent = () => {
             <Modal.Header closeButton onClick={handleCloseModal}>
               <Modal.Title>Add Session</Modal.Title>
             </Modal.Header>
+                <Modal.Body>
+                <p className ="fontsizeofaddsessionmodal">
+                  Choose What You Want
+                </p>
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center space-x-2">
+                  <Radio
+                    checked={selectedValueRadio === "single"}
+                    onChange={handleChange}
+                    value="single"
+                    name="radio-buttons"
+                    inputProps={{ "aria-label": "Single" }}
+                    className="text-blue-600"
+                  />
+                  <span>Single</span>
+                </label>
 
+                <label className="flex items-center space-x-2">
+                  <Radio
+                    checked={selectedValueRadio === "bulk"}
+                    onChange={handleChange}
+                    value="bulk"
+                    name="radio-buttons"
+                    inputProps={{ "aria-label": "bulk" }}
+                    className="text-blue-600"
+                  />
+                  <span>Bulk</span>
+                </label>
+              </div>
+          
+             <div>
+                <p className ="fontsizeofaddsessionmodal">Student</p>
+                <Dropdown title={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}>
+                  {studentData.map((student, index) => (
+                    <Dropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
+                      {`${student.first_name} ${student.last_name}`}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown>
+              </div>
 
-            <Modal.Body>
-              <label>Student</label>
-            <Dropdown title={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}>
-              {studentData.map((student, index) => (
-                <Dropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
-                  {`${student.first_name} ${student.last_name}`}
-                </Dropdown.Item>
-              ))}
-            </Dropdown>
-    
-            <Form.Group controlId="date">
-                <Form.ControlLabel>Choose Date</Form.ControlLabel>
+              {selectedValueRadio === "bulk" && (
+                <>
+                  
+                  <div>
+                  <p className ="fontsizeofaddsessionmodal">Day of the Week:</p>
+                    <Button 
+                      className="" 
+                      onClick={handleDropdownClick} 
+                      variant="outlined" 
+                      style={{ '--bs-btn-padding-x': '19px', marginLeft:'2px', borderColor: 'rgb(197, 198, 199)' }}
+                    >
+                      {SelectedWorkingDays.length > 0 ? SelectedWorkingDays.join(', ') : 'Choose All That Apply'}
+                    </Button>
+                    <Popover
+                      id="working-days-popover"
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleCloseDropdown}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      sx={{ border: '1px solid #ccc' }}
+                    >
+                      <List>
+                        {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((workingday) => (
+                          <ListItem key={workingday}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={SelectedWorkingDays.includes(workingday)}
+                                  onChange={handelWorkingDayChange}
+                                  name={workingday}
+                                />
+                              }
+                              label={workingday}
+                            />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Popover>
+                  </div>
+                </>
+              )}
+               {/* ===================For Single ====================== */}
+              {selectedValueRadio === "single" && (
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose Date</Form.ControlLabel>
                 <DatePicker
                   value={formValue.date}
                   onChange={handleDateChange}
                   format="yyyy-MM-dd" // Correct date format
                 />
               </Form.Group>
+                )}
+              {/* ===================For Bulk ====================== */}
+              {selectedValueRadio === "bulk" && (
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
+                <DatePicker
+                  value={formValue.date}
+                  onChange={handleDateChange}
+                  format="yyyy-MM-dd" // Correct date format
+                />
+              </Form.Group>
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Date</Form.ControlLabel>
+                <DatePicker
+                  value={formValue.date}
+                  onChange={handleDateChange}
+                  format="yyyy-MM-dd" // Correct date format
+                />
+              </Form.Group>
+              </div>
+              )}
+              {/* ===================For Bulk ====================== */}
               <div className="stu-pro-field-div">
                 <Form.Group controlId="time">
-                  <Form.ControlLabel>Start Time</Form.ControlLabel>
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
                   <TimePicker
                     value={StartTimeValue.time}
                     onChange={handleStartimeChange}
                     format="hh:mm a " 
                     showMeridian 
-                  
                   />
                 </Form.Group>
-
+               
                 <Form.Group controlId="time">
-                  <Form.ControlLabel>End Time</Form.ControlLabel>
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
+                 
                   <TimePicker
                     value={EndTimeValue.time}
                     onChange={handleEndtimeChange}
@@ -246,8 +376,6 @@ const CalendarComponent = () => {
                     showMeridian 
                   />
                 </Form.Group>
-
-                
               </div>
 
             </Modal.Body>

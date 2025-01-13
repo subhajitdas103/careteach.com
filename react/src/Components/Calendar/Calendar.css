@@ -1,5 +1,15 @@
 /* ========================================login css================================ */
+.fontsizeofaddsessionmodal{
+    font-size: 14px;
+    margin-bottom: 7px;
+    margin-left: 8px;
 
+}
+.rs-input-group.rs-input-group-inside {
+    margin-left: 5px;
+    width: 96%;
+    background-color: var(--rs-input-bg);
+}
 .rs-dropdown-toggle, .rs-dropdown-toggle.rs-btn{
     width: 29rem;
 }

@@ -4,7 +4,7 @@ import "./style.css";
 import logo from "../../Assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, Link } from "react-router-dom";
-import { BeatLoader } from "react-spinners";
+import { Checkbox } from "@material-tailwind/react";
 import Spinner from 'react-bootstrap/Spinner';
 const Login = () => {
   const navigate = useNavigate();
@@ -137,7 +137,7 @@ const Login = () => {
               </div>
               {error && <p className="text-danger">{error}</p>}
               {success && <p className="text-success">{success}</p>}
-              {/* {loading && <BeatLoader color="#2673da" />} */}
+             
               <button
                 className="w-100 btn btn-lg log-in-btn"
                 type="submit"
@@ -146,6 +146,7 @@ const Login = () => {
                 {loading ? "" : "Login"}
                 {loading && (
                   <Spinner animation="border" role="status">
+                        
                   </Spinner>
                 )}
               </button>
