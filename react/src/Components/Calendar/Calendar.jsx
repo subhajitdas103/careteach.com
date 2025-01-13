@@ -15,6 +15,7 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import { Popover, List, ListItem,  Checkbox } from '@mui/material';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
 
@@ -150,16 +151,18 @@ const CalendarComponent = () => {
 const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
 
 
-const formattedDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
-const SingleSessionStartTime = StartTimeValue.time.toISOString().split('T')[1].split('.')[0];
-const SingleSessionEndTime = EndTimeValue.time.toISOString().split('T')[1].split('.')[0];
+const SingleSessionChooseDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
+
+const SingleSessionStartTime = StartTimeValue.time ? StartTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
+const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
+
   // =======================================
   const addSingleSession = async () => {
     const sessionData = {
         id: slectedStudentID,
         selected_student : SelectedStudentName,
         sessionType: selectedValueRadio,
-        date: formattedDate,
+        date: SingleSessionChooseDate,
         startTime: SingleSessionStartTime,
         endTime: SingleSessionEndTime ,
     };
@@ -167,8 +170,15 @@ const SingleSessionEndTime = EndTimeValue.time.toISOString().split('T')[1].split
     try {
         const response = await axios.post('/api/AddSingleSessions', sessionData);
         if (response.status === 201) {
-            setShowModal(false);
-            alert('Session created successfully!');
+
+          setShowModal(false);
+          toast.success("Single Session Added!", {
+            position: "top-right",
+            autoClose: 5000,
+        });
+
+          
+            // alert('Session created successfully!');
         } else {
             throw new Error('Failed to create session');
         }
@@ -180,7 +190,9 @@ const SingleSessionEndTime = EndTimeValue.time.toISOString().split('T')[1].split
 
   
   return (
+    
     <div style={{ color: '#4979a0' }}>
+      <ToastContainer />
       <h2>Calendar</h2>
       <Calendar
       localizer={localizer}
@@ -193,7 +205,7 @@ const SingleSessionEndTime = EndTimeValue.time.toISOString().split('T')[1].split
       onView={handleViewChange} // View change handler
       onNavigate={handleNavigate} // Automatically handles navigation by updating the current date
       components={{
-    toolbar: ({ label }) => (
+      toolbar: ({ label }) => (
       <div
         className="rbc-toolbar"
         style={{
@@ -422,6 +434,7 @@ const SingleSessionEndTime = EndTimeValue.time.toISOString().split('T')[1].split
               {selectedValueRadio === "single" && (
                   <Button variant="primary" onClick={addSingleSession}>Save changes S</Button>
               )}
+               
             </Modal.Footer>
           </Modal.Dialog>
         </div>
