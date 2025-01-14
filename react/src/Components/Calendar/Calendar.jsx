@@ -102,6 +102,7 @@ useEffect(() => {
 
         // Format start and end time in AM/PM format
         const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        
         const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
         return {
@@ -145,7 +146,7 @@ useEffect(() => {
   };
 
   const [formValue, setFormValue] = useState({ time: null });
-
+  console.log("dfgthy",formValue.date);
   const [StartTimeValue, setStartTimeValue] = useState({ time: null });
   const [EndTimeValue, setEndTimeValue] = useState({ time: null });
 
@@ -200,11 +201,13 @@ useEffect(() => {
   const slectedStudentID = selectedStudent?.id || null;
 const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
 
-
-// const SingleSessionChooseDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
-const SingleSessionChooseDate = formValue.date
-  ? new Date(formValue.date).toLocaleDateString('en-CA') // 'en-CA' uses the format 'yyyy-mm-dd'
+console.log("vvv",formValue.date);
+const SingleSessionChooseDate = formValue.date ? 
+  new Date(formValue.date).getFullYear() + '-' + 
+  String(new Date(formValue.date).getMonth() + 1).padStart(2, '0') + '-' + 
+  String(new Date(formValue.date).getDate()).padStart(2, '0') 
   : null;
+
 
 const SingleSessionStartTime = StartTimeValue.time ? StartTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
 const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
