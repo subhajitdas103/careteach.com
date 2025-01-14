@@ -95,20 +95,35 @@ useEffect(() => {
       const data = await response.json();
 
       // Transform the data to match the events structure
-      const formattedEvents = data.map((session) => ({
-        title: `${session.student_name} - ${session.start_time}`, // Combine student name and session name
-        start: new Date(`${session.date}T${session.start_time}`),   // Combine date and start_time
-        end: new Date(`${session.date}T${session.end_time}`),       // Combine date and end_time
-      }));
+      const formattedEvents = data.map((session) => {
+        // Format start and end time with 'Z' for UTC handling
+        const sessionStartTime = new Date(session.date + 'T' + session.start_time + 'Z');
+        const sessionEndTime = new Date(session.date + 'T' + session.end_time + 'Z');
 
+        // Format start and end time in AM/PM format
+        const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        return {
+          title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
+          // Combine student name and formatted start time
+          start: sessionStartTime,   // Combined Date and start_time
+          end: sessionEndTime,       // Combined Date and end_time
+        };
+      });
+
+      // Do something with formattedEvents (e.g., set state or render events)
       setEvents(formattedEvents);
+      console.log("event",formattedEvents);
+
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching session details:', error);
     }
   };
 
   FetchSingleSessionDetails();
 }, []);
+
 // =====================================
 
   const handleStudentSelect = (student) => {
@@ -142,12 +157,16 @@ useEffect(() => {
     setEndTimeValue({ time: value }); // Update time value
   };
 
-  const handleDateChange = (value) => {
-    setFormValue({
-      ...formValue,
-      date: value,
-    });
+  const handleDateChange = (date) => {
+    const formattedDate = new Date(date).toISOString().split('T')[0]; // format as yyyy-MM-dd
+    setFormValue(prevState => ({
+      ...prevState,
+      date: formattedDate
+    }));
   };
+  
+ // Use the formatted date
+  
   
   const handleSubmit = () => {
     // Handle form submission
@@ -182,10 +201,14 @@ useEffect(() => {
 const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
 
 
-const SingleSessionChooseDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
+// const SingleSessionChooseDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
+const SingleSessionChooseDate = formValue.date
+  ? new Date(formValue.date).toLocaleDateString('en-CA') // 'en-CA' uses the format 'yyyy-mm-dd'
+  : null;
+
 const SingleSessionStartTime = StartTimeValue.time ? StartTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
 const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
-
+console.log("SingleSession Date",SingleSessionChooseDate);
   // =======================================
   const addSingleSession = async () => {
     const sessionData = {
@@ -222,6 +245,10 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
     label: `${student.first_name} ${student.last_name}`,
     value: student,
   }));
+
+
+const validDate = formValue.date ? new Date(formValue.date) : null;
+const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null;
   return (
     
     <div style={{ color: '#4979a0' }}>
@@ -311,7 +338,7 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
             style={{
               position: 'relative',
               marginLeft: '4px',
-              top: '0   px',
+              top: '0px',
               zIndex: 10,
             }}
             onClick={() => handlePlusClick(value)}
@@ -423,7 +450,7 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
               <Form.Group controlId="date">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose Date</Form.ControlLabel>
                 <DatePicker
-                  value={formValue.date}
+                  value={formValue.date ? new Date(selectedDate) : null}
                   onChange={handleDateChange}
                   format="yyyy-MM-dd" // Correct date format
                 />

@@ -1,4 +1,7 @@
 /* ========================================login css================================ */
+.rbc-event-content{
+    font-size: 12px;
+}
 /* Custom CSS for placeholder styling */
 .p-dropdown-label.p-inputtext.p-placeholder {
     margin: 0px;
