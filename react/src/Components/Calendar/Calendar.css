@@ -1,4 +1,29 @@
 /* ========================================login css================================ */
+/* Custom CSS for placeholder styling */
+.p-dropdown-label.p-inputtext.p-placeholder {
+    margin: 0px;
+    margin-left: 10px;
+    color: #888; /* Change the color of the placeholder */
+    font-size: 21px; /* Adjust font size */
+    opacity: 1; /* Ensure the placeholder is visible */
+  }
+  .p-dropdown-items{
+    
+    margin-left: -32px;
+    
+  }
+
+  .p-dropdown-label.p-inputtext {
+    height: 32px;
+    margin-left: 7px;
+    font-size: 21px;
+    color: #135781;
+  }
+  .p-dropdown-item-label{
+    margin-left: 10px;
+  }
+
+
 .fontsizeofaddsessionmodal{
     font-size: 14px;
     margin-bottom: 7px;

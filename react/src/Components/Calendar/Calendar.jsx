@@ -16,6 +16,13 @@ import FormLabel from '@mui/material/FormLabel';
 import { Popover, List, ListItem,  Checkbox } from '@mui/material';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import 'primereact/resources/themes/lara-light-indigo/theme.css';  // Replace with your desired theme
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import { Dropdown as PrimeReactDropdown } from 'primereact/dropdown';
+
+// import { Dropdown } from 'primereact/dropdown';
+
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
 
@@ -71,6 +78,7 @@ const CalendarComponent = () => {
       try {
         const response = await fetch('/api/Students/');
         const data = await response.json();
+        console.log(data);
         setStudentData(data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -152,7 +160,6 @@ const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${s
 
 
 const SingleSessionChooseDate = formValue.date ? new Date(formValue.date).toISOString().split('T')[0] : null;
-
 const SingleSessionStartTime = StartTimeValue.time ? StartTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
 const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
 
@@ -188,7 +195,10 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
     }
 };
 
-  
+   const studentOptions = studentData.map(student => ({
+    label: `${student.first_name} ${student.last_name}`,
+    value: student,
+  }));
   return (
     
     <div style={{ color: '#4979a0' }}>
@@ -221,6 +231,8 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
           <button onClick={() => setView('agenda')}>Agenda</button>
         </div>
 
+        
+      
         <div
           className="rbc-toolbar-label"
           style={{
@@ -238,8 +250,23 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
           <button onClick={() => handleNavigate('TODAY')}>Today</button>
           <button onClick={() => handleNavigate('NEXT')}>Next</button>
         </div>
+
+          <div className="card flex justify-content-center" style={{ width: '225px' , margin:'-2px 10px' }}>
+            <PrimeReactDropdown
+              value={selectedStudent}
+              onChange={(e) => setSelectedStudent(e.value)}
+              options={studentOptions}
+              optionLabel="label"  // `label` corresponds to the full name of the student
+              placeholder="Select a Student"
+              // className="w-full md:w-14rem"
+              // checkmark={true}
+              highlightOnSelect={false}
+            />
+          </div>
       </div>
+
     ),
+    
     // ==============Start of Add Session===========
     dateCellWrapper:userRollName === 'Provider' ? 
     
@@ -313,16 +340,19 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
                 </label>
               </div>
           
-             <div>
-                <p className ="fontsizeofaddsessionmodal">Student</p>
-                <Dropdown title={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}>
-                  {studentData.map((student, index) => (
-                    <Dropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
-                      {`${student.first_name} ${student.last_name}`}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
-              </div>
+              <div className="card flex justify-content-center">
+      <PrimeReactDropdown
+        value={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select  Student'}
+        onChange={(e) => handleStudentSelect(e.value)}
+        placeholder="Choose Student"
+      >
+        {studentData.map((student, index) => (
+          <PrimeReactDropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
+            {`${student.first_name} ${student.last_name}`}
+          </PrimeReactDropdown.Item>
+        ))}
+      </PrimeReactDropdown>
+    </div>
 
               {selectedValueRadio === "bulk" && (
                 <>
