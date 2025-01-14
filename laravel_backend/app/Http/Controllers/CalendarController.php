@@ -40,4 +40,17 @@ class CalendarController extends Controller
     
 
     }
+    public function FetchSingleSession()
+    {
+        try {
+    
+            $SingleSession = CalendarModel::orderBy('id', 'desc')->get();
+            // dd($students);
+            return response()->json($SingleSession); 
+        } catch (\Exception $e) {
+            \Log::error('Error fetching: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching '], 500);
+        }
+    }
+    // FetchSingleSession
 }

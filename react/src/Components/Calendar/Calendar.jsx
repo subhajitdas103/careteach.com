@@ -86,7 +86,30 @@ const CalendarComponent = () => {
     };
     FetchStudentDetails();
   }, []);
+// ==========================================
 
+useEffect(() => {
+  const FetchSingleSessionDetails = async () => {
+    try {
+      const response = await fetch("/api/SingleSession/");
+      const data = await response.json();
+
+      // Transform the data to match the events structure
+      const formattedEvents = data.map((session) => ({
+        title: `${session.student_name} - ${session.start_time}`, // Combine student name and session name
+        start: new Date(`${session.date}T${session.start_time}`),   // Combine date and start_time
+        end: new Date(`${session.date}T${session.end_time}`),       // Combine date and end_time
+      }));
+
+      setEvents(formattedEvents);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  FetchSingleSessionDetails();
+}, []);
+// =====================================
 
   const handleStudentSelect = (student) => {
     // const name = `${student.first_name} ${student.last_name}`;
@@ -288,7 +311,7 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
             style={{
               position: 'relative',
               marginLeft: '4px',
-              top: '5px',
+              top: '0   px',
               zIndex: 10,
             }}
             onClick={() => handlePlusClick(value)}
@@ -340,19 +363,16 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
                 </label>
               </div>
           
-              <div className="card flex justify-content-center">
-      <PrimeReactDropdown
-        value={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select  Student'}
-        onChange={(e) => handleStudentSelect(e.value)}
-        placeholder="Choose Student"
-      >
-        {studentData.map((student, index) => (
-          <PrimeReactDropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
-            {`${student.first_name} ${student.last_name}`}
-          </PrimeReactDropdown.Item>
-        ))}
-      </PrimeReactDropdown>
-    </div>
+              <div>
+                <p className ="fontsizeofaddsessionmodal">Student</p>
+                <Dropdown title={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}>
+                  {studentData.map((student, index) => (
+                    <Dropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
+                      {`${student.first_name} ${student.last_name}`}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown>
+              </div>
 
               {selectedValueRadio === "bulk" && (
                 <>

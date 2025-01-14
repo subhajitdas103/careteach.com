@@ -47,4 +47,6 @@ Route::post('/EditStudent/{id}', [StudentController::class,'editstudent']);
 Route::get('/FetchSchoolDataBYID/{id}',[SchoolController::class,'FetchSchoolDataBYID']);
 Route::get('/FetchUserDetails',[AuthController::class,'fetchUser']);
 Route::post('/AddSingleSessions', [CalendarController::class,'AddSingleSessions']);
+Route::get('/SingleSession',[CalendarController::class,'FetchSingleSession']);
+
 
