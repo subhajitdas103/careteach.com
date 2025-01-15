@@ -21,11 +21,11 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const token = sessionStorage.getItem("authToken");
+    const token = localStorage.getItem("authToken");
     if (token && isTokenValid(token)) {
       navigate("/dashboard");
     } else {
-      sessionStorage.removeItem("authToken");
+      localStorage.removeItem("authToken");
     }
 
     const storedEmail = localStorage.getItem("email");
@@ -59,8 +59,8 @@ const Login = () => {
 
       if (response.data.status === "success") {
         const { token,roll_name} = response.data;
-        sessionStorage.setItem("authToken", token);
-        sessionStorage.setItem("authRollName",roll_name );
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("authRollName",roll_name );
         console.log(roll_name);
         setSuccess("Login successful!");
         navigate("/Dashboard");
