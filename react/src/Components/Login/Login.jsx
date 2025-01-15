@@ -7,6 +7,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { Checkbox } from "@material-tailwind/react";
 import Spinner from 'react-bootstrap/Spinner';
 const Login = () => {
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
   const isTokenValid = (token) => {
@@ -50,7 +52,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `/api/login`, 
+        `${backendUrl}/api/login`, 
         { email, password },
         { withCredentials: true }
       );

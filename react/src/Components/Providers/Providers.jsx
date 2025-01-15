@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom'; // Import useParams
 // import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const Providers = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -49,7 +50,7 @@ const Providers = () => {
   // Confirm deletion and remove provider
   const confirmDelete = () => {
     if (selectedProviderToDelete) {
-      axios.delete(`api/DeleteProvider/${selectedProviderToDelete.id}`)
+      axios.delete(`${backendUrl}/api/DeleteProvider/${selectedProviderToDelete.id}`)
         .then((response) => {
           setData(data.filter(provider => provider.id !== selectedProviderToDelete.id));
           setShow(false); // Close the modal
@@ -75,7 +76,7 @@ const Providers = () => {
 // ======================  Fetch data from API=================
   useEffect(() => {
     if (!searchQuery) {
-    axios.get('api/ViewProviders')
+    axios.get(`${backendUrl}/api/ViewProviders`)
       .then((response) => {
         setData(response.data); 
       })
@@ -105,7 +106,7 @@ const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
 
 const StudentOfAssignedProviders = async (id) => {
   try {
-    const response = await fetch(`api/FetchStudentOfAssignedProviders/${id}`, {
+    const response = await fetch(`${backendUrl}/api/FetchStudentOfAssignedProviders/${id}`, {
       method: "GET",
     });
 
@@ -135,7 +136,7 @@ const handleStudentClick = (studentId) => {
   const handleSearch = async (event) => {
       event.preventDefault();
       try {
-          const response = await axios.get(`/api/searchproviders?query=${searchQuery}`);
+          const response = await axios.get(`${backendUrl}/api/searchproviders?query=${searchQuery}`);
           setData(response.data); // Update the student list with the search results
       } catch (error) {
           console.error('Error fetching by Search:', error);

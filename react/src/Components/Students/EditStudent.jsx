@@ -15,8 +15,9 @@ import axios from "axios";
 // import React, { useState } from 'react';
 
   const AddStudent = () => {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const { id } = useParams();
-  // console.log(id);
+    // console.log(id);
     const [student, setStudent] = useState(null);
     const [parent, setParentData] = useState(null);
     const [StudentServices, setStudentServices] = useState(null);
@@ -384,7 +385,7 @@ useEffect(() => {
       console.log('Form data:', formData);
 
       try {
-        const response = await axios.post(`/api/EditStudent/${id}`, formData, {
+        const response = await axios.post(`${backendUrl}/api/EditStudent/${id}`, formData, {
          
           headers: {
             'Content-Type': 'application/json',
@@ -418,7 +419,7 @@ useEffect(() => {
 
     const fetchStudentDetails = async () => {
       try {
-        const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
+        const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${id}`);
         const data = await response.json();
     
         if (data.student) {

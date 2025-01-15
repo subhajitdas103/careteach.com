@@ -16,6 +16,7 @@ import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/mater
 
 
 const ProviderForm = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [anchorEl, setAnchorEl] = useState(null);  // For choose Grade Checkbox
   const [error, setError] = useState(''); // For Showing Error in Span
   const [first_name, setFirstName] = useState("");
@@ -242,7 +243,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
     console.log('Form data:', formData);
 
     try {
-      const response = await axios.post('/api/addprovider', JSON.stringify(formData), {
+      const response = await axios.post(`${backendUrl}/api/addprovider`, JSON.stringify(formData), {
         headers: {
           'Content-Type': 'application/json',
         },

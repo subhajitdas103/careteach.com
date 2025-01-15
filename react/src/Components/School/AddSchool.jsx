@@ -15,6 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/material';
 
 const AddSchool = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [apicall, setApiCall] = useState(false); 
   const [anchorEl, setAnchorEl] = useState(null);
   const [SelectedWorkingDays, setSelectedWorkingDays] = useState([]);
@@ -108,7 +109,7 @@ console.log(SelectedWorkingDays);
     };
 
     try {
-      const response = await axios.post('/api/AddSchool', schoolData, {
+      const response = await axios.post(`${backendUrl}/api/AddSchool`, schoolData, {
         headers: {
           'Content-Type': 'application/json',
         },

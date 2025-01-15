@@ -16,6 +16,7 @@ import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/mater
 import { useParams } from 'react-router-dom';
 
 const EditProviders = () => {
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const {ProviderID } = useParams();
 const [allProviderData, setProviderData] = useState(null);
 const [providerData, setAllProviderData] = useState({});
@@ -394,7 +395,7 @@ const formData = {
   console.log('Form data:', formData);
   
   try {
-    const response = await axios.post(`/api/UpdateProvider/${ProviderID}`, JSON.stringify(formData), {
+    const response = await axios.post(`${backendUrl}/api/UpdateProvider/${ProviderID}`, JSON.stringify(formData), {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -433,7 +434,7 @@ const formData = {
 
 const fetchProviderDetails = async () => {
     try {
-      const response = await fetch(`/api/ProviderDataFetchAsID/${ProviderID}`);
+      const response = await fetch(`${backendUrl}/api/ProviderDataFetchAsID/${ProviderID}`);
       
       if (!response.ok) {
         throw new Error('Network response was not ok');

@@ -8,6 +8,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './School.css';
 const School = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -32,7 +33,7 @@ const School = () => {
   const fetchSchoolDetails = async () => {
     try {
       
-      const response = await fetch('/api/fetchSchoolData');
+      const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
       const data = await response.json();
       setSchools(data); // Update the state with fetched data
       console.log(data);
@@ -43,7 +44,7 @@ const School = () => {
 
   useEffect(() => {
     if (!searchQuery) {
-    axios.get('/api/fetchSchoolData')
+    axios.get(`${backendUrl}/api/fetchSchoolData`)
       .then((response) => {
         setSchools(response.data); 
       })
@@ -80,7 +81,7 @@ const School = () => {
    
 
       axios
-        .delete(`/api/DeleteSchool/${IDSchool}`)
+        .delete(`${backendUrl}/api/DeleteSchool/${IDSchool}`)
         .then(() => {
           setShow(false);
           console.log('School deleted successfully');
@@ -102,7 +103,7 @@ const School = () => {
    const handleSearchSchool = async (event) => {
        event.preventDefault();
        try {
-           const response = await axios.get(`/api/searchschool?query=${searchQuery}`);
+           const response = await axios.get(`${backendUrl}/api/searchschool?query=${searchQuery}`);
            setSchools(response.data);
        } catch (error) {
            console.error('Error fetching by Search:', error);

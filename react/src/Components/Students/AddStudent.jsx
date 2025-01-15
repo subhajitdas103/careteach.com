@@ -21,8 +21,7 @@ import axios from "axios";
 // import React, { useState } from 'react';
 
   const AddStudent = () => {
-
-  
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
   //==============================================================
@@ -189,7 +188,7 @@ const removeService = (index) => {
   const [schools, setSchools] = useState([]);
  const fetchSchoolDetails = async () => {
   try {
-    const response = await fetch('/api/fetchSchoolData');
+    const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
     const data = await response.json();
     setSchools(data); // Update the state with fetched data
     console.log(data);
@@ -281,7 +280,7 @@ console.log(schools);
       console.log('Form data:', formData);
 
       try {
-        const response = await axios.post('/api/addstudent', JSON.stringify(formData), {
+        const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
           headers: {
             'Content-Type': 'application/json',
           },

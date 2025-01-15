@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'rsuite/dist/rsuite.min.css';
 // import { useLocation } from 'react-router-dom';
 const Students = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -29,7 +30,7 @@ const Students = () => {
 
   useEffect(() => {
     if (!searchQuery) {
-    axios.get('api/Students')
+    axios.get(`${backendUrl}/api/Students`)
       .then((response) => {
         setData(response.data);
         console.log(response.data);
@@ -68,7 +69,7 @@ const Students = () => {
 // =========Start==========Delete Student ====================
   const confirmDelete = () => {
     if (SelectedStudentToDelete) {
-      axios.delete(`api/DeleteStudent/${SelectedStudentToDelete.id}`)
+      axios.delete(`${backendUrl}/api/DeleteStudent/${SelectedStudentToDelete.id}`)
         .then(() => {
           setData(data.filter(student => student.id !== SelectedStudentToDelete.id));
           setShow(false);
@@ -100,7 +101,7 @@ const Students = () => {
 const fetchStudentDetails = async () => {
   if (!selectedStudentId) return;
       try {
-        const response = await fetch(`/api/StudentDataFetchAsID/${selectedStudentId}`);
+        const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${selectedStudentId}`);
         const data = await response.json();
         console.log("API Response 2:", data); 
     
@@ -133,7 +134,7 @@ const fetchStudentDetails = async () => {
   const handleSearch = async (event) => {
       event.preventDefault();
       try {
-          const response = await axios.get(`/api/search?query=${searchQuery}`);
+          const response = await axios.get(`${backendUrl}/api/search?query=${searchQuery}`);
           setData(response.data); // Update the student list with the search results
       } catch (error) {
           console.error('Error fetching Prov:', error);

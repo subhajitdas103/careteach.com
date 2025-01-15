@@ -16,6 +16,7 @@ import DatePicker from 'react-datepicker';
 
 import "react-datepicker/dist/react-datepicker.css"; 
 const AssignProviders = () => {
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const { id } = useParams();
 
   const [studentDetails, setStudentDetails] = useState(null);
@@ -49,7 +50,7 @@ const { id } = useParams();
   const fetchStudentDetails = async () => {
 
     try {
-      const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
+      const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${id}`);
       const data = await response.json();
       // console.log("API Response:", data); 
 
@@ -122,7 +123,7 @@ const { id } = useParams();
     };
     console.log('Form data of assign Provider Modal:', formData);
     try {
-      const response = await axios.post('/api/AssignProvider', JSON.stringify(formData), {
+      const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -197,7 +198,7 @@ const handelAssignProviderDataEdit = async () => {
 
   try {
     const response = await axios.post(
-      `/api/UpdateAssignProvider/${AssignEditID}`,
+      `${backendUrl}/api/UpdateAssignProvider/${AssignEditID}`,
       formData,
       { headers: { 'Content-Type': 'application/json' } }
     );
@@ -223,7 +224,7 @@ const [assignedProviders, setAssignedProviders] = useState([]);
 const [AssignProviderID, setAssignProviderID] = useState(null);
 const fetchAssignedProviderDetails = async () => {
     try {
-      const response = await fetch(`/api/FetchAssignedProviders/${id}`);
+      const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
       const data = await response.json();
       setAssignedProviders(data);
       // console.log("API Response Assigned:", data);
@@ -247,7 +248,7 @@ const fetchAssignedProviderDetails = async () => {
 
   const fetchProviderData = async () => {
       try {
-        const response = await fetch("/api/ViewProviders");
+        const response = await fetch(`${backendUrl}/api/ViewProviders`);
         const data = await response.json();
         // console.log("API Response Provider Data:", data);
         if (Array.isArray(data) && data.length > 0) {
@@ -277,7 +278,7 @@ const fetchAssignedProviderDetails = async () => {
    const AssignedProviderDelete = (id) => {
     setSelectedStudent(id);
     setShow(true); // Opens the modal
-    console.log("xxxxxxxx",id);
+    
   };
 
  
@@ -291,7 +292,7 @@ const fetchAssignedProviderDetails = async () => {
 const DeleteAssignBTN = () => {
   console.log("Attempting to delete provider with ID:", selectedStudent);
 
-  axios.delete(`/api/DeleteAssignedProviders/${selectedStudent}`)
+  axios.delete(`${backendUrl}/api/DeleteAssignedProviders/${selectedStudent}`)
     .then((response) => {
       console.log('Provider deleted successfully:', response.data);
       fetchAssignedProviderDetails();

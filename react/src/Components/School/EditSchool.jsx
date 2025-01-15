@@ -15,6 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Import useParams
 const EditSchool = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [schoolDatabyid, setSchoolData] = useState(null);
   const {SchoolID } = useParams();
   const [apicall, setApiCall] = useState(false); 
@@ -202,7 +203,7 @@ if (value.length <= 10) {
     };
 
     try {
-      const response = await axios.post(`/api/EditSchool/${SchoolID}`, schoolData, {
+      const response = await axios.post(`${backendUrl}/api/EditSchool/${SchoolID}`, schoolData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -230,7 +231,7 @@ if (value.length <= 10) {
   //============================Fect School Data====================
   const FetchSchoolDataBYID = async () => {
     try {
-      const response = await fetch(`/api/FetchSchoolDataBYID/${SchoolID}`);
+      const response = await fetch(`${backendUrl}/api/FetchSchoolDataBYID/${SchoolID}`);
       const data = await response.json();
       setSchoolData(data); 
       // console.log("SchholDataByID",data);

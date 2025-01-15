@@ -27,6 +27,7 @@ import { Dropdown as PrimeReactDropdown } from 'primereact/dropdown';
 const localizer = momentLocalizer(moment);
 
 const CalendarComponent = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [userRollName, setRollName] = useState(null);
 // ============Getting Roll Name from Session=========
   useEffect(() => {
@@ -76,7 +77,8 @@ const CalendarComponent = () => {
   useEffect(() => {
     const FetchStudentDetails = async () => {
       try {
-        const response = await fetch('/api/Students/');
+        // const response = await fetch('/api/Students/');
+        const response = await fetch(`${backendUrl}/api/Students/`);
         const data = await response.json();
         console.log(data);
         setStudentData(data);
@@ -91,7 +93,7 @@ const CalendarComponent = () => {
 useEffect(() => {
   const FetchSingleSessionDetails = async () => {
     try {
-      const response = await fetch("/api/SingleSession/");
+      const response = await fetch(`${backendUrl}/api/SingleSession/`);
       const data = await response.json();
 
       // Transform the data to match the events structure
@@ -102,7 +104,7 @@ useEffect(() => {
 
         // Format start and end time in AM/PM format
         const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        
+
         const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
         return {
@@ -224,7 +226,7 @@ console.log("SingleSession Date",SingleSessionChooseDate);
     };
     console.log(sessionData);
     try {
-        const response = await axios.post('/api/AddSingleSessions', sessionData);
+        const response = await axios.post(`${backendUrl}/api/AddSingleSessions`, sessionData);
         if (response.status === 201) {
 
           setShowModal(false);
