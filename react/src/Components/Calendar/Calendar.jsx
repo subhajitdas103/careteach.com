@@ -158,6 +158,7 @@ useEffect(() => {
 
   const [formValue, setFormValue] = useState({ time: null });
   console.log("dfgthy",formValue.date);
+  // ===========For Single Ssson Add ============
   const [StartTimeValue, setStartTimeValue] = useState({ time: null });
   const [EndTimeValue, setEndTimeValue] = useState({ time: null });
 
@@ -168,6 +169,17 @@ useEffect(() => {
   const handleEndtimeChange = (value) => {
     setEndTimeValue({ time: value }); // Update time value
   };
+  // ===========For Bulk Session Add=============
+  const [StartTimeValueBulk, setStartTimeValueBulk] = useState({ time: null });
+  const [EndTimeValueBulk, setEndTimeValueBulk] = useState({ time: null });
+
+  const handleStartimeChangeBulk = (value) => {
+    setStartTimeValueBulk({ time: value }); // Update time value
+  };
+
+  const handleEndtimeChangeBulk = (value) => {
+    setEndTimeValueBulk({ time: value }); // Update time value
+  };
 
   const handleDateChange = (date) => {
     const formattedDate = new Date(date).toISOString().split('T')[0]; // format as yyyy-MM-dd
@@ -176,6 +188,30 @@ useEffect(() => {
       date: formattedDate
     }));
   };
+  
+
+  // ============Bulk Session date Change=====================
+  const [selecteStartDateBulk, setSelectedStartDateBulk] = useState("");
+  const [selecteEndDateBulk, setSelectedEndDateBulk] = useState("");
+
+
+  const handleStartDateChangeBulk = (date) => {
+    const formattedDate = date.toLocaleDateString("en-CA");
+    setSelectedStartDateBulk(formattedDate); // Update the state
+    console.log(selecteStartDateBulk); 
+  };
+  
+  
+ 
+  const handleEndDateChangeBulk = (date) => {
+    if (date) {
+      const formattedDate = date.toLocaleDateString("en-CA"); // Format the selected date
+      setSelectedEndDateBulk(formattedDate); // Update the state
+      console.log(formattedDate); // Debugging - Logs the formatted date
+    }
+  };
+  
+ 
   
  // Use the formatted date
   
@@ -190,7 +226,8 @@ useEffect(() => {
   };
 
 
-  const [SelectedWorkingDays, setSelectedWorkingDays] = useState([]);
+  const [dayofweek, setdayofweek] = useState([]);
+  // console.log("Working Days",dayofweek);
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   
@@ -205,11 +242,12 @@ useEffect(() => {
 
   const handelWorkingDayChange = (event) => {
     const { name, checked } = event.target;
-    setSelectedWorkingDays((prev) => 
+    setdayofweek((prev) => 
       checked ? [...prev, name] : prev.filter(day => day !== name)
     );
   };
-  const slectedStudentID = selectedStudent?.id || null;
+
+const slectedStudentID = selectedStudent?.id || null;
 const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
 
 console.log("vvv",formValue.date);
@@ -254,6 +292,43 @@ console.log("SingleSession Date",SingleSessionChooseDate);
         alert('There was an error creating the session.');
     }
 };
+
+
+// =========================================================
+const add_BulkSession = async () => {
+  const sessionData = {
+      id: slectedStudentID,
+      selected_student : SelectedStudentName,
+      sessionType: selectedValueRadio,
+      dayofweek: dayofweek,
+      startDate: selecteStartDateBulk,
+      endDate: selecteEndDateBulk,
+      startTime: StartTimeValueBulk,
+      endTime: EndTimeValueBulk ,
+  };
+  console.log(sessionData);
+  try {
+      const response = await axios.post(`${backendUrl}/api/AddBulkSession`, sessionData);
+      if (response.status === 201) {
+
+        setShowModal(false);
+        toast.success("bulk Session Added!", {
+          position: "top-right",
+          autoClose: 5000,
+      });
+
+        
+          // alert('Session created successfully!');
+      } else {
+          throw new Error('Failed to create session');
+      }
+  } catch (error) {
+      console.error('Error:', error);
+      alert('There was an error creating the session.');
+  }
+};
+// ========================================================
+
 
    const studentOptions = studentData.map(student => ({
     label: `${student.first_name} ${student.last_name}`,
@@ -426,7 +501,7 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
                       variant="outlined" 
                       style={{ '--bs-btn-padding-x': '19px', marginLeft:'2px', borderColor: 'rgb(197, 198, 199)' }}
                     >
-                      {SelectedWorkingDays.length > 0 ? SelectedWorkingDays.join(', ') : 'Choose All That Apply'}
+                      {dayofweek.length > 0 ? dayofweek.join(', ') : 'Choose All That Apply'}
                     </Button>
                     <Popover
                       id="working-days-popover"
@@ -445,7 +520,7 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
                             <FormControlLabel
                               control={
                                 <Checkbox
-                                  checked={SelectedWorkingDays.includes(workingday)}
+                                  checked={dayofweek.includes(workingday)}
                                   onChange={handelWorkingDayChange}
                                   name={workingday}
                                 />
@@ -476,25 +551,27 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
               <Form.Group controlId="date">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                 <DatePicker
-                  value={formValue.date}
-                  onChange={handleDateChange}
+                 
+                  onChange={handleStartDateChangeBulk}
                   format="yyyy-MM-dd" // Correct date format
                 />
               </Form.Group>
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Date</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Date c</Form.ControlLabel>
                 <DatePicker
-                  value={formValue.date}
-                  onChange={handleDateChange}
+                  
+                  onChange={handleEndDateChangeBulk}
                   format="yyyy-MM-dd" // Correct date format
                 />
               </Form.Group>
               </div>
               )}
-              {/* ===================For Bulk ====================== */}
+
+              {/* ===================For Single ====================== */}
+              {selectedValueRadio === "single" && (
               <div className="stu-pro-field-div">
                 <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time S</Form.ControlLabel>
                   <TimePicker
                     value={StartTimeValue.time}
                     onChange={handleStartimeChange}
@@ -504,7 +581,7 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
                 </Form.Group>
                
                 <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time S</Form.ControlLabel>
                  
                   <TimePicker
                     value={EndTimeValue.time}
@@ -514,13 +591,38 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
                   />
                 </Form.Group>
               </div>
-
+              )}
+               {/* ===================For Bulk ====================== */}
+               {selectedValueRadio === "bulk" && (
+               <div className="stu-pro-field-div">
+                <Form.Group controlId="time">
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time B</Form.ControlLabel>
+                  <TimePicker
+                    value={StartTimeValueBulk.time}
+                    onChange={handleStartimeChangeBulk}
+                    format="hh:mm a " 
+                    showMeridian 
+                  />
+                </Form.Group>
+               
+                <Form.Group controlId="time">
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time B</Form.ControlLabel>
+                 
+                  <TimePicker
+                    value={EndTimeValueBulk.time}
+                    onChange={handleEndtimeChangeBulk}
+                    format="hh:mm a"
+                    showMeridian 
+                  />
+                </Form.Group>
+              </div>
+               )}
             </Modal.Body>
 
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
               {selectedValueRadio === "bulk" && (
-              <Button variant="primary" onClick={add_session}>Save changes B</Button>
+              <Button variant="primary" onClick={add_BulkSession}>Save changes B</Button>
               )}
               {selectedValueRadio === "single" && (
                   <Button variant="primary" onClick={addSingleSession}>Save changes S</Button>

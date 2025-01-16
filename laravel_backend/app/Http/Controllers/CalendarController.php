@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\CalendarModel;
+use App\Models\BulkSessionModel;
+
 class CalendarController extends Controller
 {
     public function AddSingleSessions(Request $request){
@@ -40,6 +42,8 @@ class CalendarController extends Controller
     
 
     }
+
+
     public function FetchSingleSession()
     {
         try {
@@ -53,4 +57,46 @@ class CalendarController extends Controller
         }
     }
     // FetchSingleSession
+
+
+    public function AddBulkSession(Request $request)
+{
+    $validatedData = $request->validate([
+        'id'  => 'required|integer',
+        'selected_student'   => 'required|string',
+        'sessionType' => 'required|string',
+        'dayofweek'  => 'required|array',
+        'startDate' => 'required|date',
+        'endDate' => 'required|date',
+        'startTime' => 'required|date_format:H:i:s',
+        'endTime' => 'required|date_format:H:i:s',
+    ]);
+
+    $validatedData['dayofweek'] = is_array($validatedData['dayofweek'])
+        ? implode(',', $validatedData['dayofweek'])
+        : $validatedData['dayofweek']; 
+
+    // Prepare the data to insert, encode dayofweek array to JSON
+    $dataToAdd = [
+        'student_id' => $validatedData['id'],
+        'student_name' => $validatedData['selected_student'],
+        'session_name' => $validatedData['sessionType'],
+        'dayofweek' => $validatedData['dayofweek'], // Encode to JSON
+        'start_date' => $validatedData['startDate'],
+        'end_date' => $validatedData['endDate'],
+        'start_time' => $validatedData['startTime'],
+        'end_time' => $validatedData['endTime'],
+    ];
+
+    try {
+        // Insert the data into the database
+        BulkSessionModel::create($dataToAdd);
+        return response()->json(['message' => 'Session created successfully!'], 201);
+    } catch (\Exception $e) {
+        // Log the error and return a response
+        Log::error('Error creating session: ' . $e->getMessage());
+        return response()->json(['message' => 'Error creating session.'], 500);
+    }
 }
+}
+
