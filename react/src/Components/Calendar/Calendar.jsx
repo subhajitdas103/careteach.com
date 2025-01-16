@@ -30,11 +30,12 @@ const CalendarComponent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [userRollName, setRollName] = useState(null);
 // ============Getting Roll Name from Session=========
-  useEffect(() => {
-    const rollName = sessionStorage.getItem("authRollName");
-      setRollName(rollName);
-      console.log("Roll ID after refresh:", rollName);
-    
+
+useEffect(() => {
+    // Retrieve the stored roll name
+    const rollName = localStorage.getItem("authRollName");
+    console.log("Retrieved Roll Name:", rollName);
+    setRollName(rollName);
   }, []);
   // ==========End of getting RollName================
   
@@ -77,9 +78,8 @@ const CalendarComponent = () => {
   useEffect(() => {
     const FetchStudentDetails = async () => {
       try {
-        // const response = await fetch('/api/Students/');
-        const response = await fetch(`${backendUrl}/api/Students/`);
-        const data = await response.json();
+        const response = await axios.get(`${backendUrl}/api/Students`);
+        const data = response.data;  // No need for .json() with axios
         console.log(data);
         setStudentData(data);
       } catch (error) {
@@ -88,36 +88,44 @@ const CalendarComponent = () => {
     };
     FetchStudentDetails();
   }, []);
+  
 // ==========================================
 
 useEffect(() => {
   const FetchSingleSessionDetails = async () => {
     try {
-      const response = await fetch(`${backendUrl}/api/SingleSession/`);
-      const data = await response.json();
+      const response = await axios.get(`${backendUrl}/api/SingleSession`);
+      const data = response.data; // Axios automatically parses JSON
 
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
         // Format start and end time with 'Z' for UTC handling
-        const sessionStartTime = new Date(session.date + 'T' + session.start_time + 'Z');
-        const sessionEndTime = new Date(session.date + 'T' + session.end_time + 'Z');
-
+        const sessionStartTime = new Date(`${session.date}T${session.start_time}Z`);
+        const sessionEndTime = new Date(`${session.date}T${session.end_time}Z`);
+       
         // Format start and end time in AM/PM format
-        const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: true 
+        });
 
-        const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: true 
+        });
 
         return {
           title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
-          // Combine student name and formatted start time
-          start: sessionStartTime,   // Combined Date and start_time
-          end: sessionEndTime,       // Combined Date and end_time
+          start: sessionStartTime, // Combined Date and start_time
+          end: sessionEndTime,     // Combined Date and end_time
         };
       });
 
-      // Do something with formattedEvents (e.g., set state or render events)
+      // Update state or handle events
       setEvents(formattedEvents);
-      console.log("event",formattedEvents);
+      console.log("Events:", formattedEvents);
 
     } catch (error) {
       console.error('Error fetching session details:', error);
@@ -126,6 +134,7 @@ useEffect(() => {
 
   FetchSingleSessionDetails();
 }, []);
+
 
 // =====================================
 
