@@ -403,80 +403,85 @@ const sessionData = {
 
 useEffect(() => {
   const FetchBulkSessionDetails = async () => {
-    if (selectedStudent && selectedStudent.id) { // Check if a student is selected and has an ID
-      try {
-        const response = await axios.get(`${backendUrl}/api/BulkSessionDetails`);
-        const data = response.data;
-        console.log("Data from Bulk", data);
+    try {
+      const response = await axios.get(`${backendUrl}/api/BulkSessionDetails`);
+      const data = response.data;
+      console.log("Data from Bulk", data);
 
-        const dayMap = {
-          Sunday: 0,
-          Monday: 1,
-          Tuesday: 2,
-          Wednesday: 3,
-          Thursday: 4,
-          Friday: 5,
-          Saturday: 6,
-        };
+      const dayMap = {
+        Sunday: 0,
+        Monday: 1,
+        Tuesday: 2,
+        Wednesday: 3,
+        Thursday: 4,
+        Friday: 5,
+        Saturday: 6,
+      };
 
-        const formattedEvents = data
-          .filter(session => session.student_id === selectedStudent.id) // Compare session.student_id with selectedStudent.id
-          .map((session) => {
-            const wdays = session.dayofweek.split(",");
-            console.log("Weekdays for session", wdays);
+      const formattedEvents = data
+        .filter(session => {
+          return selectedStudent && selectedStudent.id
+            ? session.student_id === selectedStudent.id
+            : true; // Show all if no student is selected
+        })
+        .map((session) => {
+          const wdays = session.dayofweek.split(",");
+          console.log("Weekdays for session", wdays);
 
-            const sessionStartDate = new Date(session.start_date);
-            const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
-            const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
+          const sessionStartDate = new Date(session.start_date);
+          const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
+          const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
 
-            const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit', 
-              hour12: true 
-            });
+          const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: true 
+          });
 
-            const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit', 
-              hour12: true 
-            });
+          const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: true 
+          });
 
-            // Convert weekdays array to numeric day values
-            const numericDays = wdays.map((day) => dayMap[day.trim()]);
+          // Convert weekdays array to numeric day values
+          const numericDays = wdays.map((day) => dayMap[day.trim()]);
 
-            // Extract session dates from the session_dates string
-            const sessionDates = session.session_dates.split(',').map(date => parseInt(date, 10));
+          // Extract session dates from the session_dates string
+          const sessionDates = session.session_dates.split(',').map(date => parseInt(date, 10));
 
-            // Map the session dates with the time
-            const recurringEvents = sessionDates.map((date) => {
-              const eventDate = new Date(sessionStartDate);
-              eventDate.setDate(date); // Set the day based on sessionDates
+          // Map the session dates with the time
+          const recurringEvents = sessionDates.map((date) => {
+            const eventDate = new Date(sessionStartDate);
+            eventDate.setDate(date); // Set the day based on sessionDates
 
-              const startDate = new Date(eventDate.setHours(sessionStartTime.getHours(), sessionStartTime.getMinutes()));
-              const endDate = new Date(eventDate.setHours(sessionEndTime.getHours(), sessionEndTime.getMinutes()));
+            const startDate = new Date(eventDate.setHours(sessionStartTime.getHours(), sessionStartTime.getMinutes()));
+            const endDate = new Date(eventDate.setHours(sessionEndTime.getHours(), sessionEndTime.getMinutes()));
 
-              return {
-                title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
-                start: startDate,
-                end: endDate,
-              };
-            });
+            return {
+              title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
+              start: startDate,
+              end: endDate,
+            };
+          });
 
-            return recurringEvents;
-          }).flat(); // Flatten the array if there are multiple events for each session
+          return recurringEvents;
+        }).flat(); // Flatten the array if there are multiple events for each session
 
-        // Set the formatted events to the state
-        setBulkEvents(formattedEvents);
-        console.log("Formatted Events Bulk:", formattedEvents);
+      setBulkEvents(formattedEvents);
+      console.log("Formatted Events Bulk:", formattedEvents);
+   
 
-      } catch (error) {
-        console.error('Error fetching session details:', error);
-      }
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+      setError('Error fetching session details'); // Set error state
+    
     }
   };
 
   FetchBulkSessionDetails();
-}, [selectedStudent]); // Dependency on selectedStudent to refetch when it changes
+}, [selectedStudent]); // Dependency on selectedStudent
+
 
 
 
