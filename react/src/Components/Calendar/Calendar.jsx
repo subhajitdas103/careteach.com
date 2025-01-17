@@ -53,6 +53,20 @@ useEffect(() => {
       end: new Date(2024, 11, 3, 14, 0),   // Dec 3, 2024, 2:00 PM
     },
   ]);
+
+  const [Bulkevents, setBulkEvents] = useState([
+    {
+      title: 'Meeting with Team',
+      start: new Date(2024, 11, 3, 10, 0), // Dec 3, 2024, 10:00 AM
+      end: new Date(2024, 11, 3, 11, 0),   // Dec 3, 2024, 11:00 AM
+    },
+    {
+      title: 'Lunch Break',
+      start: new Date(2024, 11, 3, 13, 0), // Dec 3, 2024, 1:00 PM
+      end: new Date(2024, 11, 3, 14, 0),   // Dec 3, 2024, 2:00 PM
+    },
+  ]);
+
   const [view, setView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
@@ -341,17 +355,49 @@ useEffect(() => {
   const FetchBulkSessionDetails = async () => {
     try {
       const response = await axios.get(`${backendUrl}/api/BulkSessionDetails`);
-      const data = response.data; // Axios automatically parses JSON
-console.log("FetchDetailsBulkSession",data);
-    
+      const data = response.data; 
+      console.log("Data from Bulk",data);
+      const formattedEvents = data.map((session) => {
 
-    } catch (error) {
-      console.error('Error fetching session details:', error);
-    }
-  };
+        const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
+        console.log("sessionStartTime from Bulk",sessionStartTime);
+       
+        const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
+        console.log("sessionEndTime from Bulk",sessionEndTime);
+
+
+      const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: true 
+        });
+
+        const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          hour12: true 
+        });
+
+      return {
+        title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
+        start: sessionStartTime,
+        end: sessionEndTime,
+      };
+    });
+
+    // Update state or handle events
+    setBulkEvents(formattedEvents);
+    console.log("Events Bulk:", formattedEvents);
+
+  } catch (error) {
+    console.error('Error fetching session details:', error);
+  }
+};
 
   FetchBulkSessionDetails();
 }, []);
+
+
 // ========================================================
 
 
@@ -370,7 +416,7 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
       <h2>Calendar</h2>
       <Calendar
       localizer={localizer}
-      events={events}
+      events={[...events, ...Bulkevents]} 
       startAccessor="start"
       endAccessor="end"
       style={{ height: 500 }}
