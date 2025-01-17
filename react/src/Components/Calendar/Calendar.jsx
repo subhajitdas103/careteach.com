@@ -261,6 +261,9 @@ const SingleSessionChooseDate = formValue.date ?
 const SingleSessionStartTime = StartTimeValue.time ? StartTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
 const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
 console.log("SingleSession Date",SingleSessionChooseDate);
+
+
+
   // =======================================
   const addSingleSession = async () => {
     const sessionData = {
@@ -295,6 +298,9 @@ console.log("SingleSession Date",SingleSessionChooseDate);
 
 
 // =========================================================
+
+const BulkSessionStartTime = StartTimeValueBulk.time ? StartTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
+const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
 const add_BulkSession = async () => {
   const sessionData = {
       id: slectedStudentID,
@@ -303,8 +309,8 @@ const add_BulkSession = async () => {
       dayofweek: dayofweek,
       startDate: selecteStartDateBulk,
       endDate: selecteEndDateBulk,
-      startTime: StartTimeValueBulk,
-      endTime: EndTimeValueBulk ,
+      startTime: BulkSessionStartTime,
+      endTime: BulkSessionEndTime ,
   };
   console.log(sessionData);
   try {
@@ -312,7 +318,7 @@ const add_BulkSession = async () => {
       if (response.status === 201) {
 
         setShowModal(false);
-        toast.success("bulk Session Added!", {
+        toast.success("Bulk Session Added!", {
           position: "top-right",
           autoClose: 5000,
       });

@@ -67,9 +67,9 @@ class CalendarController extends Controller
         'sessionType' => 'required|string',
         'dayofweek'  => 'required|array',
         'startDate' => 'required|date',
-        'endDate' => 'required|date',
-        'startTime' => 'required|date_format:H:i:s',
-        'endTime' => 'required|date_format:H:i:s',
+       'endDate'         => 'required|date|after_or_equal:startDate',
+    'startTime'       => 'required|date_format:H:i:s',
+    'endTime'         => 'required|date_format:H:i:s|after:startTime',
     ]);
 
     $validatedData['dayofweek'] = is_array($validatedData['dayofweek'])
