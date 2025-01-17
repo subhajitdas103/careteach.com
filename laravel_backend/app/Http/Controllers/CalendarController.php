@@ -56,7 +56,18 @@ class CalendarController extends Controller
             return response()->json(['error' => 'Error fetching '], 500);
         }
     }
-    // FetchSingleSession
+    public function FetchBulkSessionDetails()
+    {
+        try {
+    
+            $BulkSessionDetails = BulkSessionModel::orderBy('id', 'desc')->get();
+            // dd($students);
+            return response()->json($BulkSessionDetails); 
+        } catch (\Exception $e) {
+            \Log::error('Error fetching: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching '], 500);
+        }
+    }
 
 
     public function AddBulkSession(Request $request)

@@ -333,6 +333,25 @@ const add_BulkSession = async () => {
       alert('There was an error creating the session.');
   }
 };
+
+
+// ==========================================
+
+useEffect(() => {
+  const FetchBulkSessionDetails = async () => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/BulkSessionDetails`);
+      const data = response.data; // Axios automatically parses JSON
+console.log("FetchDetailsBulkSession",data);
+    
+
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
+
+  FetchBulkSessionDetails();
+}, []);
 // ========================================================
 
 

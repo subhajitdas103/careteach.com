@@ -49,4 +49,4 @@ Route::get('/FetchUserDetails',[AuthController::class,'fetchUser']);
 Route::post('/AddSingleSessions', [CalendarController::class,'AddSingleSessions']);
 Route::get('/SingleSession',[CalendarController::class,'FetchSingleSession']);
 Route::post('/AddBulkSession',[CalendarController::class,'AddBulkSession']);
-
+Route::get('/BulkSessionDetails',[CalendarController::class,'FetchBulkSessionDetails']);
