@@ -71,7 +71,7 @@ useEffect(() => {
   const [view, setView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
-
+  const [showModalofSession, setShowModalSession] = useState(false); 
   const handleViewChange = (viewType) => {
     setView(viewType);
   };
@@ -497,8 +497,13 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
 
  // Handle when an event is clicked
  const handleSessionClick = (event) => {
+  setShowModalSession(true);
   console.log('Event clicked:', event);
   // You can show a modal or perform other actions here
+};
+
+const handleCloseModalSession = () => {
+  setShowModalSession(false); // Hide the modal
 };
   return (
     
@@ -791,6 +796,31 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
                   <Button variant="primary" onClick={addSingleSession}>Save changes S</Button>
               )}
                
+            </Modal.Footer>
+          </Modal.Dialog>
+        </div>
+      )}
+      {/* ==================================== */}
+      {showModalofSession && (
+        <div className="modal show" style={{ display: 'block' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton onClick={handleCloseModalSession}>
+              <Modal.Title>Confirm Session</Modal.Title>
+            </Modal.Header>
+                <Modal.Body>
+
+               <div className="stu-pro-field-div">
+                <Form.Group controlId="time">
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time B</Form.ControlLabel>
+          
+                </Form.Group>
+               
+              </div>
+            </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
+                  <Button variant="primary" >Save changes S</Button>
             </Modal.Footer>
           </Modal.Dialog>
         </div>
