@@ -483,10 +483,6 @@ useEffect(() => {
 }, [selectedStudent]); // Dependency on selectedStudent
 
 
-
-
-
-
 // ========================================================
 
 
@@ -498,6 +494,12 @@ useEffect(() => {
 
 const validDate = formValue.date ? new Date(formValue.date) : null;
 const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null;
+
+ // Handle when an event is clicked
+ const handleSessionClick = (event) => {
+  console.log('Event clicked:', event);
+  // You can show a modal or perform other actions here
+};
   return (
     
     <div style={{ color: '#4979a0' }}>
@@ -512,7 +514,8 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
       view={view} // Controlled view based on state
       date={currentDate} // Set the current date for navigation
       onView={handleViewChange} // View change handler
-      onNavigate={handleNavigate} // Automatically handles navigation by updating the current date
+      onNavigate={handleNavigate}
+      onSelectEvent={handleSessionClick}
       components={{
       toolbar: ({ label }) => (
       <div
