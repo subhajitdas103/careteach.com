@@ -355,18 +355,28 @@ useEffect(() => {
   const FetchBulkSessionDetails = async () => {
     try {
       const response = await axios.get(`${backendUrl}/api/BulkSessionDetails`);
-      const data = response.data; 
-      console.log("Data from Bulk",data);
+      const data = response.data;
+      console.log("Data from Bulk", data);
+
+     
+  
+      const dayMap = {
+        Sunday: 0,
+        Monday: 1,
+        Tuesday: 2,
+        Wednesday: 3,
+        Thursday: 4,
+        Friday: 5,
+        Saturday: 6,
+      };
+
       const formattedEvents = data.map((session) => {
-
+        const wdays = session.dayofweek.split(",");
+        console.log("Weekdays for session ", wdays);
         const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
-        console.log("sessionStartTime from Bulk",sessionStartTime);
-       
         const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
-        console.log("sessionEndTime from Bulk",sessionEndTime);
 
-
-      const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
+        const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
           hour: '2-digit', 
           minute: '2-digit', 
           hour12: true 
@@ -378,24 +388,47 @@ useEffect(() => {
           hour12: true 
         });
 
-      return {
-        title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
-        start: sessionStartTime,
-        end: sessionEndTime,
-      };
-    });
+         // Convert weekdays array to numeric day values
+      const numericDays = wdays.map((day) => dayMap[day.trim()]);
+      const eventDates = [];
 
-    // Update state or handle events
-    setBulkEvents(formattedEvents);
-    console.log("Events Bulk:", formattedEvents);
+      // Find all matching days in the date range
+      let currentDate = new Date(sessionStartTime);
+      while (currentDate <= sessionEndTime) {
+        if (numericDays.includes(currentDate.getDay())) {
+          eventDates.push(new Date(currentDate)); // Add the date to the list
+        }
+        currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+      }
 
-  } catch (error) {
-    console.error('Error fetching session details:', error);
-  }
-};
+        // Map the recurring event dates with the time
+        const recurringEvents = eventDates.map((date) => {
+          // Adjust the time for each recurring event
+          const startDate = new Date(date.setHours(sessionStartTime.getHours(), sessionStartTime.getMinutes()));
+          const endDate = new Date(date.setHours(sessionEndTime.getHours(), sessionEndTime.getMinutes()));
+
+          return {
+            title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
+            start: startDate,
+            end: endDate,
+          };
+        });
+
+        return recurringEvents;
+      }).flat();  // Flatten the array if there are multiple events for each session
+
+      // Set the formatted events to the state
+      setBulkEvents(formattedEvents);
+      console.log("Formatted Events Bulk:", formattedEvents);
+
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
 
   FetchBulkSessionDetails();
 }, []);
+
 
 
 // ========================================================
