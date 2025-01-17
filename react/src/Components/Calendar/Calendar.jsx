@@ -317,7 +317,7 @@ const BulkSessionStartTime = StartTimeValueBulk.time ? StartTimeValueBulk.time.t
 const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
 const add_BulkSession = async () => {
 
-  const wdays = dayofweek; // dayofweek is already an array ['Friday', 'Saturday', 'Thursday']
+  const wdays = dayofweek;
 console.log("xx", wdays);
 
 const daysOfWeekMap = {
@@ -407,8 +407,6 @@ useEffect(() => {
       const data = response.data;
       console.log("Data from Bulk", data);
 
-     
-  
       const dayMap = {
         Sunday: 0,
         Monday: 1,
@@ -421,7 +419,9 @@ useEffect(() => {
 
       const formattedEvents = data.map((session) => {
         const wdays = session.dayofweek.split(",");
-        console.log("Weekdays for session ", wdays);
+        console.log("Weekdays for session", wdays);
+
+        const sessionStartDate = new Date(session.start_date);
         const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
         const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
 
@@ -437,24 +437,19 @@ useEffect(() => {
           hour12: true 
         });
 
-         // Convert weekdays array to numeric day values
-      const numericDays = wdays.map((day) => dayMap[day.trim()]);
-      const eventDates = [];
+        // Convert weekdays array to numeric day values
+        const numericDays = wdays.map((day) => dayMap[day.trim()]);
+        
+        // Extract session dates from the session_dates string
+        const sessionDates = session.session_dates.split(',').map(date => parseInt(date, 10));
 
-      // Find all matching days in the date range
-      let currentDate = new Date(sessionStartTime);
-      while (currentDate <= sessionEndTime) {
-        if (numericDays.includes(currentDate.getDay())) {
-          eventDates.push(new Date(currentDate)); // Add the date to the list
-        }
-        currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
-      }
+        // Map the session dates with the time
+        const recurringEvents = sessionDates.map((date) => {
+          const eventDate = new Date(sessionStartDate);
+          eventDate.setDate(date); // Set the day based on sessionDates
 
-        // Map the recurring event dates with the time
-        const recurringEvents = eventDates.map((date) => {
-          // Adjust the time for each recurring event
-          const startDate = new Date(date.setHours(sessionStartTime.getHours(), sessionStartTime.getMinutes()));
-          const endDate = new Date(date.setHours(sessionEndTime.getHours(), sessionEndTime.getMinutes()));
+          const startDate = new Date(eventDate.setHours(sessionStartTime.getHours(), sessionStartTime.getMinutes()));
+          const endDate = new Date(eventDate.setHours(sessionEndTime.getHours(), sessionEndTime.getMinutes()));
 
           return {
             title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
@@ -477,6 +472,7 @@ useEffect(() => {
 
   FetchBulkSessionDetails();
 }, []);
+
 
 
 
