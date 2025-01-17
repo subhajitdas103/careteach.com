@@ -78,14 +78,21 @@ class CalendarController extends Controller
         'sessionType' => 'required|string',
         'dayofweek'  => 'required|array',
         'startDate' => 'required|date',
-       'endDate'         => 'required|date|after_or_equal:startDate',
-    'startTime'       => 'required|date_format:H:i:s',
-    'endTime'         => 'required|date_format:H:i:s|after:startTime',
+        'endDate'         => 'required|date|after_or_equal:startDate',
+        'startTime'       => 'required|date_format:H:i:s',
+        'endTime'         => 'required|date_format:H:i:s|after:startTime',
+        'sessionDates'   => 'required|array',
     ]);
 
     $validatedData['dayofweek'] = is_array($validatedData['dayofweek'])
         ? implode(',', $validatedData['dayofweek'])
         : $validatedData['dayofweek']; 
+
+        $validatedData['sessionDates'] = is_array($validatedData['sessionDates'])
+        ? implode(',', $validatedData['sessionDates'])
+        : $validatedData['sessionDates']; 
+
+      
 
     // Prepare the data to insert, encode dayofweek array to JSON
     $dataToAdd = [
@@ -97,6 +104,7 @@ class CalendarController extends Controller
         'end_date' => $validatedData['endDate'],
         'start_time' => $validatedData['startTime'],
         'end_time' => $validatedData['endTime'],
+        'session_dates' => $validatedData['sessionDates'],
     ];
 
     try {

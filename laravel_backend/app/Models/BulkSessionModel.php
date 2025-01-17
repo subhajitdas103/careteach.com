@@ -16,5 +16,6 @@ class BulkSessionModel extends Model
         'end_date' , 
         'start_time',
         'end_time',
+        'session_dates',
             ];
 }

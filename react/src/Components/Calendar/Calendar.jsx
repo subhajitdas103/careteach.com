@@ -311,21 +311,70 @@ console.log("SingleSession Date",SingleSessionChooseDate);
 };
 
 
-// =========================================================
+// ====================Add Bulk Session=====================================
 
 const BulkSessionStartTime = StartTimeValueBulk.time ? StartTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
 const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
 const add_BulkSession = async () => {
-  const sessionData = {
-      id: slectedStudentID,
-      selected_student : SelectedStudentName,
-      sessionType: selectedValueRadio,
-      dayofweek: dayofweek,
-      startDate: selecteStartDateBulk,
-      endDate: selecteEndDateBulk,
-      startTime: BulkSessionStartTime,
-      endTime: BulkSessionEndTime ,
-  };
+
+  const wdays = dayofweek; // dayofweek is already an array ['Friday', 'Saturday', 'Thursday']
+console.log("xx", wdays);
+
+const daysOfWeekMap = {
+  'Sunday': 0,
+  'Monday': 1,
+  'Tuesday': 2,
+  'Wednesday': 3,
+  'Thursday': 4,
+  'Friday': 5,
+  'Saturday': 6
+};
+
+const startDate = new Date(selecteStartDateBulk);  // Start date
+const endDate = new Date(selecteEndDateBulk);    // End date
+
+// Function to generate dates for a specific day of the week
+const generateDates = (startDate, endDate, dayOfWeek) => {
+  let dates = [];
+  let currentDate = new Date(startDate);
+
+  // Loop through the dates until reaching the end date
+  while (currentDate <= new Date(endDate)) {
+    // If the current date is the desired day of the week (e.g., 'Friday')
+    if (currentDate.getDay() === dayOfWeek) {
+      dates.push(new Date(currentDate));  // Add the date to the list
+    }
+    currentDate.setDate(currentDate.getDate() + 1);  // Increment by 1 day
+  }
+
+  return dates;
+};
+
+// Prepare an array to store the session dates for all selected days of the week
+let allSessionDates = [];
+
+wdays.forEach(day => {
+  const dayOfWeek = daysOfWeekMap[day]; // Get the day index from the map
+  if (dayOfWeek !== undefined) {
+    const generatedDates = generateDates(startDate, endDate, dayOfWeek);
+    const formattedDates = generatedDates.map(date => date.getDate());
+    allSessionDates = [...allSessionDates, ...formattedDates]; // Merge all session dates
+  }
+});
+
+
+
+const sessionData = {
+  id: slectedStudentID,
+  selected_student: SelectedStudentName,
+  sessionType: selectedValueRadio,
+  dayofweek: wdays,  // This stores the array of selected days of the week
+  startDate: selecteStartDateBulk,
+  endDate: selecteEndDateBulk,
+  startTime: BulkSessionStartTime,
+  endTime: BulkSessionEndTime,
+  sessionDates: allSessionDates, // Add the session dates here
+};
   console.log(sessionData);
   try {
       const response = await axios.post(`${backendUrl}/api/AddBulkSession`, sessionData);
