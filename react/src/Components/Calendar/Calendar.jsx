@@ -182,7 +182,7 @@ useEffect(() => {
 
     // Validate the selected start time (8 AM to 10 PM)
     if (selectedStartHour < 8 || selectedStartHour > 21) {
-      alert('Start time must be between 8:00 AM and 10:00 PM.');
+      alert('Start time must be start from  8:00 AM .');
       return;
     }
 
@@ -208,7 +208,7 @@ useEffect(() => {
 
     // Validate the end time range (8 AM to 10 PM)
     if (selectedEndHour < 8 || selectedEndHour > 21) {
-      alert('End time must be between 8:00 AM and 10:00 PM.');
+      alert('End time must be between 10:00 PM.');
       return;
     }
 
@@ -228,7 +228,7 @@ useEffect(() => {
   
     // Check if the selected start time is outside the valid range (8 AM to 10 PM)
     if (selectedHour < 8 || selectedHour > 21) {
-      alert('Start time must be between 8:00 AM and 10:00 PM.');
+      alert('Start time must be start from 8:00 AM.');
       return;
     }
   
@@ -253,7 +253,7 @@ useEffect(() => {
   
     // Check if the selected end time is outside the valid range (8 AM to 10 PM)
     if (endHour < 8 || endHour > 21) {
-      alert('End time must be between 8:00 AM and 10:00 PM.');
+      alert('End time must be between 10:00 PM.');
       return;
     }
   
