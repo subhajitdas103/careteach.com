@@ -6,7 +6,7 @@ import './Calendar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
 import { Modal, Button } from 'react-bootstrap'; // Importing Bootstrap Modal
-import { TimePicker ,DatePicker , Form , Dropdown } from 'rsuite';
+import { TimePicker ,DatePicker , Form , Dropdown ,Input  } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css'; 
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -499,12 +499,69 @@ const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null
  const handleSessionClick = (event) => {
   setShowModalSession(true);
   console.log('Event clicked:', event);
-  // You can show a modal or perform other actions here
+  setSelectedEvent(event);
+
 };
 
 const handleCloseModalSession = () => {
   setShowModalSession(false); // Hide the modal
 };
+
+// ====================Confirm Session================================
+  const [selectedDateConfirmSession, setConfirmSessionSelectedDate] = useState(null);
+  const [startTimeConfirmSession, setStartTimeConfirmSession] = useState(null);
+  const [endTimeConfirmSession, setEndTimeConfirmSession] = useState(null);
+  const [selectedValueRadioConfirmSession, setSelectedValueRadioConfirmSession] = useState("yes");
+  const [selectedEvent, setSelectedEvent] = useState({
+  start: '',
+  end: ''
+});
+
+
+  useEffect(() => {
+    if (selectedEvent && selectedEvent.start && selectedEvent.end) {
+      const eventStartDate = new Date(selectedEvent.start);
+      const eventEndDate = new Date(selectedEvent.end);
+  
+      // Format the start time to 'hh:mm AM/PM'
+      const eventStartTime = eventStartDate.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+  
+      // Format the end time to 'hh:mm AM/PM'
+      const eventEndTime = eventEndDate.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+  
+      // Extract date in 'YYYY-MM-DD' format
+      const eventDate = eventStartDate.toISOString().split("T")[0];
+  
+      // Set the date, start time, and end time in state
+      setConfirmSessionSelectedDate(eventDate);
+      setStartTimeConfirmSession(eventStartTime);
+      setEndTimeConfirmSession(eventEndTime);
+  
+      // Log times for debugging
+      console.log("Event Date:", eventDate);
+      console.log("Start Time:", eventStartTime);
+      console.log("End Time:", eventEndTime);
+    } else {
+      // Fallback case if selectedEvent is not valid
+      console.error("Invalid event data", selectedEvent);
+    }
+  }, [selectedEvent]);
+  
+  
+ 
+
+      // Handle changes in radio buttons
+  const handleChangeConfirmSession = (e) => {
+    setSelectedValueRadioConfirmSession(e.target.value);
+  }
   return (
     
     <div style={{ color: '#4979a0' }}>
@@ -807,20 +864,70 @@ const handleCloseModalSession = () => {
             <Modal.Header closeButton onClick={handleCloseModalSession}>
               <Modal.Title>Confirm Session</Modal.Title>
             </Modal.Header>
-                <Modal.Body>
+            <Modal.Body>
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Confirm Session</Form.ControlLabel>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center space-x-2">
+                      <Radio
+                        checked={selectedValueRadioConfirmSession === "yes"}
+                        onChange={handleChangeConfirmSession}
+                        value="yes"
+                        name="radio-buttons"
+                        inputProps={{ "aria-label": "yes" }}
+                        className="text-blue-600"
+                      />
+                      <span>Yes</span>
+                    </label>
 
-               <div className="stu-pro-field-div">
-                <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time B</Form.ControlLabel>
-          
-                </Form.Group>
-               
+                    <label className="flex items-center space-x-2">
+                      <Radio
+                        checked={selectedValueRadioConfirmSession === "no"}
+                        onChange={handleChange}
+                        value="no"
+                        name="radio-buttons"
+                        inputProps={{ "aria-label": "no" }}
+                        className="text-blue-600"
+                      />
+                      <span>No</span>
+                    </label>
+                    <p style={{ marginTop: '=4px' , fontSize:"11px" }}>*If you select No, the session will be rejected.</p>
+
+                  </div>
+              </Form.Group>
+              
               </div>
-            </Modal.Body>
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                <DatePicker
+                  format="yyyy-MM-dd"
+                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
+
+                />
+              </Form.Group>
+
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
+                 <Input className="rs_input_custom"  placeholder="Default Input"
+                  value={startTimeConfirmSession  || "" } disabled
+                />
+              </Form.Group>
+              <br/>
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
+                
+                <Input className="rs_input_custom" placeholder="Default Input"
+                  value={endTimeConfirmSession  || ""} disabled 
+                />
+              </Form.Group>
+            </div>
+          </Modal.Body>
 
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
-                  <Button variant="primary" >Save changes S</Button>
+                  <Button variant="primary" >Confirm Session</Button>
             </Modal.Footer>
           </Modal.Dialog>
         </div>
