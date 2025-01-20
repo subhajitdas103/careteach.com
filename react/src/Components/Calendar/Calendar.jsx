@@ -178,24 +178,95 @@ useEffect(() => {
   const [EndTimeValue, setEndTimeValue] = useState({ time: null });
 
   const handleStartimeChange = (value) => {
-    setStartTimeValue({ time: value }); // Update time value
+    const selectedStartHour = value.getHours();
+
+    // Validate the selected start time (8 AM to 10 PM)
+    if (selectedStartHour < 8 || selectedStartHour > 21) {
+      alert('Start time must be between 8:00 AM and 10:00 PM.');
+      return;
+    }
+
+    // Update the start time value
+    setStartTimeValue({ time: value });
+
+    // If end time is before the start time, reset it
+    if (EndTimeValue.time && value >= EndTimeValue.time) {
+      setEndTimeValue({ time: null }); // Reset end time
+    }
   };
 
-  const handleEndtimeChange = (value) => {
-    setEndTimeValue({ time: value }); // Update time value
+
+   // Handle end time change
+   const handleEndtimeChange = (value) => {
+    const selectedEndHour = value.getHours();
+
+    // Validate the selected end time (after start time, up to 10 PM)
+    if (StartTimeValue.time && value <= StartTimeValue.time) {
+      alert('End time must be later than the start time.');
+      return;
+    }
+
+    // Validate the end time range (8 AM to 10 PM)
+    if (selectedEndHour < 8 || selectedEndHour > 21) {
+      alert('End time must be between 8:00 AM and 10:00 PM.');
+      return;
+    }
+
+    // Update the end time value
+    setEndTimeValue({ time: value });
   };
+
+ 
+ 
+
   // ===========For Bulk Session Add=============
   const [StartTimeValueBulk, setStartTimeValueBulk] = useState({ time: null });
   const [EndTimeValueBulk, setEndTimeValueBulk] = useState({ time: null });
 
   const handleStartimeChangeBulk = (value) => {
-    setStartTimeValueBulk({ time: value }); // Update time value
+    const selectedHour = value.getHours();
+  
+    // Check if the selected start time is outside the valid range (8 AM to 10 PM)
+    if (selectedHour < 8 || selectedHour > 21) {
+      alert('Start time must be between 8:00 AM and 10:00 PM.');
+      return;
+    }
+  
+    // If valid, update the start time value
+    setStartTimeValueBulk({ time: value });
+  
+    // Reset the end time if it is earlier than or equal to the new start time
+    if (EndTimeValueBulk?.time && value >= EndTimeValueBulk.time) {
+      setEndTimeValueBulk(null); // Reset end time
+    }
   };
+  
+
+ 
+  
+
+  
 
   const handleEndtimeChangeBulk = (value) => {
-    setEndTimeValueBulk({ time: value }); // Update time value
+    const startHour = StartTimeValueBulk?.time ? StartTimeValueBulk.time.getHours() : 8; // Default to 8 AM
+    const endHour = value.getHours();
+  
+    // Check if the selected end time is outside the valid range (8 AM to 10 PM)
+    if (endHour < 8 || endHour > 21) {
+      alert('End time must be between 8:00 AM and 10:00 PM.');
+      return;
+    }
+  
+    // Check if the end time is earlier than or equal to the start time
+    if (StartTimeValueBulk?.time && value <= StartTimeValueBulk.time) {
+      alert('End time must be later than the start time.');
+      return;
+    }
+  
+    // If valid, update the end time value
+    setEndTimeValueBulk({ time: value });
   };
-
+  
   const handleDateChange = (date) => {
     const formattedDate = new Date(date).toISOString().split('T')[0]; // format as yyyy-MM-dd
     setFormValue(prevState => ({
@@ -561,6 +632,7 @@ const handleCloseModalSession = () => {
       // Handle changes in radio buttons
   const handleChangeConfirmSession = (e) => {
     setSelectedValueRadioConfirmSession(e.target.value);
+    console.log(e.target.value); 
   }
   return (
     
@@ -815,7 +887,9 @@ const handleCloseModalSession = () => {
                     showMeridian 
                   />
                 </Form.Group>
+                
               </div>
+              
               )}
                {/* ===================For Bulk ====================== */}
                {selectedValueRadio === "bulk" && (
@@ -837,11 +911,13 @@ const handleCloseModalSession = () => {
                     value={EndTimeValueBulk.time}
                     onChange={handleEndtimeChangeBulk}
                     format="hh:mm a"
+                  
                     showMeridian 
                   />
                 </Form.Group>
               </div>
                )}
+               
             </Modal.Body>
 
             <Modal.Footer>
@@ -884,7 +960,7 @@ const handleCloseModalSession = () => {
                     <label className="flex items-center space-x-2">
                       <Radio
                         checked={selectedValueRadioConfirmSession === "no"}
-                        onChange={handleChange}
+                        onChange={handleChangeConfirmSession}
                         value="no"
                         name="radio-buttons"
                         inputProps={{ "aria-label": "no" }}
