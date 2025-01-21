@@ -125,6 +125,7 @@ public function deleteSession(Request $request)
         $studentId = $request->input('student_id');
         $singleSessionDate = $request->input('single_session_date');
         $selectedDateConfirmSession = $request->input('selectedDateConfirmSession');
+        $bulk_session_id = $request->input('bulk_session_id');
         
         // Validate required input
         if (!$sessionType || !$studentId) {
@@ -142,8 +143,9 @@ public function deleteSession(Request $request)
                 // Extract the day from the selected date (e.g., "2025-01-13" -> 13)
                 $dayToDelete = \Carbon\Carbon::parse($selectedDateConfirmSession)->day;
 
-                // Find the session and update the session_dates by removing the selected day
-                $bulkSession = BulkSessionModel::where('student_id', $studentId)->first();
+                $bulkSession = BulkSessionModel::where('student_id', $studentId)
+                    ->where('id', $bulk_session_id) // Filter by session ID
+                    ->first();
 
                 if ($bulkSession) {
                     // Convert session_dates (e.g., "6,13,20,27") to an array

@@ -137,7 +137,8 @@ console.log("cccccc",data);
           end: sessionEndTime, 
           student_id :session.student_id,
           session_name: session.session_name, 
-          session_date :session.date,   // Combined Date and end_time
+          session_date :session.date, 
+          // Combined Date and end_time
         };
       });
 
@@ -538,6 +539,7 @@ useEffect(() => {
               end: endDate,
               student_id :session.student_id,
               session_name: session.session_name,
+              bulk_session_id : session.id,
             };
           });
 
@@ -590,12 +592,14 @@ const handleCloseModalSession = () => {
   const [startTimeConfirmSession, setStartTimeConfirmSession] = useState(null);
   const [SingleSessionDate, setSingleSessiondate] = useState(null);
   const [endTimeConfirmSession, setEndTimeConfirmSession] = useState(null);
+  const [bulk_session_id, set_bulk_session_id] = useState(null);
+  
   const [selectedValueRadioConfirmSession, setSelectedValueRadioConfirmSession] = useState("yes");
   const [selectedEvent, setSelectedEvent] = useState({
   start: '',
   end: ''
 });
-console.log("selected_session_type",SingleSessionDate);
+console.log("selected_session_type",selectedEvent);
 
   useEffect(() => {
     if (selectedEvent && selectedEvent.start && selectedEvent.end && selectedEvent.session_name && selectedEvent.student_id) {
@@ -604,6 +608,7 @@ console.log("selected_session_type",SingleSessionDate);
       const session_name = selectedEvent.session_name;
       const selected_session_studentID = selectedEvent.student_id;
       const single_session_date = selectedEvent.session_date;
+      const bulk_session_id = selectedEvent.bulk_session_id;
       // Format the start time to 'hh:mm AM/PM'
       const eventStartTime = eventStartDate.toLocaleTimeString([], {
         hour: '2-digit',
@@ -628,11 +633,13 @@ console.log("selected_session_type",SingleSessionDate);
       setConfirmSessionSelectedDate(eventDate);
       setStartTimeConfirmSession(eventStartTime);
       setEndTimeConfirmSession(eventEndTime);
+      set_bulk_session_id(bulk_session_id);
+      
   
       // Log times for debugging
       console.log("Event Date:", eventDate);
       console.log("Start Time:", eventStartTime);
-      console.log("End Time:", eventEndTime);
+      console.log("End Time:", bulk_session_id);
     } else {
       // Fallback case if selectedEvent is not valid
       console.error("Invalid event data 1", selectedEvent);
@@ -654,7 +661,7 @@ console.log("selected_session_type",SingleSessionDate);
   console.log("AAAA",selectedDateConfirmSession);
 
 
-  const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession) => {
+  const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession , bulk_session_id) => {
     axios
       .delete(`${backendUrl}/api/DeleteSession`, {
         headers: { 'Content-Type': 'application/json' }, // Explicit headers
@@ -663,10 +670,11 @@ console.log("selected_session_type",SingleSessionDate);
           student_id: selectedSession_studentID,
           single_session_date: SingleSessionDate,
           selectedDateConfirmSession : selectedDateConfirmSession,
+          bulk_session_id :bulk_session_id,
         },
       })
       .then(() => {
-        // setShow(false);
+         setShowModalSession(false); 
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
@@ -1054,7 +1062,7 @@ console.log("selected_session_type",SingleSessionDate);
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
               {selectedValueRadioConfirmSession === "no" ? (
-              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession)}>Delete Confirm Session</Button>
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
             ) : (
               <Button variant="primary">Confirm Session</Button>
             )}
