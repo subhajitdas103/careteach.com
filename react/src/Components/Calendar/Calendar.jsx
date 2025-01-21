@@ -689,8 +689,28 @@ console.log("selected_session_type",selectedEvent);
       });
   };
   
+  const [showMoreEvents, setShowMoreEvents] = useState(false);
+
+// Handler to toggle the visibility of additional events
+const handleShowMoreClick = () => {
+  setShowMoreEvents(!showMoreEvents);
+  alert("erty")
+};
   
-  
+
+const handleNavigateWeek = (action) => {
+  let newDate = new Date(currentDate);
+
+  if (action === 'PREV') {
+    newDate.setDate(newDate.getDate() - 7); // Go to the previous week
+  } else if (action === 'NEXT') {
+    newDate.setDate(newDate.getDate() + 7); // Go to the next week
+  } else if (action === 'TODAY') {
+    newDate = new Date(); // Reset to today's date
+  }
+
+  setCurrentDate(newDate); // Update the current date to trigger a re-render
+};
 
   return (
     
@@ -738,12 +758,22 @@ console.log("selected_session_type",selectedEvent);
         >
           {label}
         </div>
-
+        {view != 'week' && (
         <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
           <button onClick={() => handleNavigate('PREV')}>Prev</button>
           <button onClick={() => handleNavigate('TODAY')}>Today</button>
           <button onClick={() => handleNavigate('NEXT')}>Next</button>
         </div>
+          )}
+
+
+        {view === 'week' && (
+        <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
+          <button onClick={() => handleNavigateWeek('PREV')}>Prev Week</button>
+         
+          <button onClick={() => handleNavigateWeek('NEXT')}>Next Week</button>
+        </div>
+           )}
 
           <div className="card flex justify-content-center" style={{ width: '225px' , margin:'-2px 10px' }}>
             <PrimeReactDropdown
@@ -795,7 +825,11 @@ console.log("selected_session_type",selectedEvent);
     : undefined,
     //  ==========End of Add Session Click=======
   }}
+
+
 />
+
+  
 
       {/* Modal */}
       {showModal && (
@@ -1070,6 +1104,8 @@ console.log("selected_session_type",selectedEvent);
           </Modal.Dialog>
         </div>
       )}
+
+      
     </div>
   );
 };
