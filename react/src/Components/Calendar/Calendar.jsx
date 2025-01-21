@@ -111,7 +111,7 @@ useEffect(() => {
     try {
       const response = await axios.get(`${backendUrl}/api/SingleSession`);
       const data = response.data; // Axios automatically parses JSON
-console.log("cccccc",data);
+      
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
         // Format start and end time with 'Z' for UTC handling
@@ -353,9 +353,37 @@ const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString()
 console.log("SingleSession Date",SingleSessionChooseDate);
 
 
-
+console.log("all_event",events);
+console.log("all_event_bulk",Bulkevents);
   // =======================================
   const addSingleSession = async () => {
+
+    const sessionDate = SingleSessionChooseDate; // Selected date for the session
+    const sessionStartTime = SingleSessionStartTime; // e.g., "10:00:00"
+    const sessionEndTime = SingleSessionEndTime; // e.g., "11:00:00"
+
+    // Check for conflicts in all_event
+    const conflictExists = events.some(event =>
+        event.session_date === sessionDate && // Same date
+        (
+            (sessionStartTime >= event.start.toISOString().split('T')[1].split('.')[0] &&
+             sessionStartTime < event.end.toISOString().split('T')[1].split('.')[0]) || // Overlapping start time
+            (sessionEndTime > event.start.toISOString().split('T')[1].split('.')[0] &&
+             sessionEndTime <= event.end.toISOString().split('T')[1].split('.')[0]) || // Overlapping end time
+            (sessionStartTime <= event.start.toISOString().split('T')[1].split('.')[0] &&
+             sessionEndTime >= event.end.toISOString().split('T')[1].split('.')[0]) // Full overlap
+        )
+    );
+
+    if (conflictExists) {
+      toast.error("A session already exists on this date and time. Please choose a different time.", {
+          position: "top-right",
+          autoClose: 5000,
+      });
+      return; // Stop execution
+  }
+
+
     const sessionData = {
         id: slectedStudentID,
         selected_student : SelectedStudentName,
@@ -364,7 +392,7 @@ console.log("SingleSession Date",SingleSessionChooseDate);
         startTime: SingleSessionStartTime,
         endTime: SingleSessionEndTime ,
     };
-    console.log(sessionData);
+    console.log("xxxxxxxxxxxxxxx",sessionData);
     try {
         const response = await axios.post(`${backendUrl}/api/AddSingleSessions`, sessionData);
         if (response.status === 201) {
