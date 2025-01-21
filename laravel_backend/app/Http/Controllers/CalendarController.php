@@ -124,28 +124,48 @@ public function deleteSession(Request $request)
         $sessionType = $request->input('session_type');
         $studentId = $request->input('student_id');
         $singleSessionDate = $request->input('single_session_date');
+        $selectedDateConfirmSession = $request->input('selectedDateConfirmSession');
         
+        // Validate required input
         if (!$sessionType || !$studentId) {
             return response()->json(['error' => 'Invalid input'], 400);
         }
 
         if ($sessionType === 'single') {
-            // Delete from CalenderModel based on student_id and date
+            // Delete from CalendarModel based on student_id and date
             $deleted = CalendarModel::where('student_id', $studentId)
                 ->where('date', $singleSessionDate)
                 ->delete();
         } else {
-            // Handle other session types (if needed)
-            $deleted = BulkSessionModel::where('student_id', $studentId)
-                ->where('session_type', $sessionType)
-                ->where('student_id', $studentId)
-                ->delete();
-        }
+            // Handle bulk session deletion
+            if ($selectedDateConfirmSession) {
+                // Extract the day from the selected date (e.g., "2025-01-13" -> 13)
+                $dayToDelete = \Carbon\Carbon::parse($selectedDateConfirmSession)->day;
 
-        if ($deleted) {
-            return response()->json(['message' => 'Session successfully deleted'], 200);
-        } else {
-            return response()->json(['error' => 'Session not found or already deleted'], 404);
+                // Find the session and update the session_dates by removing the selected day
+                $bulkSession = BulkSessionModel::where('student_id', $studentId)->first();
+
+                if ($bulkSession) {
+                    // Convert session_dates (e.g., "6,13,20,27") to an array
+                    $sessionDates = explode(',', $bulkSession->session_dates);
+
+                    // Remove the day from the session_dates array
+                    $updatedSessionDates = array_diff($sessionDates, [$dayToDelete]);
+
+                    // If all dates were removed, ensure the field is empty
+                    $updatedSessionDates = implode(',', $updatedSessionDates);
+
+                    // Update the session_dates field with the new value
+                    $bulkSession->session_dates = $updatedSessionDates;
+                    $bulkSession->save();
+
+                    return response()->json(['message' => 'Session date successfully deleted'], 200);
+                } else {
+                    return response()->json(['error' => 'Session not found'], 404);
+                }
+            } else {
+                return response()->json(['error' => 'No session dates provided'], 400);
+            }
         }
     } catch (\Exception $e) {
         return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);

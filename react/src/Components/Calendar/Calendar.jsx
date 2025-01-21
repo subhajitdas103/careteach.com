@@ -651,10 +651,10 @@ console.log("selected_session_type",SingleSessionDate);
 
   console.log("AAAA",selectedSession_type);
   console.log("AAAA",selectedSession_studentID);
-  console.log("AAAA",SingleSessionDate);
+  console.log("AAAA",selectedDateConfirmSession);
 
 
-  const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate) => {
+  const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession) => {
     axios
       .delete(`${backendUrl}/api/DeleteSession`, {
         headers: { 'Content-Type': 'application/json' }, // Explicit headers
@@ -662,6 +662,7 @@ console.log("selected_session_type",SingleSessionDate);
           session_type: selectedSession_type,
           student_id: selectedSession_studentID,
           single_session_date: SingleSessionDate,
+          selectedDateConfirmSession : selectedDateConfirmSession,
         },
       })
       .then(() => {
@@ -1053,7 +1054,7 @@ console.log("selected_session_type",SingleSessionDate);
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
               {selectedValueRadioConfirmSession === "no" ? (
-              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate)}>Delete Confirm Session</Button>
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession)}>Delete Confirm Session</Button>
             ) : (
               <Button variant="primary">Confirm Session</Button>
             )}
