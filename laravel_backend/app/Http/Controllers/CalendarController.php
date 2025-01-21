@@ -117,5 +117,43 @@ class CalendarController extends Controller
         return response()->json(['message' => 'Error creating session.'], 500);
     }
 }
+
+public function deleteSession(Request $request)
+{
+    try {
+        $sessionType = $request->input('session_type');
+        $studentId = $request->input('student_id');
+        $singleSessionDate = $request->input('single_session_date');
+        
+        if (!$sessionType || !$studentId) {
+            return response()->json(['error' => 'Invalid input'], 400);
+        }
+
+        if ($sessionType === 'single') {
+            // Delete from CalenderModel based on student_id and date
+            $deleted = CalendarModel::where('student_id', $studentId)
+                ->where('date', $singleSessionDate)
+                ->delete();
+        } else {
+            // Handle other session types (if needed)
+            $deleted = BulkSessionModel::where('student_id', $studentId)
+                ->where('session_type', $sessionType)
+                ->where('student_id', $studentId)
+                ->delete();
+        }
+
+        if ($deleted) {
+            return response()->json(['message' => 'Session successfully deleted'], 200);
+        } else {
+            return response()->json(['error' => 'Session not found or already deleted'], 404);
+        }
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+    }
+}
+
+
+
+
 }
 

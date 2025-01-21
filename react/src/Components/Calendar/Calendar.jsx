@@ -111,7 +111,7 @@ useEffect(() => {
     try {
       const response = await axios.get(`${backendUrl}/api/SingleSession`);
       const data = response.data; // Axios automatically parses JSON
-
+console.log("cccccc",data);
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
         // Format start and end time with 'Z' for UTC handling
@@ -134,7 +134,10 @@ useEffect(() => {
         return {
           title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
           start: sessionStartTime, // Combined Date and start_time
-          end: sessionEndTime,     // Combined Date and end_time
+          end: sessionEndTime, 
+          student_id :session.student_id,
+          session_name: session.session_name, 
+          session_date :session.date,   // Combined Date and end_time
         };
       });
 
@@ -335,7 +338,7 @@ useEffect(() => {
 
 const slectedStudentID = selectedStudent?.id || null;
 const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
-
+// console.log("student_id",slectedStudentID);
 // console.log("vvv",formValue.date);
 const SingleSessionChooseDate = formValue.date ? 
   new Date(formValue.date).getFullYear() + '-' + 
@@ -533,6 +536,8 @@ useEffect(() => {
               title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
               start: startDate,
               end: endDate,
+              student_id :session.student_id,
+              session_name: session.session_name,
             };
           });
 
@@ -580,20 +585,25 @@ const handleCloseModalSession = () => {
 
 // ====================Confirm Session================================
   const [selectedDateConfirmSession, setConfirmSessionSelectedDate] = useState(null);
+  const [selectedSession_type, setSession_type] = useState(null);
+  const [selectedSession_studentID, setSession_StudentID] = useState(null);
   const [startTimeConfirmSession, setStartTimeConfirmSession] = useState(null);
+  const [SingleSessionDate, setSingleSessiondate] = useState(null);
   const [endTimeConfirmSession, setEndTimeConfirmSession] = useState(null);
   const [selectedValueRadioConfirmSession, setSelectedValueRadioConfirmSession] = useState("yes");
   const [selectedEvent, setSelectedEvent] = useState({
   start: '',
   end: ''
 });
-
+console.log("selected_session_type",SingleSessionDate);
 
   useEffect(() => {
-    if (selectedEvent && selectedEvent.start && selectedEvent.end) {
+    if (selectedEvent && selectedEvent.start && selectedEvent.end && selectedEvent.session_name && selectedEvent.student_id) {
       const eventStartDate = new Date(selectedEvent.start);
       const eventEndDate = new Date(selectedEvent.end);
-  
+      const session_name = selectedEvent.session_name;
+      const selected_session_studentID = selectedEvent.student_id;
+      const single_session_date = selectedEvent.session_date;
       // Format the start time to 'hh:mm AM/PM'
       const eventStartTime = eventStartDate.toLocaleTimeString([], {
         hour: '2-digit',
@@ -612,6 +622,9 @@ const handleCloseModalSession = () => {
       const eventDate = eventStartDate.toISOString().split("T")[0];
   
       // Set the date, start time, and end time in state
+      setSession_type(session_name);
+      setSession_StudentID(selected_session_studentID);
+      setSingleSessiondate(single_session_date);
       setConfirmSessionSelectedDate(eventDate);
       setStartTimeConfirmSession(eventStartTime);
       setEndTimeConfirmSession(eventEndTime);
@@ -622,7 +635,7 @@ const handleCloseModalSession = () => {
       console.log("End Time:", eventEndTime);
     } else {
       // Fallback case if selectedEvent is not valid
-      console.error("Invalid event data", selectedEvent);
+      console.error("Invalid event data 1", selectedEvent);
     }
   }, [selectedEvent]);
   
@@ -633,7 +646,43 @@ const handleCloseModalSession = () => {
   const handleChangeConfirmSession = (e) => {
     setSelectedValueRadioConfirmSession(e.target.value);
     console.log(e.target.value); 
+    
   }
+
+  console.log("AAAA",selectedSession_type);
+  console.log("AAAA",selectedSession_studentID);
+  console.log("AAAA",SingleSessionDate);
+
+
+  const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate) => {
+    axios
+      .delete(`${backendUrl}/api/DeleteSession`, {
+        headers: { 'Content-Type': 'application/json' }, // Explicit headers
+        data: {
+          session_type: selectedSession_type,
+          student_id: selectedSession_studentID,
+          single_session_date: SingleSessionDate,
+        },
+      })
+      .then(() => {
+        // setShow(false);
+        toast.success("Session successfully deleted!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      })
+      .catch((error) => {
+        console.error('Error deleting session:', error);
+        toast.error("Failed to delete the session. Please try again.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      });
+  };
+  
+  
+  
+
   return (
     
     <div style={{ color: '#4979a0' }}>
@@ -1003,7 +1052,11 @@ const handleCloseModalSession = () => {
 
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
-                  <Button variant="primary" >Confirm Session</Button>
+              {selectedValueRadioConfirmSession === "no" ? (
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate)}>Delete Confirm Session</Button>
+            ) : (
+              <Button variant="primary">Confirm Session</Button>
+            )}
             </Modal.Footer>
           </Modal.Dialog>
         </div>
