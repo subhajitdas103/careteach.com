@@ -45,41 +45,22 @@ useEffect(() => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   // console.log("Selected student",selectedStudent);
   const [events, setEvents] = useState([
-    {
-      title: 'Meeting with Team',
-      start: new Date(2024, 11, 3, 10, 0), // Dec 3, 2024, 10:00 AM
-      end: new Date(2024, 11, 3, 11, 0),   // Dec 3, 2024, 11:00 AM
-    },
-    {
-      title: 'Lunch Break',
-      start: new Date(2024, 11, 3, 13, 0), // Dec 3, 2024, 1:00 PM
-      end: new Date(2024, 11, 3, 14, 0),   // Dec 3, 2024, 2:00 PM
-    },
+   
+   
   ]);
 
-  useEffect(() => {
-    console.log('Event Start Times:', events.map(event => event.start.toLocaleString()));
-    console.log('Event End Times:', events.map(event => event.end.toLocaleString()));
-  }, [events]);
+  
 
   const [Bulkevents, setBulkEvents] = useState([
-    {
-      title: 'Meeting with Team',
-      start: new Date(2024, 11, 3, 10, 0), // Dec 3, 2024, 10:00 AM
-      end: new Date(2024, 11, 3, 11, 0),   // Dec 3, 2024, 11:00 AM
-    },
-    {
-      title: 'Lunch Break',
-      start: new Date(2024, 11, 3, 13, 0), // Dec 3, 2024, 1:00 PM
-      end: new Date(2024, 11, 3, 14, 0),   // Dec 3, 2024, 2:00 PM
-    },
   ]);
+  const [filteredEvents, setFilteredEvents] = useState(events);
 
   const [view, setView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [showModalofSession, setShowModalSession] = useState(false); 
   const handleViewChange = (viewType) => {
+    
     setView(viewType);
   };
 
@@ -449,7 +430,7 @@ const BulkSessionEndTime = EndTimeValueBulk.time
 
 // const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
 const [shouldFetch, setShouldFetch] = useState(false);
-const add_BulkSession = async () => {
+const addBulkSession = async () => {
 
   const wdays = dayofweek;
 console.log("xx", wdays);
@@ -1073,7 +1054,7 @@ const handleNavigateWeek = (action) => {
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
               {selectedValueRadio === "bulk" && (
-              <Button variant="primary" onClick={add_BulkSession}>Save changes B</Button>
+              <Button variant="primary" onClick={addBulkSession}>Save changes B</Button>
               )}
               {selectedValueRadio === "single" && (
                   <Button variant="primary" onClick={addSingleSession}>Save changes S</Button>
