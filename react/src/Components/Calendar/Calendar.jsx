@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
+// import moment from 'moment';
+import moment from 'moment-timezone';
+
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -54,6 +56,11 @@ useEffect(() => {
       end: new Date(2024, 11, 3, 14, 0),   // Dec 3, 2024, 2:00 PM
     },
   ]);
+
+  useEffect(() => {
+    console.log('Event Start Times:', events.map(event => event.start.toLocaleString()));
+    console.log('Event End Times:', events.map(event => event.end.toLocaleString()));
+  }, [events]);
 
   const [Bulkevents, setBulkEvents] = useState([
     {
@@ -115,21 +122,15 @@ useEffect(() => {
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
         // Format start and end time with 'Z' for UTC handling
-        const sessionStartTime = new Date(`${session.date}T${session.start_time}Z`);
-        const sessionEndTime = new Date(`${session.date}T${session.end_time}Z`);
-       
-        // Format start and end time in AM/PM format
-        const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          hour12: true 
-        });
+        const sessionStartTime = moment(`${session.date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
 
-        const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          hour12: true 
-        });
+        const sessionEndTime = moment(`${session.date} ${session.end_time}`, 'YYYY-MM-DD h:mm A').toDate();
+       
+        const formattedStartTime = moment(session.start_time, 'HH:mm:ss').format('h:mm A');
+          const formattedEndTime = moment(session.end_time, 'HH:mm:ss').format('h:mm A');
+
+         
+
 
         return {
           title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
@@ -348,8 +349,20 @@ const SingleSessionChooseDate = formValue.date ?
   : null;
 
 
-const SingleSessionStartTime = StartTimeValue.time ? StartTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
-const SingleSessionEndTime = EndTimeValue.time ? EndTimeValue.time.toISOString().split('T')[1].split('.')[0] : null;
+  const SingleSessionStartTime = StartTimeValue.time
+  ? moment(StartTimeValue.time).local().format("HH:mm:ss")
+  : null;
+
+
+  const SingleSessionEndTime = EndTimeValue.time
+  ? moment(EndTimeValue.time).local().format("HH:mm:ss")
+  : null;
+
+
+
+console.log("Local System Time:", SingleSessionStartTime);
+
+
 console.log("SingleSession Date",SingleSessionChooseDate);
 
 
@@ -358,30 +371,43 @@ console.log("all_event_bulk",Bulkevents);
   // =======================================
   const addSingleSession = async () => {
 
-    const sessionDate = SingleSessionChooseDate; // Selected date for the session
+    const sessionDate = SingleSessionChooseDate; // Selected date for the session (e.g., "2025-01-09")
     const sessionStartTime = SingleSessionStartTime; // e.g., "10:00:00"
-    const sessionEndTime = SingleSessionEndTime; // e.g., "11:00:00"
+    const sessionEndTime = SingleSessionEndTime;
+    console.log("sessionStartTime",sessionStartTime);
+    console.log("sessionEndTime",sessionEndTime);
 
-    // Check for conflicts in all_event
-    const conflictExists = events.some(event =>
-        event.session_date === sessionDate && // Same date
-        (
-            (sessionStartTime >= event.start.toISOString().split('T')[1].split('.')[0] &&
-             sessionStartTime < event.end.toISOString().split('T')[1].split('.')[0]) || // Overlapping start time
-            (sessionEndTime > event.start.toISOString().split('T')[1].split('.')[0] &&
-             sessionEndTime <= event.end.toISOString().split('T')[1].split('.')[0]) || // Overlapping end time
-            (sessionStartTime <= event.start.toISOString().split('T')[1].split('.')[0] &&
-             sessionEndTime >= event.end.toISOString().split('T')[1].split('.')[0]) // Full overlap
-        )
-    );
 
-    if (conflictExists) {
-      toast.error("A session already exists on this date and time. Please choose a different time.", {
-          position: "top-right",
-          autoClose: 5000,
-      });
-      return; // Stop execution
-  }
+
+    const eventsOnSameDate = events.filter(event => {
+      const eventStart = new Date(event.start);
+      const eventDate = eventStart.toISOString().split('T')[0]; // Get the date in YYYY-MM-DD format
+      return eventDate === sessionDate; // Check if the dates match
+    });
+
+console.log("eventsOnSameDate",eventsOnSameDate);
+const sessionTimes = eventsOnSameDate.map(event => ({
+  startTime: event.start, // The start time of the event
+  endTime: event.end,     // The end time of the event
+}));
+
+console.log("Session Times:", sessionTimes);
+
+eventsOnSameDate.forEach(event => {
+  // Extract the time in HH:MM:SS format
+  const eventStartTime = event.start.toTimeString().split(' ')[0];
+  const eventEndTime = event.end.toTimeString().split(' ')[0];
+
+  if (eventStartTime === sessionStartTime && eventEndTime === sessionEndTime) {
+    toast.error("A session already exists on this time. Please choose a different time.", {
+      position: "top-right",
+      autoClose: 5000,
+  });
+  return;
+  } 
+});
+    
+ 
 
 
     const sessionData = {
@@ -410,15 +436,25 @@ console.log("all_event_bulk",Bulkevents);
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('There was an error creating the session.');
+        // alert('There was an error creating the session.');
     }
 };
 
 
 // ====================Add Bulk Session=====================================
 
-const BulkSessionStartTime = StartTimeValueBulk.time ? StartTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
-const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
+// const BulkSessionStartTime = StartTimeValueBulk.time ? StartTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
+
+const BulkSessionStartTime = StartTimeValueBulk.time
+? moment(StartTimeValueBulk.time).local().format("HH:mm:ss")
+: null;
+
+
+const BulkSessionEndTime = EndTimeValueBulk.time
+? moment(EndTimeValueBulk.time).local().format("HH:mm:ss")
+: null;
+
+// const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
 const add_BulkSession = async () => {
 
   const wdays = dayofweek;
@@ -532,20 +568,33 @@ useEffect(() => {
           console.log("Weekdays for session", wdays);
 
           const sessionStartDate = new Date(session.start_date);
-          const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
-          const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
 
-          const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            hour12: true 
-          });
+          // const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
 
-          const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            hour12: true 
-          });
+          const sessionStartTime = moment(`${session.start_date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
+
+
+
+          // const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
+
+          const sessionEndTime = moment(`${session.end_date} ${session.end_time}`, 'YYYY-MM-DD h:mm A').toDate();
+          
+
+          // const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
+          //   hour: '2-digit', 
+          //   minute: '2-digit', 
+          //   hour12: true 
+          // });
+
+          const formattedStartTime = moment(session.start_time, 'HH:mm:ss').format('h:mm A');
+
+          // const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
+          //   hour: '2-digit', 
+          //   minute: '2-digit', 
+          //   hour12: true 
+          // });
+
+          const formattedEndTime = moment(session.end_time, 'HH:mm:ss').format('h:mm A');
 
           // Convert weekdays array to numeric day values
           const numericDays = wdays.map((day) => dayMap[day.trim()]);
@@ -702,11 +751,13 @@ console.log("selected_session_type",selectedEvent);
         },
       })
       .then(() => {
+      
          setShowModalSession(false); 
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
         });
+     
       })
       .catch((error) => {
         console.error('Error deleting session:', error);
