@@ -370,75 +370,64 @@ console.log("all_event",events);
 console.log("all_event_bulk",Bulkevents);
   // =======================================
   const addSingleSession = async () => {
-
     const sessionDate = SingleSessionChooseDate; // Selected date for the session (e.g., "2025-01-09")
     const sessionStartTime = SingleSessionStartTime; // e.g., "10:00:00"
     const sessionEndTime = SingleSessionEndTime;
-    console.log("sessionStartTime",sessionStartTime);
-    console.log("sessionEndTime",sessionEndTime);
-
-
 
     const eventsOnSameDate = events.filter(event => {
-      const eventStart = new Date(event.start);
-      const eventDate = eventStart.toISOString().split('T')[0]; // Get the date in YYYY-MM-DD format
-      return eventDate === sessionDate; // Check if the dates match
+        const eventStart = new Date(event.start);
+        const eventDate = eventStart.toISOString().split('T')[0]; // Get the date in YYYY-MM-DD format
+        return eventDate === sessionDate; // Check if the dates match
     });
 
-console.log("eventsOnSameDate",eventsOnSameDate);
-const sessionTimes = eventsOnSameDate.map(event => ({
-  startTime: event.start, // The start time of the event
-  endTime: event.end,     // The end time of the event
-}));
+    console.log("eventsOnSameDate", eventsOnSameDate);
 
-console.log("Session Times:", sessionTimes);
-
-eventsOnSameDate.forEach(event => {
-  // Extract the time in HH:MM:SS format
-  const eventStartTime = event.start.toTimeString().split(' ')[0];
-  const eventEndTime = event.end.toTimeString().split(' ')[0];
-
-  if (eventStartTime === sessionStartTime && eventEndTime === sessionEndTime) {
-    toast.error("A session already exists on this time. Please choose a different time.", {
-      position: "top-right",
-      autoClose: 5000,
-  });
-  return;
-  } 
-});
-    
- 
-
+    // Check if any events have the same time as the new session
+    for (let event of eventsOnSameDate) {
+        const eventStartTime = new Date(event.start);
+        const eventEndTime = new Date(event.end);
+        
+        if (eventStartTime.getTime() === new Date(`${sessionDate}T${sessionStartTime}`).getTime() &&
+            eventEndTime.getTime() === new Date(`${sessionDate}T${sessionEndTime}`).getTime()) {
+            toast.error("A session already exists at this time. Please choose a different time.", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+            return;  // Exit the function as there is a conflict
+        }
+    }
 
     const sessionData = {
         id: slectedStudentID,
-        selected_student : SelectedStudentName,
+        selected_student: SelectedStudentName,
         sessionType: selectedValueRadio,
-        date: SingleSessionChooseDate,
-        startTime: SingleSessionStartTime,
-        endTime: SingleSessionEndTime ,
+        date: sessionDate,
+        startTime: sessionStartTime,
+        endTime: sessionEndTime,
     };
-    console.log("xxxxxxxxxxxxxxx",sessionData);
+
+    console.log("Session Data:", sessionData);
+
     try {
         const response = await axios.post(`${backendUrl}/api/AddSingleSessions`, sessionData);
         if (response.status === 201) {
-
-          setShowModal(false);
-          toast.success("Single Session Added!", {
-            position: "top-right",
-            autoClose: 5000,
-        });
-
-          
-            // alert('Session created successfully!');
+            setShowModal(false);
+            toast.success("Single Session Added!", {
+                position: "top-right",
+                autoClose: 5000,
+            });
         } else {
             throw new Error('Failed to create session');
         }
     } catch (error) {
         console.error('Error:', error);
-        // alert('There was an error creating the session.');
+        toast.error("There was an error creating the session.", {
+            position: "top-right",
+            autoClose: 5000,
+        });
     }
 };
+
 
 
 // ====================Add Bulk Session=====================================
@@ -719,7 +708,7 @@ console.log("selected_session_type",selectedEvent);
       console.log("End Time:", bulk_session_id);
     } else {
       // Fallback case if selectedEvent is not valid
-      console.error("Invalid event data 1", selectedEvent);
+      // console.error("Invalid event data 1", selectedEvent);
     }
   }, [selectedEvent]);
   
