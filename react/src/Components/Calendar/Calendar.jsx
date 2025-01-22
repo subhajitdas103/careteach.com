@@ -349,8 +349,7 @@ console.log("Local System Time:", SingleSessionStartTime);
 console.log("SingleSession Date",SingleSessionChooseDate);
 
 
-console.log("all_event",events);
-console.log("all_event_bulk",Bulkevents);
+
   // =======================================
   const addSingleSession = async () => {
     const sessionDate = SingleSessionChooseDate; // Selected date for the session (e.g., "2025-01-09")
@@ -428,7 +427,12 @@ const BulkSessionEndTime = EndTimeValueBulk.time
 ? moment(EndTimeValueBulk.time).local().format("HH:mm:ss")
 : null;
 
-// const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
+
+
+console.log("all_event",events);
+console.log("all_event_bulk",Bulkevents);
+
+
 const [shouldFetch, setShouldFetch] = useState(false);
 const addBulkSession = async () => {
 
@@ -447,7 +451,7 @@ const daysOfWeekMap = {
 
 const startDate = new Date(selecteStartDateBulk);  // Start date
 const endDate = new Date(selecteEndDateBulk);    // End date
-
+console.log("Bulk Start date",selecteStartDateBulk);
 // Function to generate dates for a specific day of the week
 const generateDates = (startDate, endDate, dayOfWeek) => {
   let dates = [];
@@ -477,6 +481,75 @@ wdays.forEach(day => {
   }
 });
 
+// Assuming selecteStartDateBulk is already in YYYY-MM-DD format
+const eventDate = selecteStartDateBulk.trim();
+
+
+
+// const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const existingEventDates = new Set();
+
+// Helper function to generate all dates between the start and end dates
+const getDateRange = (startDate, endDate) => {
+  let dates = [];
+  let currentDate = new Date(startDate);
+  while (currentDate <= endDate) {
+    dates.push(new Date(currentDate).toISOString().split('T')[0]);  // Store as ISO date string
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  return dates;
+};
+
+const eventsOnSameDateBulk = Bulkevents.filter(event => {
+  const eventStart = new Date(event.start);
+  const eventEnd = new Date(event.end);
+  
+  // Get all dates in the event's range
+  const eventDates = getDateRange(eventStart, eventEnd);
+
+  const eventDayOfWeek = eventStart.getDay(); // Get day index (0-6)
+  const eventDayName = fullDayNames[eventDayOfWeek]; // Get the full event day name (e.g., 'Sunday')
+
+  // Filter out the event dates that already have an event
+  const isEventDateAvailable = eventDates.every(date => !existingEventDates.has(date));
+
+  // If all event dates are free, add the dates to the set
+  if (isEventDateAvailable && wdays.includes(eventDayName)) {
+    eventDates.forEach(date => {
+      existingEventDates.add(date);  // Add all event dates to the existing set
+    });
+    console.log(`Event added on ${eventDates.join(', ')} (${eventDayName})`);
+    return true; // Keep this event
+  } else {
+    console.log(`Skipping event on ${eventDates.join(', ')}: already has an event.`);
+    return false; // Skip this event
+  }
+});
+
+console.log("Events on the same date:", existingEventDates); // Set of existing event dates
+console.log("All session dates:", allSessionDates); // Array of session dates (day numbers)
+
+const formattedSessionDates = allSessionDates.map(day => {
+  const baseDate = new Date(selecteStartDateBulk); // Start date
+  
+  // Set the base date to the correct starting day
+  baseDate.setDate(baseDate.getDate() + (day - baseDate.getDate())); // Add the day number to the base start date
+  
+  // Convert to 'YYYY-MM-DD' format and extract the day
+  return baseDate.getDate(); // Only return the day of the month (e.g., 6, 13, 20, 27)
+});
+
+// Filter the session dates to exclude those already in the existingEventDates set
+const filteredSessionDates = formattedSessionDates.filter(day => {
+  // Check if the day is already in the existingEventDates set
+  return !Array.from(existingEventDates).some(existingDate => new Date(existingDate).getDate() === day);
+});
+
+console.log("Filtered session dates:", filteredSessionDates);
+
+
 
 
 const sessionData = {
@@ -488,9 +561,9 @@ const sessionData = {
   endDate: selecteEndDateBulk,
   startTime: BulkSessionStartTime,
   endTime: BulkSessionEndTime,
-  sessionDates: allSessionDates, // Add the session dates here
+  sessionDates: filteredSessionDates, // Add the session dates here
 };
-  console.log(sessionData);
+  console.log("SessionData",sessionData);
   try {
       const response = await axios.post(`${backendUrl}/api/AddBulkSession`, sessionData);
       if (response.status === 201) {
