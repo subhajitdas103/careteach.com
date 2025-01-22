@@ -112,6 +112,7 @@ useEffect(() => {
   }, []);
   
 // ==========================================
+const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
 
 useEffect(() => {
   const FetchSingleSessionDetails = async () => {
@@ -153,7 +154,8 @@ useEffect(() => {
   };
 
   FetchSingleSessionDetails();
-}, []);
+  setShouldFetchSingle(false); 
+}, [shouldFetchSingle]);
 
 
 // =====================================
@@ -411,11 +413,13 @@ console.log("all_event_bulk",Bulkevents);
     try {
         const response = await axios.post(`${backendUrl}/api/AddSingleSessions`, sessionData);
         if (response.status === 201) {
+          // shouldFetchSingle();
             setShowModal(false);
             toast.success("Single Session Added!", {
                 position: "top-right",
                 autoClose: 5000,
             });
+            setShouldFetchSingle(true);
         } else {
             throw new Error('Failed to create session');
         }
@@ -444,6 +448,7 @@ const BulkSessionEndTime = EndTimeValueBulk.time
 : null;
 
 // const BulkSessionEndTime = EndTimeValueBulk.time ? EndTimeValueBulk.time.toISOString().split('T')[1].split('.')[0] : null;
+const [shouldFetch, setShouldFetch] = useState(false);
 const add_BulkSession = async () => {
 
   const wdays = dayofweek;
@@ -514,7 +519,7 @@ const sessionData = {
           position: "top-right",
           autoClose: 5000,
       });
-
+      setShouldFetch(true);
         
           // alert('Session created successfully!');
       } else {
@@ -526,7 +531,7 @@ const sessionData = {
   }
 };
 
-const [shouldFetch, setShouldFetch] = useState(false);
+
 // ==========================================
 
 useEffect(() => {
@@ -731,6 +736,7 @@ console.log("selected_session_type",selectedEvent);
         });
         // Trigger re-fetch for the next deletion or update
       setShouldFetch(true);
+      setShouldFetchSingle(true);
       })
       .catch((error) => {
         console.error('Error deleting session:', error);
