@@ -526,7 +526,7 @@ const sessionData = {
   }
 };
 
-
+const [shouldFetch, setShouldFetch] = useState(false);
 // ==========================================
 
 useEffect(() => {
@@ -557,32 +557,10 @@ useEffect(() => {
           console.log("Weekdays for session", wdays);
 
           const sessionStartDate = new Date(session.start_date);
-
-          // const sessionStartTime = new Date(`${session.start_date}T${session.start_time}Z`);
-
           const sessionStartTime = moment(`${session.start_date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
-
-
-
-          // const sessionEndTime = new Date(`${session.end_date}T${session.end_time}Z`);
-
           const sessionEndTime = moment(`${session.end_date} ${session.end_time}`, 'YYYY-MM-DD h:mm A').toDate();
-          
-
-          // const formattedStartTime = sessionStartTime.toLocaleTimeString('en-US', { 
-          //   hour: '2-digit', 
-          //   minute: '2-digit', 
-          //   hour12: true 
-          // });
 
           const formattedStartTime = moment(session.start_time, 'HH:mm:ss').format('h:mm A');
-
-          // const formattedEndTime = sessionEndTime.toLocaleTimeString('en-US', { 
-          //   hour: '2-digit', 
-          //   minute: '2-digit', 
-          //   hour12: true 
-          // });
-
           const formattedEndTime = moment(session.end_time, 'HH:mm:ss').format('h:mm A');
 
           // Convert weekdays array to numeric day values
@@ -603,9 +581,9 @@ useEffect(() => {
               title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
               start: startDate,
               end: endDate,
-              student_id :session.student_id,
+              student_id: session.student_id,
               session_name: session.session_name,
-              bulk_session_id : session.id,
+              bulk_session_id: session.id,
             };
           });
 
@@ -614,20 +592,19 @@ useEffect(() => {
 
       setBulkEvents(formattedEvents);
       console.log("Formatted Events Bulk:", formattedEvents);
-   
-
     } catch (error) {
       console.error('Error fetching session details:', error);
       setError('Error fetching session details'); // Set error state
-    
     }
   };
-
   FetchBulkSessionDetails();
-}, [selectedStudent]); // Dependency on selectedStudent
+  // Fetch data when selectedStudent or shouldFetch is updated
+  if (selectedStudent || shouldFetch) {
+   
+    setShouldFetch(false);  // Reset shouldFetch after data is fetched
+  }
 
-
-// ========================================================
+}, [selectedStudent, shouldFetch]);  // Dependencies: selectedStudent and shouldFetch
 
 
    const studentOptions = studentData.map(student => ({
@@ -725,7 +702,8 @@ console.log("selected_session_type",selectedEvent);
   console.log("AAAA",selectedSession_type);
   console.log("AAAA",selectedSession_studentID);
   console.log("AAAA",selectedDateConfirmSession);
-
+ 
+  
 
   const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession , bulk_session_id) => {
     axios
@@ -739,14 +717,20 @@ console.log("selected_session_type",selectedEvent);
           bulk_session_id :bulk_session_id,
         },
       })
-      .then(() => {
       
+      .then(() => {
+        // FetchSingleSessionDetails();
+        // FetchBulkSessionDetails(); 
+         
+
+
          setShowModalSession(false); 
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
         });
-     
+        // Trigger re-fetch for the next deletion or update
+      setShouldFetch(true);
       })
       .catch((error) => {
         console.error('Error deleting session:', error);
