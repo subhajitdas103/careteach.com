@@ -218,14 +218,42 @@ public function DeleteStudent($id)
         }
     }
     
+    // public function search(Request $request)
+    // {
+    //     $query = $request->input('query');
+    //     $students = Students::where('first_name', 'LIKE', "%{$query}%")
+    //         ->orWhere('last_name', 'LIKE', "%{$query}%")
+    //         ->get();
+    //     return response()->json($students);
+    // }
     public function search(Request $request)
     {
         $query = $request->input('query');
-        $students = Students::where('first_name', 'LIKE', "%{$query}%")
-            ->orWhere('last_name', 'LIKE', "%{$query}%")
-            ->get();
-        return response()->json($students);
+        $userRollID = $request->input('userRollID');
+        $userRollName = $request->input('userRollName');
+    
+
+    
+        if ($userRollName === 'Admin') {
+            // If the user is admin, search all students
+            $results = Students::where('first_name', 'like', '%' . $query . '%')
+                              ->orWhere('last_name', 'like', '%' . $query . '%')
+                              ->get();
+        } else {
+            // If the user is not admin, search by userRollID
+            $results = Students::where('roll_id', $userRollID)
+                              ->where(function ($queryBuilder) use ($query) {
+                                  $queryBuilder->where('first_name', 'like', '%' . $query . '%')
+                                               ->orWhere('last_name', 'like', '%' . $query . '%');
+                              })
+                              ->get();
+        }
+    
+        // Return the search results as a JSON response
+        return response()->json($results);
     }
+    
+
 
 
     // ============================

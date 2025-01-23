@@ -163,15 +163,23 @@ const fetchStudentDetails = async () => {
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = async (event) => {
-      event.preventDefault();
-      try {
-          const response = await axios.get(`${backendUrl}/api/search?query=${searchQuery}`);
-          setData(response.data); // Update the student list with the search results
-      } catch (error) {
-          console.error('Error fetching Prov:', error);
-      }
-  };
+ const handleSearch = async (event) => {
+    event.preventDefault();
+    try {
+        const response = await axios.get(`${backendUrl}/api/search`, {
+            params: {
+                query: searchQuery,
+                userRollID: userRollID,
+                userRollName: userRollName
+            }
+        });
+        // Handle the response here
+        console.log(response.data); 
+        setData(response.data);// Example: logging the response data
+    } catch (error) {
+        console.error('Error fetching search results:', error);
+    }
+};
   
 
   
