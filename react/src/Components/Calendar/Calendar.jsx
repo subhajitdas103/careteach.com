@@ -31,16 +31,26 @@ const localizer = momentLocalizer(moment);
 const CalendarComponent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [userRollName, setRollName] = useState(null);
+  const [userRollID, setRollID] = useState(null);
 // ============Getting Roll Name from Session=========
 
 useEffect(() => {
     // Retrieve the stored roll name
-    const rollName = localStorage.getItem("authRollName");
-    console.log("Retrieved Roll Name:", rollName);
+    const rollName = localStorage.getItem("roll_name");
+    const rollID = localStorage.getItem("roll_id");
     setRollName(rollName);
+    setRollID(rollID);
+
+   
   }, []);
+  console.log("Retrieved Roll Name:", userRollName);
+
+  useEffect(() => {
+    console.log("Updated Roll Name:", userRollName);
+    console.log("Updated Roll ID:", userRollID);
+  }, [userRollName, userRollID]);
   // ==========End of getting RollName================
-  
+
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   // console.log("Selected student",selectedStudent);
@@ -81,9 +91,10 @@ useEffect(() => {
   useEffect(() => {
     const FetchStudentDetails = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/api/Students`);
+        // const response = await axios.get(`${backendUrl}/api/Students/`);
+        const response = await axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}`);
         const data = response.data;  // No need for .json() with axios
-        console.log(data);
+        console.log("ffffffffffffff",data);
         setStudentData(data);
       } catch (error) {
         console.error("Error fetching data:", error);

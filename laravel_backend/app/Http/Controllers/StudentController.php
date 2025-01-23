@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Students;
 use App\Models\Parents;
 use App\Models\StudentServices;
+use App\Models\AssignProviderModel;
 // use App\Models\Student;
 class StudentController extends Controller
 {
@@ -26,6 +27,41 @@ class StudentController extends Controller
         return response()->json(['error' => 'Error fetching students'], 500);
     }
 }
+
+
+// In StudentController.php
+
+// In StudentController.php
+
+public function fetchStudentDataCalendar($id)
+{
+    try {
+        // Step 1: Get all assign_provider records for the given provider_id
+        $assignProviders = AssignProviderModel::where('provider_id', $id)->get();
+
+        // if ($assignProviders->isEmpty()) {
+        //     return response()->json(['error' => 'No data found for this provider'], 404);
+        // }
+
+        // Step 2: Fetch the students for each assign_provider record
+        $students = [];
+        foreach ($assignProviders as $assignProvider) {
+            $student = Students::find($assignProvider->student_id); // Fetch student data by student_id
+            if ($student) {
+                $students[] = $student; // Add student to the result array
+            }
+        }
+
+        // Step 3: Return the students data as JSON response
+        return response()->json($students);
+
+    } catch (\Exception $e) {
+        // Log the error message
+        \Log::error('Error fetching students by provider: ' . $e->getMessage());
+        return response()->json(['error' => 'Error fetching students by provider'], 500);
+    }
+}
+
 
 
 // ============================
