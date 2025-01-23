@@ -29,6 +29,7 @@ Route::post('/UpdateProvider/{id}', [ProviderController::class,'updateprovider']
 Route::post('/EditSchool/{id}', [SchoolController::class,'editschool']);
 Route::post('/UpdateAssignProvider/{id}', [ProviderController::class,'updateAssignProvider']);
 Route::get('/ViewProviders',[ProviderController::class,'fetchProviderData']);
+Route::get('/ViewProvidersbyrollID/{id}',[ProviderController::class,'fetchProviderDatabyRollID']);
 Route::delete('/DeleteProvider/{id}', [ProviderController::class, 'deleteProvider']);
 Route::get('/StudentDataFetchAsID/{id}', [StudentController::class, 'fetchStudentById']);
 Route::post('/AssignProvider', [ProviderController::class,'SaveAssignProviderDetails']);

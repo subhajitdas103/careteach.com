@@ -13,13 +13,26 @@ import 'react-toastify/dist/ReactToastify.css';
 const Providers = () => {
 
   const [userRollName, setRollName] = useState(null);
+  const [userRollID, setRollID] = useState(null);
   // ============Getting Roll Name from Session=========
-    useEffect(() => {
-      const rollName = localStorage.getItem("authRollName");
-        setRollName(rollName);
-        console.log("Roll ID after refresh:", rollName);
+   useEffect(() => {
+       // Retrieve the stored roll name
+       const rollName = localStorage.getItem("authRollName");
+       const rollID = localStorage.getItem("authRollID");
+       setRollName(rollName);
+       setRollID(rollID);
+   
       
-    }, []);
+     }, []);
+     console.log("Retrieved Roll Name:", userRollName);
+     console.log("Retrieved Roll ID:", userRollID);
+   
+      // Should return the stored roll ID
+   
+     useEffect(() => {
+       console.log("Updated Roll Name:", userRollName);
+       console.log("Updated Roll ID:", userRollID);
+     }, [userRollName, userRollID]);
 
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -85,17 +98,41 @@ const Providers = () => {
     navigate('/dashboard');
   };
 // ======================  Fetch data from API=================
+//  useEffect(() => {
+//     if (!searchQuery && userRollID) {
+//       axios
+//         .get(`${backendUrl}/api/ViewProvidersbyrollID/${userRollID}`)
+//         .then((response) => {
+//           if (Array.isArray(response.data) && response.data.length > 0) {
+//             setData(response.data); // Update state with valid data
+//           } else {
+//             console.warn("No data available or invalid data format.");
+//           }
+//         })
+//         .catch((error) => {
+//           console.error("Error fetching data:", error);
+//         });
+//     }
+//   }, []);
+
+
   useEffect(() => {
-    if (!searchQuery) {
-    axios.get(`${backendUrl}/api/ViewProviders`)
-      .then((response) => {
-        setData(response.data); 
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    if (!searchQuery && userRollID) { // Only make the call if userRollID exists
+      axios
+        .get(`${backendUrl}/api/ViewProvidersbyrollID/${userRollID}`)
+        .then((response) => {
+          if (Array.isArray(response.data) && response.data.length > 0) {
+            setData(response.data); // Update state with valid data
+          } else {
+            console.warn("No data available or invalid data format.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error); // Handle errors
+        });
     }
-  }, []);
+  }, [backendUrl, userRollID]);
+  
 // =============================================================
 const [isOpen, setIsOpen] = useState(false);
 const [isModalOpen, setIsModalOpen] = useState(false);

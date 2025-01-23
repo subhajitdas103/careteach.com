@@ -141,8 +141,6 @@ public function fetchProviderData()
         return response()->json(['error' => 'Error fetching Providers'], 500);
     }
 }
-
-// =====================================
 public function FetchAssignedProviders($id)
 {
     try {
@@ -156,6 +154,23 @@ public function FetchAssignedProviders($id)
         }
 
         return response()->json($AssignedProviders);
+    } catch (\Exception $e) {
+        \Log::error('Error fetching Providers: ' . $e->getMessage());
+        return response()->json(['error' => 'Error fetching Providers'], 500);
+    }
+}
+
+// =====================================
+public function fetchProviderDatabyRollID($id)
+{
+    try {
+        // Fetch assigned providers for the given student_id
+        $Providers = Providers::where('id', $id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+      
+        return response()->json($Providers);
     } catch (\Exception $e) {
         \Log::error('Error fetching Providers: ' . $e->getMessage());
         return response()->json(['error' => 'Error fetching Providers'], 500);
