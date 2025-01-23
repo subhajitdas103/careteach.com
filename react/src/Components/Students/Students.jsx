@@ -13,6 +13,29 @@ import 'rsuite/dist/rsuite.min.css';
 // import { useLocation } from 'react-router-dom';
 const Students = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+   const [userRollName, setRollName] = useState(null);
+    const [userRollID, setRollID] = useState(null);
+    // ============Getting Roll Name from Session=========
+     useEffect(() => {
+         // Retrieve the stored roll name
+         const rollName = localStorage.getItem("authRollName");
+         const rollID = localStorage.getItem("authRollID");
+         setRollName(rollName);
+         setRollID(rollID);
+     
+        
+       }, []);
+       console.log("Retrieved Roll Name:", userRollName);
+       console.log("Retrieved Roll ID:", userRollID);
+     
+        // Should return the stored roll ID
+     
+       useEffect(() => {
+         console.log("Updated Roll Name:", userRollName);
+         console.log("Updated Roll ID:", userRollID);
+       }, [userRollName, userRollID]);
+  
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -29,17 +52,27 @@ const Students = () => {
   const [SelectedStudentToDelete, setSelectedStudentToDelete] = useState(null); 
 
   useEffect(() => {
-    if (!searchQuery) {
-    axios.get(`${backendUrl}/api/Students`)
+    if (!searchQuery && userRollID) {
+    // axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}`)
+    axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}/${userRollName}`)
+
       .then((response) => {
-        setData(response.data);
+
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setData(response.data); // Update state with valid data
+        } else {
+          console.warn("No data available or invalid data format.");
+        }
+
         console.log(response.data);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
       });
     }
-  }, []);
+  }, [userRollID]);
+
+  
 
 
 
@@ -198,19 +231,28 @@ const fetchStudentDetails = async () => {
                   </td>
                   <td className="col-md-5">{student.school_name}</td>
                   <td className="col-md-2">
-                    <div className="status-area">
-                      <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
-                        <i className="fa fa-edit fa-1x fa-icon-img"></i>
-                      </div>
-                      <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
-                        <i className="fa fa-trash fa-1x fa-icon-img"></i>
-                      </button>
+                  <div className="status-area">
+                    {userRollName !== "Provider" && (
+                      <>
+                        <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
+                          <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                        </div>
+                        <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
+                          <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                        </button>
 
-                      <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff'}} onClick={() => OpenAssignProvider(student.id)} // ✅ Correct usage
-                      >
-                        <div className="assign-pro-btn">Assign Provider</div>
-                      </button>
-                    </div>
+                        <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff' }} onClick={() => OpenAssignProvider(student.id)}>
+                          <div className="assign-pro-btn">Assign Provider</div>
+                        </button>
+                      </>
+                    )}
+                    {userRollName == "Provider" && (
+                    <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff' }} onClick={() => OpenAssignProvider(student.id)}>
+                      <div className="assign-pro-btn">View Student Details</div>
+                    </button>
+                    )}
+                  </div>
+
                   </td>
                 </tr>
               ))

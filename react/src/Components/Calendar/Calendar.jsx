@@ -61,10 +61,7 @@ useEffect(() => {
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   // console.log("Selected student",selectedStudent);
-  const [events, setEvents] = useState([
-   
-   
-  ]);
+  const [events, setEvents] = useState([]);
 
   
 

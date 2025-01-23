@@ -22,6 +22,32 @@ import axios from "axios";
 
   const AddStudent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [userRollName, setRollName] = useState(null);
+    const [userRollID, setRollID] = useState(null);
+  // ============Getting Roll Name from Session=========
+  
+  
+  // ============Getting Roll Name from Session=========
+  
+  
+  useEffect(() => {
+      // Retrieve the stored roll name
+      const rollName = localStorage.getItem("authRollName");
+      const rollID = localStorage.getItem("authRollID");
+      setRollName(rollName);
+      setRollID(rollID);
+  
+     
+    }, []);
+    console.log("Retrieved Roll Name:", userRollName);
+    console.log("Retrieved Roll ID:", userRollID);
+  
+     // Should return the stored roll ID
+  
+    useEffect(() => {
+      console.log("Updated Roll Name:", userRollName);
+      console.log("Updated Roll ID:", userRollID);
+    }, [userRollName, userRollID]);
   const navigate = useNavigate();
 
   //==============================================================
@@ -276,6 +302,7 @@ console.log(schools);
         parent_phnumber,
         parent_type,
         services: formDataList, 
+        userRollID,
       };
       console.log('Form data:', formData);
 

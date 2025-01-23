@@ -33,27 +33,46 @@ class StudentController extends Controller
 
 // In StudentController.php
 
-public function fetchStudentDataCalendar($id)
+public function fetchStudentDataCalendar($id, $userRollName)
 {
     try {
-        // Step 1: Get all assign_provider records for the given provider_id
-        $assignProviders = AssignProviderModel::where('provider_id', $id)->get();
+        // Step 1: Check if the user is an admin
+        if ($userRollName == 'Admin') {
+            // Fetch all students if the userRollName is 'admin'
+            $students = Students::all();
+        } else {
+            // Step 2: Get all assign_provider records for the given provider_id
+            $assignProviders = AssignProviderModel::where('provider_id', $id)->get();
 
-        // if ($assignProviders->isEmpty()) {
-        //     return response()->json(['error' => 'No data found for this provider'], 404);
-        // }
-
-        // Step 2: Fetch the students for each assign_provider record
-        $students = [];
-        foreach ($assignProviders as $assignProvider) {
-            $student = Students::find($assignProvider->student_id); // Fetch student data by student_id
-            if ($student) {
-                $students[] = $student; // Add student to the result array
+            // Step 3: Fetch the students for each assign_provider record
+            $students = [];
+            foreach ($assignProviders as $assignProvider) {
+                $student = Students::find($assignProvider->student_id); // Fetch student data by student_id
+                if ($student) {
+                    $students[] = $student; // Add student to the result array
+                }
             }
         }
 
-        // Step 3: Return the students data as JSON response
+        // Step 4: Return the students data as JSON response
         return response()->json($students);
+
+    } catch (\Exception $e) {
+        // Log the error message
+        \Log::error('Error fetching students: ' . $e->getMessage());
+        return response()->json(['error' => 'Error fetching students'], 500);
+    }
+}
+
+
+
+public function fetchStudentDataByRollID($id)
+{
+    try {
+        // Fetch student data by roll_id
+        $student = Students::where('roll_id', $id)->get();
+      
+        return response()->json($student);
 
     } catch (\Exception $e) {
         // Log the error message
@@ -82,6 +101,7 @@ public function addstudent(Request $request)
             'case_v' => 'nullable|string|max:255',
             'resolutionInvoice' => 'nullable|boolean',
             'status' => 'nullable|string|max:255',
+            'userRollID' => 'required|integer',
 
             'parent_name' => 'nullable|string|max:255',
             'parent_email' => 'nullable|string|max:255',
@@ -127,6 +147,9 @@ public function addstudent(Request $request)
                 'resulation_invoice' => $validatedData['resolutionInvoice'],
                 'status' => $validatedData['status'],
                 'parent_id' => $parents->id,
+                'roll_id' => $validatedData['userRollID'],
+                
+
             ]
         );
 
