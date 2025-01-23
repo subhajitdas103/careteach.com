@@ -226,8 +226,7 @@ const handleStudentClick = (studentId) => {
                   <td className="col-md-2">
                     <div className="status-area">
                     
-                    {userRollName !== "Provider" && (
-                      <>
+                   
                         <div>
                           <button
                             type="button"
@@ -237,6 +236,7 @@ const handleStudentClick = (studentId) => {
                             <i className="fa fa-edit fa-1x fa-icon-img"></i>
                           </button>
                         </div>
+                        {userRollName !== "Provider" && (
                         <button
                           type="button"
                           className="holiday-delete"
@@ -244,7 +244,7 @@ const handleStudentClick = (studentId) => {
                         >
                           <i className="fa fa-trash fa-1x fa-icon-img"></i>
                         </button>
-                      </>
+                      
                       )}
                       <button
                         type="button" onClick={() => ViewStudentModalClick(provider.id)}

@@ -8,6 +8,7 @@ use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\Providers;
 use App\Models\AssignProviderModel; 
+use App\Models\User; 
 use Illuminate\Support\Facades\DB;
 
 class ProviderController extends Controller
@@ -110,6 +111,14 @@ public function addprovider(Request $request)
             'notes' => $validatedData['notes'],
             'status' => $validatedData['status'],
          
+        ]);
+
+        User::create([
+            'email' => $validatedData['email'],
+            'name' => $validatedData['first_name'] . ' ' . $validatedData['last_name'],
+            'roll_id' => $Providers->id, // Add the provider ID to the user
+            'roll_name' => 'Provider', // Hardcoded value
+            'password' => '$2y$12$WFFdy/2G.1lOgYEwuoO.oebQ8F2e1.uu3oKKv4LKzzWso/Utdi9A.',
         ]);
 
         return response()->json(['message' => 'Student data saved successfully!'], 201);
