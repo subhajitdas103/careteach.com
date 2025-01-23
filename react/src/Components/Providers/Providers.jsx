@@ -11,6 +11,17 @@ import { useParams } from 'react-router-dom'; // Import useParams
 // import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const Providers = () => {
+
+  const [userRollName, setRollName] = useState(null);
+  // ============Getting Roll Name from Session=========
+    useEffect(() => {
+      const rollName = localStorage.getItem("authRollName");
+        setRollName(rollName);
+        console.log("Roll ID after refresh:", rollName);
+      
+    }, []);
+
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
@@ -161,7 +172,7 @@ const handleStudentClick = (studentId) => {
         </div>
       </div>
 
-      
+      {userRollName !== "Provider" && (
       <div className="row col-md-12 form-grouptop_search topnav">
           <div className="search-container">
               <form className="search-bar dashboard-list" onSubmit={handleSearch}>
@@ -179,11 +190,16 @@ const handleStudentClick = (studentId) => {
               </form>
           </div>
       </div>
-
+      )}
+   
+     
+      {userRollName !== "Provider" && (
       <div className="add-student-btn" id="add_provider_btn" onClick={addProvider}>
         <i className="fa-brands fa-product-hunt me-1"></i>Add a Provider
       </div>
+      )}
 
+    
       <div className="tbl-container bdr tbl-container-student">
         <table className="table bdr table-student">
           <thead className="bg-red">
@@ -209,23 +225,27 @@ const handleStudentClick = (studentId) => {
                   <td>{provider.status}</td>
                   <td className="col-md-2">
                     <div className="status-area">
-                      <div>
-                      <button
-                        type="button"
-                        onClick={() => redirectToEditProviders(provider.id)}
-                        style={{ background: 'none', border: 'none', padding: 0 }}
-                      >
-                        <i className="fa fa-edit fa-1x fa-icon-img"></i>
-                      </button>
-
-                      </div>
-                      <button
-                        type="button"
-                        className="holiday-delete"
-                        onClick={() => deleteProvider(provider)}
-                      >
-                        <i className="fa fa-trash fa-1x fa-icon-img"></i>
-                      </button>
+                    
+                    {userRollName !== "Provider" && (
+                      <>
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => redirectToEditProviders(provider.id)}
+                            style={{ background: 'none', border: 'none', padding: 0 }}
+                          >
+                            <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          className="holiday-delete"
+                          onClick={() => deleteProvider(provider)}
+                        >
+                          <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                        </button>
+                      </>
+                      )}
                       <button
                         type="button" onClick={() => ViewStudentModalClick(provider.id)}
                         className="assign-pro-btn"
