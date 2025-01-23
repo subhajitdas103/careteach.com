@@ -15,6 +15,7 @@ Route::get('/student',[StudentController::class,'index']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/Students',[StudentController::class,'fetchStudentData']);
 Route::get('/Studentsincalendar/{id}',[StudentController::class,'fetchStudentDataCalendar']);
+// Route::get('/Students',[StudentController::class,'fetchStudentData']);
 Route::middleware('auth:sanctum')->group(function () {
     // Protected routes
 });

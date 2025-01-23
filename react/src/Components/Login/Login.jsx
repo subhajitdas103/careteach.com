@@ -58,10 +58,10 @@ const Login = () => {
       );
 
       if (response.data.status === "success") {
-        const { token,roll_name , roll_id} = response.data;
+        const {token,roll_name,roll_id} = response.data;
         localStorage.setItem("authToken", token);
-        localStorage.setItem("authRollName",roll_name );
-        localStorage.setItem("roll_id",roll_id );
+        localStorage.setItem("authRollName",roll_name);
+        localStorage.setItem("authRollID",roll_id);
         console.log(response.data);
         setSuccess("Login successful!");
         navigate("/Dashboard");

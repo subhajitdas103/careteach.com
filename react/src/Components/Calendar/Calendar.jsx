@@ -41,13 +41,16 @@ const CalendarComponent = () => {
 useEffect(() => {
     // Retrieve the stored roll name
     const rollName = localStorage.getItem("authRollName");
-    const rollID = localStorage.getItem("roll_id");
+    const rollID = localStorage.getItem("authRollID");
     setRollName(rollName);
     setRollID(rollID);
 
    
   }, []);
   console.log("Retrieved Roll Name:", userRollName);
+  console.log("Retrieved Roll ID:", userRollID);
+
+   // Should return the stored roll ID
 
   useEffect(() => {
     console.log("Updated Roll Name:", userRollName);
@@ -91,21 +94,31 @@ useEffect(() => {
     }
     setCurrentDate(current); // Update the current date after the action
   };
-
+  console.log("User Roll IcccccccccccD:", userRollID);
   useEffect(() => {
-    const FetchStudentDetails = async () => {
-      try {
-        // const response = await axios.get(`${backendUrl}/api/Students/`);
-        const response = await axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}`);
-        const data = response.data;  // No need for .json() with axios
-        console.log("ffffffffffffff",data);
-        setStudentData(data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    FetchStudentDetails();
-  }, []);
+    // Ensure userRollID is not null or undefined before making the request
+    if (userRollID) {
+      const FetchStudentDetails = async () => {
+        try {
+          const response = await axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}`);
+          const data = response.data; // Assume the response contains data directly
+          console.log("Fetched student data:", data);
+  
+          // Check if the response contains an array of students and has data
+          if (Array.isArray(data) && data.length > 0) {
+            setStudentData(data);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+  
+      FetchStudentDetails();
+    } else {
+      console.log("User Roll ID is not available.");
+    }
+  }, [userRollID]); // Dependency array: the effect will run when userRollID changes
+  
   
 // ==========================================
 const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
