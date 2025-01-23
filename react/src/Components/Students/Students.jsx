@@ -53,7 +53,6 @@ const Students = () => {
 
   useEffect(() => {
     if (!searchQuery && userRollID) {
-    // axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}`)
     axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}/${userRollName}`)
 
       .then((response) => {
@@ -207,13 +206,14 @@ const fetchStudentDetails = async () => {
               </form>
           </div>
       </div>
-
-
-      <div className="add-student-btn" onClick={handleAddStudent}>
-        <i className="fa fa-user-plus add-student-icon"></i>Add a Student
-      </div>
-
-      <div className="tbl-container bdr tbl-container-student">
+      {
+    userRollName !== 'Provider' && (
+        <div className="add-student-btn" onClick={handleAddStudent}>
+            <i className="fa fa-user-plus add-student-icon"></i>Add a Student
+        </div>
+          )
+      }
+      <div className="tbl-container bdr tbl-container-student"  style={{ marginTop: '3rem' }}> 
         <table className="table bdr table-student">
           <thead className="bg-red">
             <tr>
