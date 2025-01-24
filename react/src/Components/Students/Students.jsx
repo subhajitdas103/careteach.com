@@ -8,34 +8,16 @@ import Modal from 'react-bootstrap/Modal';
 import { DatePicker } from 'rsuite';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import useAuth from "../../hooks/useAuth";
 import 'rsuite/dist/rsuite.min.css';
-// import { useLocation } from 'react-router-dom';
+
+
 const Students = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-   const [userRollName, setRollName] = useState(null);
-    const [userRollID, setRollID] = useState(null);
-    // ============Getting Roll Name from Session=========
-     useEffect(() => {
-         // Retrieve the stored roll name
-         const rollName = localStorage.getItem("authRollName");
-         const rollID = localStorage.getItem("authRollID");
-         setRollName(rollName);
-         setRollID(rollID);
-     
-        
-       }, []);
-       console.log("Retrieved Roll Name:", userRollName);
-       console.log("Retrieved Roll ID:", userRollID);
-     
-        // Should return the stored roll ID
-     
-       useEffect(() => {
-         console.log("Updated Roll Name:", userRollName);
-         console.log("Updated Roll ID:", userRollID);
-       }, [userRollName, userRollID]);
-  
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name:", userRollName);
+  console.log("Updated Roll ID:", userRollID);   
+       
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {

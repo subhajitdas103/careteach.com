@@ -58,3 +58,4 @@ Route::post('/AddBulkSession',[CalendarController::class,'AddBulkSession']);
 Route::get('/BulkSessionDetails',[CalendarController::class,'FetchBulkSessionDetails']);
 
 Route::delete('/DeleteSession', [CalendarController::class, 'deleteSession']);
+Route::middleware('auth:sanctum')->get('/roll_id', [AuthController::class, 'getRollId']);

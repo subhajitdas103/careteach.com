@@ -22,7 +22,7 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';  // Replace wi
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { Dropdown as PrimeReactDropdown } from 'primereact/dropdown';
-
+import useAuth from "../../hooks/useAuth";
 // import { Dropdown } from 'primereact/dropdown';
 
 // Configure the calendar to use moment.js
@@ -30,32 +30,11 @@ const localizer = momentLocalizer(moment);
 
 const CalendarComponent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const [userRollName, setRollName] = useState(null);
-  const [userRollID, setRollID] = useState(null);
-// ============Getting Roll Name from Session=========
-
 
 // ============Getting Roll Name from Session=========
-
-
-useEffect(() => {
-    // Retrieve the stored roll name
-    const rollName = localStorage.getItem("authRollName");
-    const rollID = localStorage.getItem("authRollID");
-    setRollName(rollName);
-    setRollID(rollID);
-
-   
-  }, []);
-  console.log("Retrieved Roll Name:", userRollName);
-  console.log("Retrieved Roll ID:", userRollID);
-
-   // Should return the stored roll ID
-
-  useEffect(() => {
-    console.log("Updated Roll Name:", userRollName);
-    console.log("Updated Roll ID:", userRollID);
-  }, [userRollName, userRollID]);
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name:", userRollName);
+  console.log("Updated Roll ID:", userRollID); 
   // ==========End of getting RollName================
 
   const [studentData, setStudentData] = useState([]);

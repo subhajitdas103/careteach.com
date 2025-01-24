@@ -32,6 +32,26 @@ class AuthController extends Controller
     }
     
 
+    public function getRollId(Request $request)
+    {
+        // Check if the user is authenticated
+        if (Auth::check()) {
+            // Fetch the authenticated user
+            $user = Auth::user();
+            
+            // Return the roll_id of the authenticated user
+            return response()->json([
+                'roll_id' => $user->roll_id,
+                'roll_name' => $user->roll_name,
+            ], 200);
+        }
+
+        // If the user is not authenticated
+        return response()->json([
+            'message' => 'Not authenticated',
+        ], 401);
+    }
+
 
 
 }

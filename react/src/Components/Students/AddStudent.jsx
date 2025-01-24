@@ -15,39 +15,22 @@ import { Modal as FlowbitModal } from 'flowbite-react';
 // import { useForm } from 'react-hook-form'; // Import useForm
 // import { useForm } from "react-hook-form";
 // import Dropdown from "react-bootstrap/Dropdown";
-
+import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
 
   const AddStudent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const [userRollName, setRollName] = useState(null);
-    const [userRollID, setRollID] = useState(null);
+ 
+  // ============Getting Roll Name from Session=========
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name:", userRollName);
+  console.log("Updated Roll ID:", userRollID); 
+  
   // ============Getting Roll Name from Session=========
   
   
-  // ============Getting Roll Name from Session=========
-  
-  
-  useEffect(() => {
-      // Retrieve the stored roll name
-      const rollName = localStorage.getItem("authRollName");
-      const rollID = localStorage.getItem("authRollID");
-      setRollName(rollName);
-      setRollID(rollID);
-  
-     
-    }, []);
-    console.log("Retrieved Roll Name:", userRollName);
-    console.log("Retrieved Roll ID:", userRollID);
-  
-     // Should return the stored roll ID
-  
-    useEffect(() => {
-      console.log("Updated Roll Name:", userRollName);
-      console.log("Updated Roll ID:", userRollID);
-    }, [userRollName, userRollID]);
   const navigate = useNavigate();
 
   //==============================================================
