@@ -161,15 +161,20 @@ public function FetchAssignedProviders($id)
 }
 
 // =====================================
-public function fetchProviderDatabyRollID($id)
+public function fetchProviderDatabyRollID($id, $roll_name)
 {
     try {
-        // Fetch assigned providers for the given student_id
-        $Providers = Providers::where('id', $id)
-            ->orderBy('id', 'desc')
-            ->get();
+        // If roll_name is 'admin', fetch all providers
+        if ($roll_name === 'Admin') {
+            $Providers = Providers::orderBy('id', 'desc')->get();
+        } else {
+            // Otherwise, fetch providers based on the given id and roll_name
+            $Providers = Providers::where('id', $id)
+                // ->where('roll_name', $roll_name)
+                ->orderBy('id', 'desc')
+                ->get();
+        }
 
-      
         return response()->json($Providers);
     } catch (\Exception $e) {
         \Log::error('Error fetching Providers: ' . $e->getMessage());
