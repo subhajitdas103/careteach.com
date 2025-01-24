@@ -95,10 +95,31 @@ const CalendarComponent = () => {
     }
   }, [userRollID]); // Dependency array: the effect will run when userRollID changes
   
-  
+  // ====================Confirm Session================================
+  const [confirmSession, setConfirmSession] = useState(null);
+
+console.log("ccccddddddd",confirmSession);
+
+useEffect(() => {
+  const FetchConfirmSessionDetails = async () => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/FetchConfirmSession`);
+      const data = response.data;
+     
+      if (Array.isArray(data)) {
+        setConfirmSession(data);
+      }
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
+
+  FetchConfirmSessionDetails(); // Call the function
+}, []); 
+
 // ==========================================
 const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
-
+console.log("ddddddddLine 121d",confirmSession);
 useEffect(() => {
   const FetchSingleSessionDetails = async () => {
     try {
@@ -109,7 +130,7 @@ useEffect(() => {
       
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
-        // Format start and end time with 'Z' for UTC handling
+        // if (!session) return null;
         const sessionStartTime = moment(`${session.date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
 
         const sessionEndTime = moment(`${session.date} ${session.end_time}`, 'YYYY-MM-DD h:mm A').toDate();
@@ -117,8 +138,22 @@ useEffect(() => {
         const formattedStartTime = moment(session.start_time, 'HH:mm:ss').format('h:mm A');
           const formattedEndTime = moment(session.end_time, 'HH:mm:ss').format('h:mm A');
 
-         
 
+
+          const matchedData = confirmSession && Array.isArray(confirmSession)
+          ? confirmSession.some(cs => 
+              cs.student_id === session.student_id &&
+              cs.date === session.date 
+         
+            )
+          : false;
+
+    
+        if (matchedData) {
+          console.log('Matched Data:', session);
+        } else {
+          console.log('No matches found for session', session);
+        }
 
         return {
           title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
@@ -127,6 +162,7 @@ useEffect(() => {
           student_id :session.student_id,
           session_name: session.session_name, 
           session_date :session.date, 
+          matchedData : true,
           // Combined Date and end_time
         };
       });
@@ -146,6 +182,8 @@ useEffect(() => {
 
 
 // =====================================
+
+// ===============================
 
   const handleStudentSelect = (student) => {
     // const name = `${student.first_name} ${student.last_name}`;
@@ -866,6 +904,9 @@ const handleNavigateWeek = (action) => {
 
   setCurrentDate(newDate); // Update the current date to trigger a re-render
 };
+// ==================================
+
+
 
   return (
     

@@ -63,3 +63,5 @@ Route::delete('/DeleteSession', [CalendarController::class, 'deleteSession']);
 Route::middleware('auth:sanctum')->get('/roll_id', [AuthController::class, 'getRollId']);
 Route::post('/ConfirmSession', [CalendarController::class, 'CalendarConfirmSession']);
 // Route::post('/ConfirmSession', [CalendarController::class, 'CalendarConfirmSession']);
+Route::get('/FetchConfirmSession',[CalendarController::class,'FetchConfirmessionDetails']);
+

@@ -218,6 +218,20 @@ public function CalendarConfirmSession(Request $request)
     }
 }
 
+
+
+public function FetchConfirmessionDetails()
+    {
+        try {
+    
+            $ConfirmSessionDetails = ConfirmSession::orderBy('id', 'desc')->get();
+            // dd($students);
+            return response()->json($ConfirmSessionDetails); 
+        } catch (\Exception $e) {
+            \Log::error('Error fetching: ' . $e->getMessage());
+            return response()->json(['error' => 'Error fetching '], 500);
+        }
+    }
 }
 
 
