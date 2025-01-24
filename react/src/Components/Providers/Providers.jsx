@@ -102,7 +102,6 @@ const Providers = () => {
   useEffect(() => {
     if (!searchQuery && userRollID) { // Only make the call if userRollID exists
       axios
-        // .get(`${backendUrl}/api/ViewProvidersbyrollID/${userRollID}`)
         .get(`${backendUrl}/api/ViewProvidersbyrollID/${userRollID}/${userRollName}`)
         .then((response) => {
           if (Array.isArray(response.data) && response.data.length > 0) {

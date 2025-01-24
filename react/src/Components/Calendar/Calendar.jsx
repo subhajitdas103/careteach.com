@@ -72,11 +72,11 @@ const CalendarComponent = () => {
   };
   console.log("User Roll IcccccccccccD:", userRollID);
   useEffect(() => {
-    // Ensure userRollID is not null or undefined before making the request
     if (userRollID) {
       const FetchStudentDetails = async () => {
         try {
-          const response = await axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}`);
+          const response = await axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}/${userRollName}`);
+
           const data = response.data; // Assume the response contains data directly
           console.log("Fetched student data:", data);
   
