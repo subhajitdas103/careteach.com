@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\CalendarModel;
 use App\Models\BulkSessionModel;
-
+use App\Models\ConfirmSession;
 class CalendarController extends Controller
 {
     public function AddSingleSessions(Request $request){
@@ -44,7 +44,7 @@ class CalendarController extends Controller
     }
 
 
-    public function FetchSingleSession()
+    public function FetchSingleSession($id,$roll_name)
     {
         try {
     
@@ -175,7 +175,49 @@ public function deleteSession(Request $request)
 }
 
 
+// 
 
+public function CalendarConfirmSession(Request $request)
+{
+    try {
+        // Retrieve input values from the request
+        $sessionType = $request->input('session_type');
+        $studentId = $request->input('student_id');
+        $selectedDateConfirmSession = $request->input('selectedDateConfirmSession');
+        $provider_id = $request->input('userRollID');
+        $startTimeConfirmSession = $request->input('startTimeConfirmSession');
+        $endTimeConfirmSession = $request->input('endTimeConfirmSession');
+        
+        // Check if the selected date is provided
+        if ($selectedDateConfirmSession) {
+            // Check if session already exists
+            $existingSession = ConfirmSession::where('student_id', $studentId)
+                                            ->where('date', $selectedDateConfirmSession)
+                                            ->first();
+            if ($existingSession) {
+                return response()->json(['error' => 'Session already exists for this student on this date'], 400);
+            }
+
+            // Create new session
+            $add = ConfirmSession::create([
+                'session_type' => $sessionType,
+                'student_id' => $studentId,
+                'date' => $selectedDateConfirmSession,
+                'start_time' => $startTimeConfirmSession,
+                'end_time' => $endTimeConfirmSession,
+                'provider_id' => $provider_id,
+            ]);
+            
+            return response()->json(['message' => 'Session confirmed successfully'], 200);
+        } else {
+            return response()->json(['error' => 'No session date provided'], 400);
+        }
+
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+    }
+}
 
 }
+
 

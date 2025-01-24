@@ -102,7 +102,9 @@ const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
 useEffect(() => {
   const FetchSingleSessionDetails = async () => {
     try {
-      const response = await axios.get(`${backendUrl}/api/SingleSession`);
+      // const response = await axios.get(`${backendUrl}/api/SingleSession`);
+      const response = await axios.get(`${backendUrl}/api/SingleSession/${userRollID}/${userRollName}`);
+
       const data = response.data; // Axios automatically parses JSON
       
       // Transform the data to match the events structure
@@ -765,8 +767,45 @@ console.log("selected_session_type",selectedEvent);
   console.log("AAAA",selectedSession_type);
   console.log("AAAA",selectedSession_studentID);
   console.log("AAAA",selectedDateConfirmSession);
- 
+  console.log("AAAA",bulk_session_id);
+//  ===============================================
   
+const onclickConfirmSession = () => {
+  const requestData = {
+    userRollID: userRollID,
+    session_type: selectedSession_type,
+    student_id: selectedSession_studentID,
+    selectedDateConfirmSession: selectedDateConfirmSession,
+    startTimeConfirmSession : startTimeConfirmSession,
+    endTimeConfirmSession : endTimeConfirmSession,
+  };
+
+  console.log("Data being sent to the server:", requestData); // Log the data
+
+  axios
+    .post(`${backendUrl}/api/ConfirmSession`, requestData, {
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+      setShowModalSession(false); // Close the modal
+      toast.success("Session successfully confirmed!", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      console.log("Session confirmed:", response.data);
+    })
+    .catch(error => {
+      toast.error("Failed to confirm the session. Please try again.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      console.error("Error confirming session:", error);
+    });
+}
+
+
+  
+  // ===================================================
 
   const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession , bulk_session_id) => {
     axios
@@ -1211,10 +1250,11 @@ const handleNavigateWeek = (action) => {
 
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
+
               {selectedValueRadioConfirmSession === "no" ? (
-              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session d</Button>
             ) : (
-              <Button variant="primary">Confirm Session</Button>
+              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session y</Button>
             )}
             </Modal.Footer>
           </Modal.Dialog>

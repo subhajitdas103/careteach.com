@@ -55,9 +55,11 @@ Route::post('/EditStudent/{id}', [StudentController::class,'editstudent']);
 Route::get('/FetchSchoolDataBYID/{id}',[SchoolController::class,'FetchSchoolDataBYID']);
 Route::get('/FetchUserDetails',[AuthController::class,'fetchUser']);
 Route::post('/AddSingleSessions', [CalendarController::class,'AddSingleSessions']);
-Route::get('/SingleSession',[CalendarController::class,'FetchSingleSession']);
+Route::get('/SingleSession/{id}/{roll_name}',[CalendarController::class,'FetchSingleSession']);
 Route::post('/AddBulkSession',[CalendarController::class,'AddBulkSession']);
 Route::get('/BulkSessionDetails',[CalendarController::class,'FetchBulkSessionDetails']);
 
 Route::delete('/DeleteSession', [CalendarController::class, 'deleteSession']);
 Route::middleware('auth:sanctum')->get('/roll_id', [AuthController::class, 'getRollId']);
+Route::post('/ConfirmSession', [CalendarController::class, 'CalendarConfirmSession']);
+// Route::post('/ConfirmSession', [CalendarController::class, 'CalendarConfirmSession']);
