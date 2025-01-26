@@ -417,14 +417,14 @@ const openModalAssignProvider = (id, name) => {
                             style={{ backgroundColor: 'white', display: 'inline-block' }}
                             title="Edit Assigned Provider"
                             >
-                            <i className = "fa fa-edit fa-1x fa-icon-img" alt="Edit" style={{ width: '31px', marginRight: '2px' }} />
+                            <i className = "fa fa-edit fa-1x fa-icon-img" alt="Edit" style={{ width: '41px', marginRight: '2px' }} />
                             </button>
 
                             <button onClick={() => AssignedProviderDelete(provider.id)}
-                            style={{ backgroundColor: 'white', display: 'inline-block' }}
+                            style={{ backgroundColor: 'white', display: 'inline-block' , width:'16px'}}
                             title="Delete Assigned Provider"
                             >
-                            <i className="fa fa-trash fa-1x fa-icon-img" alt="Delete" style={{ width: '33px', marginRight: '10px' }} />
+                            <i className="fa fa-trash fa-1x fa-icon-img" alt="Delete" style={{ width: '41px', marginRight: '10px' }} />
                             </button>
                         </div>
                         </td>

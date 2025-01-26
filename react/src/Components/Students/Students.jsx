@@ -10,9 +10,10 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useAuth from "../../hooks/useAuth";
 import 'rsuite/dist/rsuite.min.css';
-
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Students = () => {
+  const [loading, setLoading] = useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { userRollID, userRollName } = useAuth(); 
   console.log("Updated Roll Name:", userRollName);
@@ -35,6 +36,7 @@ const Students = () => {
 
   useEffect(() => {
     if (!searchQuery && userRollID) {
+      setLoading(true);
     axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}/${userRollName}`)
 
       .then((response) => {
@@ -47,8 +49,12 @@ const Students = () => {
 
         console.log(response.data);
       })
+
       .catch((error) => {
         console.error('Error fetching data:', error);
+      })
+      .finally(() => {
+        setLoading(false); // Hide loader after fetch completes
       });
     }
   }, [userRollID]);
@@ -186,7 +192,7 @@ const fetchStudentDetails = async () => {
                       type="text"
                       name="search"
                       className="search-field"
-                      placeholder="Search for student"
+                      placeholder="Search for Student"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -197,7 +203,7 @@ const fetchStudentDetails = async () => {
           </div>
       </div>
       {
-    userRollName !== 'Provider' && (
+         userRollName !== 'Provider' && (
         <div className="add-student-btn" onClick={handleAddStudent}>
             <i className="fa fa-user-plus add-student-icon"></i>Add a Student
         </div>
@@ -213,7 +219,15 @@ const fetchStudentDetails = async () => {
             </tr>
           </thead>
           <tbody>
-            {data.length > 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan="9" className="text-center">
+                <div className="loader-container">
+                  <ClipLoader color="#9ecce8" size={40} /> {/* Customize the color and size */}
+                </div>
+              </td>
+            </tr>
+          ) : data.length > 0 ? (
               data.map((student, index) => (
                 <tr key={index}>
                   <td className="col-md-5">
@@ -221,37 +235,48 @@ const fetchStudentDetails = async () => {
                   </td>
                   <td className="col-md-5">{student.school_name}</td>
                   <td className="col-md-2">
-                  <div className="status-area">
-                    {userRollName !== "Provider" && (
-                      <>
-                        <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
-                          <i className="fa fa-edit fa-1x fa-icon-img"></i>
-                        </div>
-                        <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
-                          <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                    <div className="status-area">
+                      {userRollName !== "Provider" && (
+                        <>
+                          <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
+                            <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                          </div>
+                          <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
+                            <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                          </button>
+                          <button
+                            type="button"
+                            className="assignProviderBTN"
+                            style={{ backgroundColor: "#fff" }}
+                            onClick={() => OpenAssignProvider(student.id)}
+                          >
+                            <div className="assign-pro-btn">Assign Provider</div>
+                          </button>
+                        </>
+                      )}
+                      {userRollName === "Provider" && (
+                        <button
+                          type="button"
+                          className="assignProviderBTN"
+                          style={{ backgroundColor: "#fff" }}
+                          onClick={() => OpenAssignProvider(student.id)}
+                        >
+                          <div className="assign-pro-btn">View Student Details</div>
                         </button>
-
-                        <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff' }} onClick={() => OpenAssignProvider(student.id)}>
-                          <div className="assign-pro-btn">Assign Provider</div>
-                        </button>
-                      </>
-                    )}
-                    {userRollName == "Provider" && (
-                    <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff' }} onClick={() => OpenAssignProvider(student.id)}>
-                      <div className="assign-pro-btn">View Student Details</div>
-                    </button>
-                    )}
-                  </div>
-
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="9" className='text-center'>No Students available.</td>
+                <td colSpan="9" className="text-center">
+                  No Students available.
+                </td>
               </tr>
             )}
           </tbody>
+
         </table>
       </div>
 

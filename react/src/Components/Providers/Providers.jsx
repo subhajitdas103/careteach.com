@@ -11,8 +11,11 @@ import { useParams } from 'react-router-dom'; // Import useParams
 // import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useAuth from "../../hooks/useAuth";
+import ClipLoader from "react-spinners/ClipLoader";
+import BeatLoader from "react-spinners/BeatLoader";
+ 
 const Providers = () => {
-
+  const [loading, setLoading] = useState(true);
   const { userRollID, userRollName } = useAuth(); 
   console.log("Updated Roll Name:", userRollName);
   console.log("Updated Roll ID:", userRollID); 
@@ -112,6 +115,9 @@ const Providers = () => {
         })
         .catch((error) => {
           console.error("Error fetching data:", error); // Handle errors
+        })
+        .finally(() => {
+          setLoading(false); // Hide loader after fetch completes
         });
     }
   }, [backendUrl, userRollID]);
@@ -136,6 +142,7 @@ const handleCloseModal = () => {
 const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
 
 const StudentOfAssignedProviders = async (id) => {
+  setLoading(true);
   try {
     const response = await fetch(`${backendUrl}/api/FetchStudentOfAssignedProviders/${id}`, {
       method: "GET",
@@ -154,6 +161,9 @@ const StudentOfAssignedProviders = async (id) => {
     setAssignofStudentData("");
     console.error("Error fetching provider data:", error);
   }
+finally {
+  setLoading(false); // Hide loader after the fetch completes
+}
 };
 
 const handleStudentClick = (studentId) => {
@@ -200,7 +210,7 @@ const handleStudentClick = (studentId) => {
                       type="text"
                       name="search"
                       className="search-field"
-                      placeholder="Search for providers"
+                      placeholder="Search for Providers"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -234,7 +244,15 @@ const handleStudentClick = (studentId) => {
             </tr>
           </thead>
           <tbody>
-            {data.length > 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan="9" className="text-center">
+                <div className="loader-container">
+                  <ClipLoader color="#9ecce8" size={40} /> {/* Customize the color and size */}
+                </div>
+              </td>
+            </tr>
+          ) : data.length > 0 ? (
               data.map((provider, index) => (
                 <tr key={index}>
                   <td>{provider.provider_first_name}</td>
@@ -285,31 +303,31 @@ const handleStudentClick = (studentId) => {
         </table>
       </div>
 
-      {/* Modal for provider details */}
-      {selectedProviderToDelete && (
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Delete Provider</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-          <p>
-            Are you sure you want to delete the provider{" "}
-            <strong className="provider-name-delete-modal">
-              {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
-            </strong>
-            ?
-          </p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button className="cancel-button" variant="secondary" onClick={handleClose}>
-            <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-            </Button>
-            <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
-            <i className="fa fa-trash" aria-hidden="true"></i>
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      )}
+          {/* Modal for provider details */}
+          {selectedProviderToDelete && (
+            <Modal show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Delete Provider</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+              <p>
+                Are you sure you want to delete the provider{" "}
+                <strong className="provider-name-delete-modal">
+                  {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
+                </strong>
+                ?
+              </p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button className="cancel-button" variant="secondary" onClick={handleClose}>
+                <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
+                </Button>
+                <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
+                <i className="fa fa-trash" aria-hidden="true"></i>
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          )}
 
                {/* View Student Click Modal */}
               <Modal show={isModalOpen} onHide={handleCloseModal}>
@@ -319,17 +337,23 @@ const handleStudentClick = (studentId) => {
                 
                 <Modal.Body>
                   {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
-                    <ul>
-                      {ProviderDataAssignProvider.map((assignStudent) => (
-                       <li
-                       key={assignStudent.student_id}
-                       onClick={() => handleStudentClick(assignStudent.student_id)}
-                        className="assign-student-name-mouse-over"
-                     >
-                       {assignStudent.student_name}
-                     </li>
-                      ))}
-                    </ul>
+                    loading ? (
+                      <div className="loader-container text-center">
+                        <BeatLoader color="#9ecce8" size={20} />
+                      </div>
+                    ) : (
+                      <ul>
+                        {ProviderDataAssignProvider.map((assignStudent) => (
+                          <li
+                            key={assignStudent.student_id}
+                            onClick={() => handleStudentClick(assignStudent.student_id)}
+                            className="assign-student-name-mouse-over"
+                          >
+                            {assignStudent.student_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )
                   ) : (
                     <p>No Associated Student found.</p>
                   )}

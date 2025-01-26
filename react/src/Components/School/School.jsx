@@ -133,7 +133,7 @@ const School = () => {
                       type="text"
                       name="search"
                       className="search-field"
-                      placeholder="Search for providers"
+                      placeholder="Search for a School"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                   />

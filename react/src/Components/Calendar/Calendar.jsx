@@ -148,7 +148,8 @@ useEffect(() => {
             )
           : false;
 
-    
+          
+
         if (matchedData) {
           console.log('Matched Data:', session);
         } else {
@@ -162,7 +163,7 @@ useEffect(() => {
           student_id :session.student_id,
           session_name: session.session_name, 
           session_date :session.date, 
-          matchedData : true,
+          eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
           // Combined Date and end_time
         };
       });
@@ -814,17 +815,18 @@ const onclickConfirmSession = () => {
     session_type: selectedSession_type,
     student_id: selectedSession_studentID,
     selectedDateConfirmSession: selectedDateConfirmSession,
-    startTimeConfirmSession : startTimeConfirmSession,
-    endTimeConfirmSession : endTimeConfirmSession,
+    startTimeConfirmSession: startTimeConfirmSession,
+    endTimeConfirmSession: endTimeConfirmSession,
   };
 
   console.log("Data being sent to the server:", requestData); // Log the data
 
   axios
     .post(`${backendUrl}/api/ConfirmSession`, requestData, {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     })
-    .then(response => {
+    .then((response) => {
+      // Handle success
       setShowModalSession(false); // Close the modal
       toast.success("Session successfully confirmed!", {
         position: "top-right",
@@ -832,14 +834,26 @@ const onclickConfirmSession = () => {
       });
       console.log("Session confirmed:", response.data);
     })
-    .catch(error => {
-      toast.error("Failed to confirm the session. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
-      console.error("Error confirming session:", error);
+    .catch((error) => {
+      // Handle errors
+      if (error.response && error.response.data) {
+        // Display the exact message from the server
+        toast.error(error.response.data.message || "Session alreday Exists.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        console.error("Error response from server:", error.response.data);
+      } else {
+        // General error fallback
+        toast.error("Failed to confirm the session. Please try again.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        console.error("Unexpected error:", error);
+      }
     });
-}
+};
+
 
 
   
@@ -946,10 +960,11 @@ const handleNavigateWeek = (action) => {
         <div
           className="rbc-toolbar-label"
           style={{
-            fontSize: '18px',
+            fontSize: '25px',
             fontWeight: 'bold',
             textAlign: 'center',
-            flex: 1, // Take the remaining space
+            flex: 1,
+            marginLeft: '143px'
           }}
         >
           {label}
@@ -1293,9 +1308,9 @@ const handleNavigateWeek = (action) => {
               <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
 
               {selectedValueRadioConfirmSession === "no" ? (
-              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session d</Button>
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
             ) : (
-              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session y</Button>
+              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
             )}
             </Modal.Footer>
           </Modal.Dialog>
