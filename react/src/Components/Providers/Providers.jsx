@@ -319,9 +319,6 @@ const handleStudentClick = (studentId) => {
               </p>
               </Modal.Body>
               <Modal.Footer>
-                <Button className="cancel-button" variant="secondary" onClick={handleClose}>
-                <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-                </Button>
                 <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
                 <i className="fa fa-trash" aria-hidden="true"></i>
                 </Button>

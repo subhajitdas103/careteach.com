@@ -28,7 +28,7 @@ const Navbar = () => {
                           <h2>CARE TEACH</h2>
                       </div>
                       <div 
-                          className="logout" style={{marginTop: '-20px'}}
+                          className="logout" style={{marginTop: '-15px'}}
                           id="dashboard_logout" 
                           onClick={handleLogout}
                       >

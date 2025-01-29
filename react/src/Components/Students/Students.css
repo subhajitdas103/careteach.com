@@ -353,27 +353,9 @@ body{
     padding-right: 10px;
 }
 
-.header-logo{
-    width: 260px;
-    height: 75px;
-    margin-left: -20px;
-}
 
-.logout{
-    margin-right: 15px;
-    font-size: 25px;
-    color: #034b74;
-    /* border: 1px solid #034b74; */
-    border-radius: 5px;
-    padding: 0px 6px;
-    cursor: pointer;
-}
 
-.logout:hover{
-    color: #fff;
-    background-color: #034b74;
-    border: 1px solid #034b74;
-}
+
 
 .fa-1x {
     font-size: 0.9em !important;
@@ -820,14 +802,7 @@ textarea {
     background-color: #034b74;
 }
 
-input[type=checkbox] {
-    box-sizing: border-box;
-    padding: 0;
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    margin: 4px 0px 0px 14px;
-}
+
 
 input[type=radio] {
     box-sizing: border-box;
