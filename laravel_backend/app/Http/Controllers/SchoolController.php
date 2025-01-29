@@ -26,6 +26,10 @@ class SchoolController extends Controller
             'holidays' => 'required|string',
             'status' => 'required|string',
             'emailAddress' => 'required|string',
+            'emailAddress' => 'required|email|unique:school,email',
+
+        ], [
+            'emailAddress.unique' => 'The email address is already registered.',
         ]);
     
         // Prepare the data to insert
@@ -115,49 +119,61 @@ public function deleteSchooldata($id)
     }
 
     public function editschool(Request $request, $id)
-    {
-        try {
-            // Validate the incoming data
-            $validatedData = $request->validate([
-                'schoolName' => 'required|string',
-                'principalName' => 'required|string',
-                'address' => 'required|string',
-                'phone' => 'required|string',
-                'workingDays' => 'required|string',
-                'holidays' => 'required|string',
-                'status' => 'required|string',
-                'emailAddress' => 'required|string',
-            ]);
-    
-            // Prepare the data to update
-            $dataToUpdate = [
-                'school_name' => $validatedData['schoolName'],
-                'principal_name' => $validatedData['principalName'],
-                'address' => $validatedData['address'],
-                'phone' => $validatedData['phone'],
-                'working_days' => $validatedData['workingDays'],
-                'holiday' => $validatedData['holidays'],
-                'email' => $validatedData['emailAddress'],
-                'status' => $validatedData['status'],
-            ];
-    
-            // Find the student by ID and update
-            $school = SchoolModel::find($id);
-    
-            if (!$school) {
-                return response()->json(['error' => 'Student not found'], 404);
-            }
-    
-            // Update the student's data
-            $school->update($dataToUpdate);
-    
-            // Return a success message
-            return response()->json(['message' => 'Student data updated successfully!'], 200);
-        } catch (\Exception $e) {
-            \Log::error('Error updating student data: ' . $e->getMessage());
-            return response()->json(['error' => 'Internal Server Error'], 500);
+{
+    try {
+        // Validate the incoming data
+        $validatedData = $request->validate([
+            'schoolName' => 'required|string',
+            'principalName' => 'required|string',
+            'address' => 'required|string',
+            'phone' => 'required|string',
+            'workingDays' => 'required|string',
+            'holidays' => 'required|string',
+            'status' => 'required|string',
+            'emailAddress' => 'required|email|unique:school,email,' . $id,  // Ensure 'schools' is the correct table name
+        ], [
+            'emailAddress.unique' => 'The email address is already registered.',
+        ]);
+        
+        // Prepare the data to update
+        $dataToUpdate = [
+            'school_name' => $validatedData['schoolName'], 
+            'principal_name' => $validatedData['principalName'],
+            'address' => $validatedData['address'],
+            'phone' => $validatedData['phone'],
+            'working_days' => $validatedData['workingDays'],
+            'holiday' => $validatedData['holidays'],
+            'email' => $validatedData['emailAddress'],
+            'status' => $validatedData['status'],
+        ];
+
+        // Find the school by ID
+        $school = SchoolModel::find($id);
+        
+        if (!$school) {
+            return response()->json(['error' => 'School not found'], 404);
         }
+
+        // Update the school data
+        $school->update($dataToUpdate);
+
+        // Return a success message
+        return response()->json(['message' => 'School updated successfully!'], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Catch validation errors and return detailed information
+        \Log::error('Validation failed: ' . $e->getMessage());
+        return response()->json([
+            'error' => 'Validation error',
+            'details' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        // Log the general exception error
+        \Log::error('Error updating school data: ' . $e->getMessage());
+        return response()->json(['error' => 'Internal Server Error'], 500);
     }
+}
+
     
 
 

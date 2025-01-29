@@ -62,28 +62,33 @@ public function addprovider(Request $request)
 {
     try {
         $validatedData = $request->validate([
-            'first_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'selectedDate' => 'nullable|string|max:255',
-            'email' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'rate' => 'nullable|string|max:255',
-            'rateNotes' => 'nullable|string|max:255',
-            'selectedform' => 'nullable|string|max:255',
-            'companyName' => 'nullable|string|max:255',
-            'selectedGrades' => 'nullable|array',
-            'licenseExpDateApplicable' => 'nullable|string|max:255',
-            'licenseExpDate' => 'nullable|string|max:255',
-            'petStatus' => 'nullable|string|max:255',
-            'petsApprovalDate' => 'nullable|string|max:255',
-            'bilingual' => 'nullable|string|max:255',
-            'ssNumber' => 'nullable|string|max:255',
+            'email' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'rate' => 'required|string|max:255',
+            'rateNotes' => 'required|string|max:255',
+            'selectedform' => 'required|string|max:255',
+            'companyName' => 'required|string|max:255',
+            'selectedGrades' => 'required|array',
+            'licenseExpDateApplicable' => 'required|string|max:255',
+            'licenseExpDate' => 'required|string|max:255',
+            'petStatus' => 'required|string|max:255',
+            'petsApprovalDate' => 'required|string|max:255',
+            'bilingual' => 'required|string|max:255',
+            'ssNumber' => 'required|string|max:255',
             'notes' => 'nullable|string|max:255',
-            'status' => 'nullable|string|max:255',
+            'status' => 'required|string|max:255',
             
            
                 ]);
+
+            $existingProviderEmail = Providers::where('provider_email', $validatedData['email'])->first();
+            if ($existingProviderEmail) {
+                return response()->json(['error' => 'Email is already associated with another provider.'], 400);
+            }
 
         $validatedData['selectedGrades'] = is_array($validatedData['selectedGrades'])
         ? implode(',', $validatedData['selectedGrades'])
@@ -278,6 +283,15 @@ public function updateProvider($id, Request $request)
         return response()->json(['message' => 'Provider not found'], 404);
     }
 
+    // Check if the email is already associated with another provider (excluding the current provider)
+    $existingProviderEmail = Providers::where('provider_email', $request->input('email'))
+                                       ->where('id', '!=', $id)
+                                       ->first();
+
+    if ($existingProviderEmail) {
+        return response()->json(['error' => 'Email is already associated with another provider.'], 400);
+    }
+
     // Map request fields directly to database columns
     $dataToUpdate = [
         'provider_first_name' => $request->input('first_name'),
@@ -301,7 +315,7 @@ public function updateProvider($id, Request $request)
         'status' => $request->input('status'),
     ];
 
-    // Update the provider
+    // Update the provider's details
     $provider->update($dataToUpdate);
 
     return response()->json(['message' => 'Provider updated successfully'], 200);

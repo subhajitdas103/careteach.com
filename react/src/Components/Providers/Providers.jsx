@@ -225,7 +225,7 @@ const handleStudentClick = (studentId) => {
      
       {userRollName !== "Provider" && (
       <div className="add-student-btn" id="add_provider_btn" onClick={addProvider}>
-        <i className="fa-brands fa-product-hunt me-1"></i>Add a Provider
+        <i className="fa-brands me-1 fa fa-user-plus add-student-icon"></i>Add a Provider
       </div>
       )}
 

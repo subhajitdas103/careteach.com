@@ -7,7 +7,10 @@ import { useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './School.css';
+import ClipLoader from "react-spinners/ClipLoader";
+import BeatLoader from "react-spinners/BeatLoader";
 const School = () => {
+  const [loading, setLoading] = useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
@@ -31,16 +34,19 @@ const School = () => {
   }, []);
 
   const fetchSchoolDetails = async () => {
+    setLoading(true);
     try {
-      
       const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
       const data = await response.json();
       setSchools(data); // Update the state with fetched data
       console.log(data);
     } catch (error) {
       console.error('Error fetching school details:', error);
+    } finally {
+      setLoading(false); // Hide loader after fetch completes
     }
   };
+  
 
   useEffect(() => {
     if (!searchQuery) {
@@ -117,7 +123,7 @@ const School = () => {
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
-          <h3>School</h3>
+          <h3>Schools</h3>
           <i
             className="fa fa-backward fc-back-icon"
             aria-hidden="true"
@@ -160,7 +166,15 @@ const School = () => {
             </tr>
           </thead>
           <tbody>
-            {schools.length > 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan="9" className="text-center">
+                <div className="loader-container">
+                  <ClipLoader color="#9ecce8" size={40} /> {/* Customize the color and size */}
+                </div>
+              </td>
+            </tr>
+               ) : schools.length > 0 ? (
               schools.map((school, index) => (
                 <tr key={index}>
                   <td>{school.school_name}</td>
@@ -211,9 +225,6 @@ const School = () => {
             </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button className="cancel-button" variant="secondary" onClick={handleClose} >
-              <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-            </Button>
             <Button className="delete-button" variant="danger"onClick={confirmDeleteSchool}>
               <i className="fa fa-trash" aria-hidden="true"></i>
             </Button>

@@ -222,55 +222,51 @@ console.log(schools);
     
     };
 
-    const handleAddStudent   = async (event) => {
+    const handleAddStudent = async (event) => {
       console.log("handleAddStudent triggered");
-      if (!first_name) {
-        toast.error('Please fill First Name!');
-        return;
-    } else if (!last_name) {
-        toast.error('Please fill Last Name!');
-        return;
-    } else if (!grade) {
-        toast.error('Please Choose Grade!');
-        return;
-    }else if (!home_address) {
-      toast.error('Please fill Home address!');
-      return;
-    }else if (!doe_rate) {
-        toast.error('Please Enter DOE Rate!');
-        return;
-    }else if (!iep_doc) {
-      toast.error('Please Choose IEP!');
-      return;
-    }else if (!disability) {
-      toast.error('Please Choose Disability!');
-      return;
-    }else if (!nyc_id) {
-      toast.error('Please Enter NYC ID!');
-      return;
-    }else if (!parent_name) {
-      toast.error('Please Enter Parent Name!');
-      return;
-    }else if (!parent_email) {
-      toast.error('Please Enter Parent Email!');
-      return;
-    }else if (!selectedSchool) {
-      toast.error('Please Choose School!');
-      return;
-    }else if (!parent_type) {
-      toast.error('Please Choose Parent Type!');
-      return;
-    }else if (!parent_phnumber) {
-      toast.error('Please Enter Phone Number!');
-      return;
-    }
     
+      // Helper function for validation
+      const validateField = (field, message) => {
+        if (!field) {
+          toast.error(message);
+          return false;
+        }
+        return true;
+      };
+    
+      if (
+        !validateField(first_name, 'Please fill First Name!') ||
+        !validateField(last_name, 'Please fill Last Name!') ||
+        !validateField(grade, 'Please Choose Grade!') ||
+        !validateField(home_address, 'Please fill Home address!') ||
+        !validateField(doe_rate, 'Please Enter DOE Rate!') ||
+        !validateField(iep_doc, 'Please Choose IEP!') ||
+        !validateField(disability, 'Please Choose Disability!') ||
+        !validateField(nyc_id, 'Please Enter NYC ID!') ||
+        !validateField(parent_name, 'Please Enter Parent Name!') ||
+        !validateField(selectedSchool, 'Please Choose School!') ||
+        !validateField(parent_type, 'Please Choose Parent Type!')
+      ) {
+        return;
+      }
+    
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(parent_email)) {
+        toast.error('Enter a valid email!');
+        return;
+      }
+    
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(parent_phnumber)) {
+        toast.error('Phone number must be 10 digits!');
+        return;
+      }
     
       const formData = {
         first_name,
         last_name,
         grade,
-        school_name : selectedSchool,
+        school_name: selectedSchool,
         home_address,
         doe_rate,
         iep_doc,
@@ -279,42 +275,47 @@ console.log(schools);
         notesPerHour,
         case_v,
         resolutionInvoice,
-        status ,
+        status,
         parent_name,
         parent_email,
         parent_phnumber,
         parent_type,
-        services: formDataList, 
+        services: formDataList,
         userRollID,
       };
+    
       console.log('Form data:', formData);
-
+    
       try {
         const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
           headers: {
             'Content-Type': 'application/json',
           },
         });
-        
+    
         setTimeout(() => {
-                toast.success("Student Created successfully", {
-                  position: "top-right",
-                  autoClose: 5000,
-                });
-              }, 500);
-     
+          toast.success("Student Created successfully", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }, 500);
+    
         navigate('/Students', { state: { successMessage: 'Student Created successfully!' } });
-              
-      } 
-      
-      catch (error) {
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right", // Correct syntax
-        autoClose: 5000,
-      });
-        console.error('There was an error sending data:', error.response?.data || error.message);
+      } catch (error) {
+        if (error.response?.status === 422) {
+          const errorMessage = error.response.data.errors?.services?.[0];
+          console.log('Validation error:', errorMessage);
+          toast.error(errorMessage);
+        } else {
+          toast.error("An error occurred. Please try again.", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+          console.error('There was an error sending data:', error.response?.data || error.message);
+        }
       }
-    }
+    };
+    
 
   
     return (
@@ -331,7 +332,7 @@ console.log(schools);
         <div className="row dashboard-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">
-                <label>First Name:</label>
+                <label>First Name*</label>
                 <input
                   type="text"  
                   name="firstName"
@@ -341,7 +342,7 @@ console.log(schools);
               </div>
 
               <div className="col-md-6 student-profile-field widthcss">
-                <label>Last Name:</label>
+                <label>Last Name*</label>
                 <input
                   type="text"
                   name="lastName"
@@ -383,7 +384,7 @@ console.log(schools);
             </div>
             
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Grade:</label>
+                <label>Grade*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -492,7 +493,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Home Address:</label>
+              <label>Home Address*</label>
               <textarea
                 name="homeAddress"
                 rows="6"
@@ -504,7 +505,7 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>DOE Rate:</label>
+              <label>DOE Rate*</label>
               <input
                 type="text"
                 name="doeRate"
@@ -517,7 +518,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Choose IEP:</label>
+                <label>Choose IEP*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -554,7 +555,7 @@ console.log(schools);
             </div>
     
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Classification Disability:</label>
+                <label>Classification Disability*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -679,7 +680,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>NYC ID:</label>
+              <label>NYC ID*</label>
               <input
                 type="text"
                 name="nycId"
@@ -689,7 +690,7 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Case:</label>
+              <label>Case*</label>
               <input
                 type="text"
                 name="case"
@@ -701,7 +702,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No Notes Per Hr:</label>
+              <label>No Notes Per Hr*</label>
               <input
                 type="text"
                 name="notesPerHour"
@@ -760,7 +761,7 @@ console.log(schools);
         <div className="row dashboard-list personal-profile">
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Name:</label>
+              <label>Parent Name*</label>
               <input
                 type="text"
                 name="parentName"
@@ -770,7 +771,7 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Email:</label>
+              <label>Parent Email*</label>
               <input
                 type="text"
                 name="parentEmail"
@@ -782,7 +783,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
-                <label>Parent Type:</label>
+                <label>Parent Type*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -803,8 +804,8 @@ console.log(schools);
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleParentTypeChange("Fe-Male")}>
-                      Fe-Male
+                      onClick={() => handleParentTypeChange("Female")}>
+                      Female
                     </button>
                   </li>
                 
@@ -846,7 +847,7 @@ console.log(schools);
                     )
                   }
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Service Type:</label>
+                    <label>Service Type*</label>
                     <div className="dropdown">
                       <button
                         className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -911,7 +912,7 @@ console.log(schools);
                   </div>
 
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Start Date:</label>
+                    <label>Start Date*</label>
                     <DatePicker
                       className=""
                       value={formData.startDate}
@@ -924,7 +925,7 @@ console.log(schools);
                 
                 <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>End Date:</label>
+                    <label>End Date*</label>
                     <DatePicker
                       className=""
                       value={formData.endDate}
@@ -935,7 +936,7 @@ console.log(schools);
                   </div>
 
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Weekly Mandate:</label>
+                    <label>Weekly Mandate*</label>
                     <input
                       type="text"
                       name="weeklyMandate"
@@ -949,7 +950,7 @@ console.log(schools);
 
                 <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Yearly Mandate:</label>
+                    <label>Yearly Mandate*</label>
                     <input
                       type="text"
                       name="yearlyMandate"

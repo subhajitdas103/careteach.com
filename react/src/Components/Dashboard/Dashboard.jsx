@@ -50,23 +50,16 @@ const Dashboard = () => {
           <p>{userRollName === "Provider" ? "Provider Portal" : "Admin Portal"}</p>
         </div>
 
+        {userRollName !== "Provider" && (
         <DashboardCard
-          title="Students"
-          iconClass="fa-user-graduate"
+          title="Schools"
+          iconClass="fa-school"
           onClick={() => {
-          console.log("Navigating to /students");
-          navigate("/Students");
+            navigate("/School");
           }}
         />
-        <DashboardCard
-          title="Billing"
-          iconClass="fa-credit-card"
-          onClick={() => {
-            alert("Under development.. ");
-          // navigate("/Billing");
-          }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }}
-        />
+          )}
+
         <DashboardCard
           title="Providers"
           iconClass="fa-chalkboard-teacher"
@@ -75,15 +68,24 @@ const Dashboard = () => {
           }}
         />
 
-        {userRollName !== "Provider" && (
         <DashboardCard
-          title="School"
-          iconClass="fa-school"
+          title="Students"
+          iconClass="fa-user-graduate"
           onClick={() => {
-            navigate("/School");
+          console.log("Navigating to /students");
+          navigate("/Students");
           }}
         />
-          )}
+
+        <DashboardCard
+          title="Holidays"
+          iconClass="fa-glass-cheers"
+          onClick={() => {
+            alert("Comming Soon.. ");
+          // navigate("/Holidays");
+          }}
+          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
+        />
 
         <DashboardCard
           title="Calendar"
@@ -93,26 +95,16 @@ const Dashboard = () => {
           }}
         />
 
-        {/* <DashboardCard
-          title="Calendar"
-          iconClass="fa-calendar-alt"
-          onClick={() => {
-            alert("Under development.. ");
-            // Optionally, you can add a condition to prevent navigation
-          }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
-        /> */}
-
         <DashboardCard
-          title="Holidays"
-          iconClass="fa-glass-cheers"
+          title="Billing"
+          iconClass="fa-credit-card"
           onClick={() => {
-            alert("Under development.. ");
-          // navigate("/Holidays");
+            alert("Comming Soon.. ");
+          // navigate("/Billing");
           }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
+          style={{ cursor: 'not-allowed', opacity: 0.5 }}
         />
-       
+
       </div>
     </div>
   );

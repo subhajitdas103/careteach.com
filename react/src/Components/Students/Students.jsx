@@ -34,8 +34,17 @@ const Students = () => {
   const [show, setShow] = useState(false);
   const [SelectedStudentToDelete, setSelectedStudentToDelete] = useState(null); 
 
+  
   useEffect(() => {
-    if (!searchQuery && userRollID) {
+    // Set loading state to false once the user data is available
+    if (userRollID && userRollName) {
+      setLoading(false);
+    }
+  }, [userRollID, userRollName]);
+
+
+  useEffect(() => {
+    if (!searchQuery && userRollID && userRollName) {
       setLoading(true);
     axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}/${userRollName}`)
 
@@ -57,7 +66,7 @@ const Students = () => {
         setLoading(false); // Hide loader after fetch completes
       });
     }
-  }, [userRollID]);
+  }, [userRollID, userRollName]);
 
   
 
@@ -171,7 +180,7 @@ const fetchStudentDetails = async () => {
   
 
   
-  return (
+return (
 <div>
 <ToastContainer />
     <div className="dashboard-container">
@@ -205,7 +214,7 @@ const fetchStudentDetails = async () => {
       {
          userRollName !== 'Provider' && (
         <div className="add-student-btn" onClick={handleAddStudent}>
-            <i className="fa fa-user-plus add-student-icon"></i>Add a Student
+            <i className="fa fa-user-plus add-student-icon"></i>Add Student
         </div>
           )
       }

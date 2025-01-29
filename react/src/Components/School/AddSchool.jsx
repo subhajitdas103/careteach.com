@@ -24,7 +24,7 @@ const AddSchool = () => {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [holidays, setHolidays] = useState('Choose Holidays');
-  const [status, setStatus] = useState('Inactive');
+  const [status, setStatus] = useState('Active');
   const [emailAddress, setEmail] = useState('');
 
   const navigate = useNavigate();
@@ -63,26 +63,28 @@ console.log(SelectedWorkingDays);
 
   const handelAddSchool = async () => {
 
-    if (!schoolName ) {
-      toast.error('Please Enter School Name!');
-      return;
+      // Validation helper function
+  const validateField = (field, fieldName) => {
+    if (!field) {
+      toast.error(`Please Enter ${fieldName}!`);
+      return false;
     }
-    if ( !principalName) {
-      toast.error('Please Enter Principal Name!');
-      return;
-    }
-    if (!address) {
-      toast.error('Please Enter Address !');
-      return;
-    }
-    if (!phone) {
-      toast.error('Please Enter Phone Number!');
-      return;
-    }
+    return true;
+  };
+
+  // Basic validation for required fields
+  if (!validateField(schoolName, 'School Name')) return;
+  if (!validateField(principalName, 'Principal Name')) return;
+  if (!validateField(address, 'Address')) return;
+  if (!validateField(phone, 'Phone Number')) return;
+  
+  // Validate holidays
+  if (!holidays || holidays === "Choose Holidays") {
+    toast.error('Please Choose Holidays!');
+    return;
+  }
     
 
-
-   // Email validation
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(emailAddress)) {
     toast.error('Enter a valid email!');
@@ -114,28 +116,40 @@ console.log(SelectedWorkingDays);
           'Content-Type': 'application/json',
         },
       });
-
-     
-    setTimeout(() => {
-                    toast.success("School added successfully!", {
-                      position: "top-right",
-                      autoClose: 5000,
-                    });
-                  }, 500);
-         
-    navigate('/School', { state: { successMessage: 'School added successfully!!' } });
-
-    } catch (error) {
-      toast.error('Error adding school!');
-      // console.error('Error adding school:', error);
+    
+      setTimeout(() => {
+        toast.success("School added successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      }, 500);
+    
+      navigate('/School', { state: { successMessage: 'School added successfully!!' } });
+    
+    } catch (error) { 
+      if (error.response) {
+        console.error('Server Error:', error.response.data);
+        
+        if (error.response.status === 422) {
+          const errorMessage = error.response.data.errors?.workingDays?.[0] 
+          || error.response.data.errors?.emailAddress?.[0]
+          || 'Validation failed';
+          
+          toast.error(errorMessage);
+        } else {
+          toast.error(error.response.data.message || 'Failed to add school');
+        }
+      } else {
+        toast.error('Server not responding');
+      }
     }
-  };
+  };    
 
   return (
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text personal-info-text">
-          <h3>Add Basic Information of School</h3>
+          <h3>Add a School</h3>
           <i className="fa fa-backward fc-back-icon" onClick={backToSchool} aria-hidden="true"></i>
         </div>
       </div>
@@ -143,7 +157,7 @@ console.log(SelectedWorkingDays);
       <div className="row dashboard-list personal-profile">
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-            <label>School Name:</label>
+            <label>School Name*</label>
             <input
               type="text"
               className="stu-pro-input-field sch-dropbtn"
@@ -154,7 +168,7 @@ console.log(SelectedWorkingDays);
           </div>
 
           <div className="col-md-6 student-profile-field">
-            <label>Principal Name:</label>
+            <label>Principal Name*</label>
             <input
               type="text"
               className="stu-pro-input-field"
@@ -167,7 +181,7 @@ console.log(SelectedWorkingDays);
 
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-            <label>Address:</label>
+            <label>Address*</label>
             <textarea
               rows="6"
               cols="50"
@@ -179,7 +193,7 @@ console.log(SelectedWorkingDays);
           </div>
 
           <div className="col-md-6 student-profile-field">
-            <label>Phone:</label>
+            <label>Phone*</label>
             <input
               type="tel"
               className="stu-pro-input-field"
@@ -197,7 +211,7 @@ console.log(SelectedWorkingDays);
 
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-            <label>Working Days:</label>
+            <label>Working Days*</label>
             <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
               {SelectedWorkingDays.length > 0 ? SelectedWorkingDays.join(', ') : 'Choose Working Days'}
             </Button>
@@ -231,7 +245,7 @@ console.log(SelectedWorkingDays);
           </div>
 
           <div className="col-md-6 student-profile-field">
-            <label>Holidays:</label>
+            <label>Holidays*</label>
             <div className="dropdown">
               <button
                 className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -266,7 +280,7 @@ console.log(SelectedWorkingDays);
 
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-              <label>Email:</label>
+              <label>Email*</label>
               <input
                 type="email"
                 className="stu-pro-input-field"
@@ -278,7 +292,7 @@ console.log(SelectedWorkingDays);
 
         
           <div className="col-md-6 student-profile-field">
-            <label>Status:</label>
+            <label>Status*</label>
             <div className="radio-btn">
               <div className="radio">
                 <input

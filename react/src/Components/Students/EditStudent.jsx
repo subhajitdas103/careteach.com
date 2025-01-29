@@ -448,13 +448,15 @@ useEffect(() => {
     <div className="dashboard-container">
             <div className="row dashboard-list">
               <div className="heading-text personal-info-text">
-                <h3 style={{ marginLeft: '15px' }}>Basic Information</h3>
+                <h2 style={{ marginLeft: '15px' }}>Edit Student</h2>
                 <div className="" id="" onClick={backtostudent}>
                 <i className="fa fa-backward fc-back-icon" aria-hidden="true"></i>
                 </div>
               </div>
             </div>
-
+            <div className="personal-info-text">
+            <h3 style={{ marginLeft: '29px', color:'#4979a0'}}>Basic Information</h3>
+            </div>
         <div className="row dashboard-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">

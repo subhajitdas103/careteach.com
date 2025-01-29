@@ -205,18 +205,28 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
           toast.error('Please Enter License Exp Date!');
           return;
       }
-  if (!petsApprovalDate) {
+   if (!petsApprovalDate) {
     toast.error('Please Enter Pats Approval Date!');
     return;
     }
-  if (!ssNumber) {
+    if (!ssNumber) {
     toast.error('Please Enter SS Number!');
     return;
     }
-    if (!petStatus) {
+    if (!petStatus || petStatus === "Choose Pets Status") {
       toast.error('Please Choose Pets Status!');
       return;
-      }
+    }
+    
+    if (!rateNotes) {
+    toast.error('Please Enter Rate Notes!');
+    return;
+    }
+    if (!companyName) {
+      toast.error('Please Enter Company Name!');
+      return;
+    }
+        
 
       // petStatus
     const formData = {
@@ -242,37 +252,49 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
     };
     console.log('Form data:', formData);
 
+    if (formData.selectedGrades.length === 0) {
+      toast.error("Please select grade.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return; // Prevent the form submission
+    }
+   
     try {
-      const response = await axios.post(`${backendUrl}/api/addprovider`, JSON.stringify(formData), {
+      const response = await axios.post(`${backendUrl}/api/addprovider`, formData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
-
-      
-setTimeout(() => {
-                toast.success("Provider successfully Saved!", {
-                  position: "top-right",
-                  autoClose: 5000,
-                });
-              }, 500);
-     
-        navigate('/Providers', { state: { successMessage: 'Provider successfully Saved!!' } });
-              
-      
-      
-
-      console.log('Data sent successfully:', response.data);  
-    } 
     
-    catch (error) {
-      toast.error("An error occurred. Please try again.", {
+      // Success toast notification
+      setTimeout(() => {
+        toast.success("Provider successfully Saved!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      }, 500);
+    
+      // Navigate to Providers page with success message
+      navigate('/Providers', { state: { successMessage: 'Provider successfully Saved!!' } });
+    
+      console.log('Data sent successfully:', response.data);  
+    
+    } catch (error) {
+      // Display error from backend response or fallback to generic message
+      let  errorMessage = error.response?.data?.message || "An error occurred. Please try again.";
+      
+      if (error.response?.data?.error === 'Email is already associated with another provider.') {
+        errorMessage = 'Email is already associated with another provider.';
+      }
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 5000,
       });
-
+    
       console.error('There was an error sending data:', error.response?.data || error.message);
     }
+    
   }
 
   const bcktoprovidersView = () => {
@@ -296,7 +318,7 @@ setTimeout(() => {
         <div className="row dashbord-list personal-profile">
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>First Name:</label>
+              <label>First Name*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -304,7 +326,7 @@ setTimeout(() => {
               />
             </div>
             <div className="col-md-6 student-profile-field">
-              <label>Last Name:</label>
+              <label>Last Name*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -325,7 +347,7 @@ setTimeout(() => {
                   />
                 </div>
                 <div className="col-md-6 student-profile-field">
-                  <label>Email:</label>
+                  <label>Email*</label>
                   <input
                     type="text"
                     className={`stu-pro-input-field ${isValid ? '' : 'invalid-email'}`}
@@ -339,7 +361,7 @@ setTimeout(() => {
 
           <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-                <label>Phone:</label>
+                <label>Phone*</label>
                 <input
                   type="text"
                   className="stu-pro-input-field"
@@ -349,7 +371,7 @@ setTimeout(() => {
                 />
               </div>
               <div className="col-md-6 student-profile-field">
-              <label>Address:</label>
+              <label>Address*</label>
               <textarea
                 rows="3"
                 cols="30"
@@ -372,7 +394,7 @@ setTimeout(() => {
         <div className="row dashbord-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-              <label>Rate:</label>
+              <label>Rate*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -382,7 +404,7 @@ setTimeout(() => {
               />
             </div>
             <div className="col-md-6 student-profile-field">
-              <label>Rate Notes:</label>
+              <label>Rate Notes*</label>
               <textarea
                 rows="3"
                 cols="30"
@@ -412,7 +434,7 @@ setTimeout(() => {
             </div>
 
             <div className="col-md-6 student-profile-field">
-              <label>Company Name:</label>
+              <label>Company Name*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -478,7 +500,7 @@ setTimeout(() => {
 
         <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>License Exp Date:</label>
+              <label>License Exp Date*</label>
               <DatePicker
                 selected={licenseExpDate}
                 onChange={handleLicenseExpDateChangeDate}
@@ -490,7 +512,7 @@ setTimeout(() => {
 
                
           <div className="col-md-6 student-profile-field">
-            <label>Pet Status:</label>
+            <label>PETS Status*</label>
             <div className="dropdown">
               <button
                 className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -525,7 +547,7 @@ setTimeout(() => {
         
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-                <label>PETS Approval Date:</label>
+                <label>PETS Approval Date*</label>
                 <DatePicker
                   selected={petsApprovalDate}
                   onChange={handlePetsApprovalDateChange}
@@ -552,7 +574,7 @@ setTimeout(() => {
 
               <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field attachmentcss">
-                    <label htmlFor="ssn-input">Social Security Number:</label>
+                    <label htmlFor="ssn-input">Social Security Number*</label>
                     <input
                       id="ssn-input"
                       type="text"

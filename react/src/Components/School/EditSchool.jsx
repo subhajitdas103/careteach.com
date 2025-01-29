@@ -155,28 +155,25 @@ if (value.length <= 10) {
 }
 };
 
-  const handelEditSchool = async () => {
-
-    if (!schoolName ) {
-      toast.error('Please Enter School Name!');
-      return;
-    }
-    if ( !principalName) {
-      toast.error('Please Enter Principal Name!');
-      return;
-    }
-    if (!address) {
-      toast.error('Please Enter Address !');
-      return;
-    }
-    if (!phone) {
-      toast.error('Please Enter Phone Number!');
-      return;
-    }
-    
 
 
-   // Email validation
+const handleEditSchool = async () => {
+  const validations = [
+    { field: schoolName, message: 'Please Enter School Name!' },
+    { field: principalName, message: 'Please Enter Principal Name!' },
+    { field: address, message: 'Please Enter Address!' },
+    { field: phone, message: 'Please Enter Phone Number!' },
+    { field: emailAddress, message: 'Please Enter Email Address!' },
+  ];
+
+  for (let { field, message } of validations) {
+    if (!field) {
+      toast.error(message);
+      return;
+    }
+  }
+
+  // Email validation
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(emailAddress)) {
     toast.error('Enter a valid email!');
@@ -190,40 +187,53 @@ if (value.length <= 10) {
     return;
   }
 
+  // Ensure SelectedWorkingDays is an array before using .join(',')
+  const workingDays = Array.isArray(SelectedWorkingDays) ? SelectedWorkingDays.join(',') : '';
 
-    const schoolData = {
-      schoolName,
-      principalName,
-      address,
-      phone,
-      workingDays: SelectedWorkingDays.join(','),
-      holidays,
-      status,
-      emailAddress,
-    };
-
-    try {
-      const response = await axios.post(`${backendUrl}/api/EditSchool/${SchoolID}`, schoolData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-     
-    setTimeout(() => {
-                    toast.success("School Updated successfully!", {
-                      position: "top-right",
-                      autoClose: 5000,
-                    });
-                  }, 500);
-         
-    navigate('/School', { state: { successMessage: 'School Updated successfully!!' } });
-
-    } catch (error) {
-      toast.error('Error adding school!');
-      // console.error('Error adding school:', error);
-    }
+  const schoolData = {
+    schoolName,
+    principalName,
+    address,
+    phone,
+    workingDays,
+    holidays,
+    status,
+    emailAddress,
   };
+
+  try {
+    const response = await axios.post(`${backendUrl}/api/EditSchool/${SchoolID}`, schoolData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    setTimeout(() => {
+      toast.success('School Updated successfully!', {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+    }, 500);
+
+    navigate('/School', { state: { successMessage: 'School Updated successfully!!' } });
+  } catch (error) {
+    if (error.response) {
+      // console.log('Full error response:', error.response);
+      if (error.response.status === 422) {
+        const errorMessage = error.response.data.errors?.emailAddress?.[0] || 'The email address is already registered';
+        console.log('Validation error:', errorMessage);
+        toast.error(errorMessage);
+      } else {
+        toast.error('Error updating school!');
+      }
+    } else {
+      toast.error('Server not responding');
+    }
+  }
+};
+
+
+
 
 
    
@@ -255,7 +265,7 @@ if (value.length <= 10) {
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text personal-info-text">
-          <h3>Add Basic Information of School</h3>
+          <h3>Edit School</h3>
           <i className="fa fa-backward fc-back-icon" onClick={backToSchool} aria-hidden="true"></i>
         </div>
       </div>
@@ -422,10 +432,10 @@ if (value.length <= 10) {
 
       </div>
 
-      <div className="btn btn-primary save-student-btn" onClick={handelEditSchool}>
+      <div className="btn btn-primary save-student-btn" onClick={handleEditSchool}>
         Save School
       </div>
-
+      
       <ToastContainer />
     </div>
   );
