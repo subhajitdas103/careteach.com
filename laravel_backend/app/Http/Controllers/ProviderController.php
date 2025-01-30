@@ -123,7 +123,7 @@ public function addprovider(Request $request)
             'name' => $validatedData['first_name'] . ' ' . $validatedData['last_name'],
             'roll_id' => $Providers->id, // Add the provider ID to the user
             'roll_name' => 'Provider', // Hardcoded value
-            'password' => '$2y$12$WFFdy/2G.1lOgYEwuoO.oebQ8F2e1.uu3oKKv4LKzzWso/Utdi9A.',
+            'password' => '$2y$10$sutLVVseLu.mVlhv8nPS2uiYSEENNQJPFm1dqPopbHAP4PlzjLe2u',
         ]);
 
         return response()->json(['message' => 'Student data saved successfully!'], 201);
@@ -329,6 +329,7 @@ public function searchProvider(Request $request)
     $query = $request->input('query');
     $Providers = Providers::where('provider_first_name', 'LIKE', "%{$query}%")
         ->orWhere('provider_last_name', 'LIKE', "%{$query}%")
+        ->orWhere('provider_email', 'LIKE', "%{$query}%")
         ->get();
     return response()->json($Providers);
 }

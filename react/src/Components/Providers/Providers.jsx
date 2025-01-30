@@ -192,7 +192,7 @@ const handleStudentClick = (studentId) => {
     <div className="dashbord-container">
       <div className="row dashbord-list">
         <div className="heading-text">
-          <h3>Providers</h3>
+          <h3 style={{ marginTop: "-44px" }}>Providers</h3>
           <i
             className="fa fa-backward fc-back-icon"
             aria-hidden="true"

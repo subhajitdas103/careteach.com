@@ -186,7 +186,7 @@ return (
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
-          <h3>Students</h3>
+          <h3 style={{ marginTop: "-44px" }}>Students</h3>
           <div onClick={backToDashboard}>
             <i className="fa fa-backward fc-back-icon" aria-hidden="true" id="back_student_click"></i>
           </div>
@@ -224,7 +224,7 @@ return (
             <tr>
               <th>Student Name</th>
               <th>School Name</th>
-              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>

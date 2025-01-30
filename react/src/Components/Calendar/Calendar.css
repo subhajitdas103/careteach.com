@@ -433,7 +433,7 @@ body{
     margin-right: 15px !important;
 }
 
-.add-student-btn{
+/* .add-student-btn{
     font-size: 18px;
     font-family: inherit;
     font-weight: 600;
@@ -441,14 +441,14 @@ body{
     color: #fff;
     float: right;
     border: 1px solid #4979a0;
-    /* width: 125px; */
+
     height: 40px;
     border-radius: 9px;
     text-align: center;
     padding: 5px 15px 1px 15px;
     margin: 35px 27px 35px 0px;
     cursor: pointer;
-}
+} */
 
 .add-student-btn:hover {
     background-color: #034b74;

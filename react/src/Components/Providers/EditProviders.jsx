@@ -16,7 +16,8 @@ import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/mater
 import { useParams } from 'react-router-dom';
 import ClipLoader from "react-spinners/ClipLoader";
 import BeatLoader from "react-spinners/BeatLoader";
-
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 const EditProviders = () => {
 const [loading, setLoading] = useState(true);
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -488,23 +489,33 @@ const fetchProviderDetails = async () => {
 
 
 
+
+
   return (
 
-        
+   
     
    
 
     <div className="dashbord-container">
        {loading ? (
-        <div className="loader-container">
-          <ClipLoader color="#36D7B7" size={80} />
-        </div>
+    <div className="row dashbord-list">
+      <div className="heading-text">
+        <h3>
+          <Skeleton width={150} height={30} />
+        </h3>
+        <p>
+          <Skeleton width={200} height={20} />
+        </p>
+      </div>
+    </div>
       ) : (
         <>
       <header>
         <div className="row dashbord-list">
           <div className="heading-text personal-info-text">
-            <h3>Basic Information</h3>
+          <h3 style={{ marginTop: "-44px" }}>Edit Providers</h3>
+
             <i
               className="fa fa-backward fc-back-icon"
               aria-hidden="true"
@@ -512,6 +523,16 @@ const fetchProviderDetails = async () => {
             ></i>
           </div>
         </div>
+        <h2 style={{ 
+        color: "#333", 
+        fontSize: "24px", 
+        fontWeight: "bold", 
+        marginBottom: "10px", 
+        marginLeft: "26px" 
+      }}>
+        Basic Information
+      </h2>
+
 
         <div className="row dashbord-list personal-profile">
           <div className="stu-pro-field-div">

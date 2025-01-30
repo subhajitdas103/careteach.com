@@ -123,7 +123,7 @@ const School = () => {
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text">
-          <h3>Schools</h3>
+          <h3 style={{marginTop:"-42px"}}>Schools</h3>
           <i
             className="fa fa-backward fc-back-icon"
             aria-hidden="true"

@@ -265,7 +265,7 @@ const handleEditSchool = async () => {
     <div className="dashboard-container">
       <div className="row dashboard-list">
         <div className="heading-text personal-info-text">
-          <h3>Edit School</h3>
+          <h3 style={{marginTop: "-42px",marginLeft:"17px"}}>Edit School</h3>
           <i className="fa fa-backward fc-back-icon" onClick={backToSchool} aria-hidden="true"></i>
         </div>
       </div>

@@ -94,7 +94,7 @@ public function deleteSchooldata($id)
     {
         $query = $request->input('query');
         $school = SchoolModel::where('school_name', 'LIKE', "%{$query}%")
-            // ->orWhere('last_name', 'LIKE', "%{$query}%")
+            ->orWhere('email', 'LIKE', "%{$query}%")
             ->get();
         return response()->json($school);
     }
