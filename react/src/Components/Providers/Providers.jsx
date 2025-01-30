@@ -328,7 +328,7 @@ const handleStudentClick = (studentId) => {
 
                {/* View Student Click Modal */}
               <Modal show={isModalOpen} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
+                <Modal.Header >
                   <Modal.Title>Associated Students</Modal.Title>
                 </Modal.Header>
                 

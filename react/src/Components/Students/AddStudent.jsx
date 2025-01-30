@@ -148,14 +148,11 @@ const removeService = (index) => {
 
     const handelDoe_rate = (event) => {
     const value = event.target.value;
-    
-    // Allow only numeric input (whole numbers)
     if (/^\d+$/.test(value) || value === "") {
-      setDOE(value); // Update state if input is valid
+      setDOE(value); 
     }
 
     if (event.target.value) {
-      // setDOEError('');  // Clear the error as soon as the user types something
     }
   };
 
@@ -178,10 +175,6 @@ const removeService = (index) => {
     };
     const handleGradeChange = (selectedGrade) => {
       setGrade(selectedGrade);
-      // setSchoolNameError(''); 
-      // if (event.target.value) {
-        // Clear the error as soon as the user types something
-      // }
     };
 
     const handelDisability = (selectedDisability) => {
@@ -212,10 +205,10 @@ const removeService = (index) => {
   }, []);
 console.log(schools);
 // ===========================================================
- // Function to handle school selection
+
  const handleSchoolChange = (schoolName) => {
-  setSelectedSchool(schoolName); // Update the selected school in state
-  console.log('Selected school:', schoolName); // Optionally log the selected school
+  setSelectedSchool(schoolName);
+  console.log('Selected school:', schoolName); 
 };
     // ===================================================================
    
@@ -265,12 +258,6 @@ console.log(schools);
         return;
       }
       
-      const validateServices = (services) => {
-        return services.every(service => 
-            service.service_type && service.startDate && service.endDate && 
-            service.weeklyMandate && service.yearlyMandate);
-    };
-
       const formData = {
         first_name,
         last_name,
@@ -292,11 +279,7 @@ console.log(schools);
         services: formDataList,
         userRollID,
       };
-
-
-
       console.log('Form data:', formData);
-    
       try {
         const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
           headers: {
@@ -314,16 +297,13 @@ console.log(schools);
         navigate('/Students', { state: { successMessage: 'Student Created successfully!' } });
       } catch (error) {
     if (error.response && error.response.data.error) {
-        // Handle backend specific errors (like email already taken)
         toast.error(error.response.data.error, {
             position: "top-right",
             autoClose: 5000,
         });
     } else if (error.response && error.response.data.errors) {
-        // Handle validation errors
         const errors = error.response.data.errors;
         for (const [key, value] of Object.entries(errors)) {
-            // Here we can just display the error message without the field name
             toast.error(value[0], {
                 position: "top-right",
                 autoClose: 5000,
@@ -331,7 +311,6 @@ console.log(schools);
             break;
         }
     } else {
-        // Handle other types of errors (e.g., server issues)
         toast.error('An error occurred. Please try again later.', {
             position: "top-right",
             autoClose: 5000,
