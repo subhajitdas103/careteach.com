@@ -1,5 +1,6 @@
 import {React,useEffect , useState} from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 const DashboardCard = ({ title, iconClass, onClick }) => (
 
@@ -31,14 +32,18 @@ const DashboardCard = ({ title, iconClass, onClick }) => (
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [userRollName, setRollName] = useState(null);
+  // const [userRollName, setRollName] = useState(null);
 // ============Getting Roll Name from Session=========
-  useEffect(() => {
-    const rollName = localStorage.getItem("authRollName");
-      setRollName(rollName);
-      console.log("Roll ID after refresh:", rollName);
+  // useEffect(() => {
+  //   const rollName = localStorage.getItem("authRollName");
+  //     setRollName(rollName);
+  //     console.log("Roll ID after refresh:", rollName);
     
-  }, []);
+  // }, []);
+
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name DAsh:", userRollName);
+  console.log("Updated Roll ID Dash:", userRollID);  
 // ===============================
   return (
     <div className="dashbord-container">

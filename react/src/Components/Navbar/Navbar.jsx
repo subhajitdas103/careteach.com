@@ -4,12 +4,14 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import logo from "../../assets/logo.png"; // Import the logo
 import logoutGif from "../../assets/icons8-logout.png"; 
 // ../../assets/logo.png
-
+import useAuth from "../../hooks/useAuth";
 const Navbar = () => {
   const handleLogout = () => {
-      // Clear user session or authentication tokens
-      sessionStorage.removeItem('authToken'); // Example for clearing token
-      sessionStorage.clear(); // Clear all session data
+    const { setUserRollID, setUserRollName } = useAuth(); 
+      LocalStorage.removeItem('authToken');
+      LocalStorage.clear(); 
+      setUserRollID(null);
+      setUserRollName(null);
       alert('You have been logged out.');
 
       // Redirect to login page (adjust the route as needed)

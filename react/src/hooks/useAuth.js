@@ -43,7 +43,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL;
     fetchUserData();
   }, [backendUrl, navigate]);
 
-  return { userRollID, userRollName,loading };
+  return { userRollID, userRollName,loading ,setUserRollID, setUserRollName};
 };
 
 export default useAuth;
