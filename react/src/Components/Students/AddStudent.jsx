@@ -294,36 +294,6 @@ console.log(schools);
       };
 
 
-let serviceIndex = 0;
-const showError = (field, message) => {
-    toast.error(message, {
-        position: "top-right",
-        autoClose: 5000,
-    });
-};
-
-const validateServicesOneByOne = () => {
-    const service = formData.services[serviceIndex];
-
-    if (!service.service_type) {
-        showError("service_type", "Service Type field is required.");
-    } else if (!service.startDate) {
-        showError("startDate", "Start Date field is required.");
-    } else if (!service.endDate) {
-        showError("endDate", "End Date field is required.");
-    } else if (!service.weeklyMandate) {
-        showError("weeklyMandate", "Weekly Mandate field is required.");
-    } else if (!service.yearlyMandate) {
-        showError("yearlyMandate", "Yearly Mandate field is required.");
-    } else {
-        serviceIndex++;
-        if (serviceIndex < formData.services.length) {
-            validateServicesOneByOne();
-        }
-    }
-};
-
-validateServicesOneByOne(); // Start validation process
 
       console.log('Form data:', formData);
     
@@ -343,30 +313,31 @@ validateServicesOneByOne(); // Start validation process
     
         navigate('/Students', { state: { successMessage: 'Student Created successfully!' } });
       } catch (error) {
-        if (error.response && error.response.data.error) {
-            // Handle backend specific errors (like email already taken)
-            toast.error(error.response.data.error, {
+    if (error.response && error.response.data.error) {
+        // Handle backend specific errors (like email already taken)
+        toast.error(error.response.data.error, {
+            position: "top-right",
+            autoClose: 5000,
+        });
+    } else if (error.response && error.response.data.errors) {
+        // Handle validation errors
+        const errors = error.response.data.errors;
+        for (const [key, value] of Object.entries(errors)) {
+            // Here we can just display the error message without the field name
+            toast.error(value[0], {
                 position: "top-right",
                 autoClose: 5000,
             });
-        } else if (error.response && error.response.data.errors) {
-            // Handle validation errors
-            const errors = error.response.data.errors;
-            for (const [key, value] of Object.entries(errors)) {
-                // Here we can just display the error message without the field name
-                toast.error(value[0], {
-                    position: "top-right",
-                    autoClose: 5000,
-                });
-            }
-        } else {
-            // Handle other types of errors (e.g., server issues)
-            toast.error('An error occurred. Please try again later.', {
-                position: "top-right",
-                autoClose: 5000,
-            });
+            break;
         }
+    } else {
+        // Handle other types of errors (e.g., server issues)
+        toast.error('An error occurred. Please try again later.', {
+            position: "top-right",
+            autoClose: 5000,
+        });
     }
+}
     };
     
 
