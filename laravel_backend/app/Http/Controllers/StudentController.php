@@ -90,11 +90,11 @@ public function addstudent(Request $request)
         // Validation rules
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'grade' => 'nullable|string|max:255',
-            'school_name' => 'nullable|string|max:255',
-            'home_address' => 'nullable|string|max:255',
-            'doe_rate' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'grade' => 'required|string|max:255',
+            'school_name' => 'required|string|max:255',
+            'home_address' => 'required|string|max:255',
+            'doe_rate' => 'required|string|max:255',
             'iep_doc' => 'nullable|string|max:255',
             'disability' => 'nullable|string|max:255',
             'nyc_id' => 'nullable|string|max:255',
@@ -103,22 +103,36 @@ public function addstudent(Request $request)
             'resolutionInvoice' => 'nullable|boolean',
             'status' => 'nullable|string|max:255',
             'userRollID' => 'required|integer',
-            'parent_name' => 'nullable|string|max:255',
-            'parent_email' => 'nullable|email|max:255',
-            'parent_phnumber' => 'nullable|numeric|digits:10',
-            'parent_type' => 'nullable|string|max:255',
+            'parent_name' => 'required|string|max:255',
+            // 'parent_email' => 'required|email|max:255',
+            'parent_email' => 'required|email|max:255|unique:parents,parent_email',
+            'parent_phnumber' => 'nullable|numeric',
+            'parent_type' => 'required|string|max:255',
+
             'services' => 'required|array',
-            'services.*.service_type' => 'nullable|string|max:255',
+            'services.*.service_type' => 'required|string|max:255',
             'services.*.startDate' => 'required|string|max:255',
             'services.*.endDate' => 'required|string|max:255',
             'services.*.weeklyMandate' => 'required|string|max:255',
             'services.*.yearlyMandate' => 'required|string|max:255',
+
+
+        ], [
+            'services.required' => 'At least one service is required.',
+            'services.*.service_type.required' => 'Service type is required.',
+            'services.*.startDate.required' => 'Start date is required.',
+            'services.*.endDate.required' => 'End date is required.',
+            'services.*.weeklyMandate.required' => 'Weekly mandate is required.',
+            'services.*.yearlyMandate.required' => 'Yearly mandate is required.',
+            'parent_email.unique' => 'The parent email has already been taken.',
         ]);
 
+      
         // Create or update the parent
         $parents = Parents::create([
             'parent_name' => $validatedData['parent_name'],
-            'ph_no' => $validatedData['parent_phnumber'],
+            // 'ph_no' => $validatedData['parent_phnumber'],
+            'ph_no' => $validatedData['parent_phnumber'] ?? '',
             'parent_type' => $validatedData['parent_type'],
             'parent_email' => $validatedData['parent_email'],
         ]);
@@ -155,10 +169,20 @@ public function addstudent(Request $request)
         }
 
         return response()->json(['message' => 'Student data saved/updated successfully!'], 200);
-    } catch (\Exception $e) {
-        \Log::error('Error saving/updating student data: ' . $e->getMessage());
-        \Log::error('Request Data: ' . json_encode($request->all())); // Log request data for debugging
-        return response()->json(['error' => 'Internal Server Error'], 500);
+
+    } catch (\Illuminate\Database\QueryException $e) {
+        // Handle unique constraint violation
+        if ($e->getCode() == 23000) {  // SQLSTATE[23000] is for integrity constraint violation
+            return response()->json([
+                'error' => 'The parent email has already been taken.'
+            ], 400);
+        }
+    
+        // General error handling
+        return response()->json([
+            'error' => 'Internal Server Error',
+            'message' => $e->getMessage(),
+        ], 500);
     }
 }
 

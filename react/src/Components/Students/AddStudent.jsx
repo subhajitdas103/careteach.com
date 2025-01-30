@@ -117,6 +117,8 @@ const removeService = (index) => {
       setParentPH(event.target.value);
     };
 
+
+    
   const handleParentTypeChange = (selectedParent) => {
     setParentType(selectedParent);
   };
@@ -256,12 +258,19 @@ console.log(schools);
         return;
       }
     
-      const phoneRegex = /^\d{10}$/;
-      if (!phoneRegex.test(parent_phnumber)) {
+      const cleanNumber = parent_phnumber.replace(/\s/g, '').trim(); // Remove spaces and trim
+
+      if (cleanNumber && !/^\d{10}$/.test(cleanNumber)) { 
         toast.error('Phone number must be 10 digits!');
         return;
       }
-    
+      
+      const validateServices = (services) => {
+        return services.every(service => 
+            service.service_type && service.startDate && service.endDate && 
+            service.weeklyMandate && service.yearlyMandate);
+    };
+
       const formData = {
         first_name,
         last_name,
@@ -283,7 +292,39 @@ console.log(schools);
         services: formDataList,
         userRollID,
       };
-    
+
+
+let serviceIndex = 0;
+const showError = (field, message) => {
+    toast.error(message, {
+        position: "top-right",
+        autoClose: 5000,
+    });
+};
+
+const validateServicesOneByOne = () => {
+    const service = formData.services[serviceIndex];
+
+    if (!service.service_type) {
+        showError("service_type", "Service Type field is required.");
+    } else if (!service.startDate) {
+        showError("startDate", "Start Date field is required.");
+    } else if (!service.endDate) {
+        showError("endDate", "End Date field is required.");
+    } else if (!service.weeklyMandate) {
+        showError("weeklyMandate", "Weekly Mandate field is required.");
+    } else if (!service.yearlyMandate) {
+        showError("yearlyMandate", "Yearly Mandate field is required.");
+    } else {
+        serviceIndex++;
+        if (serviceIndex < formData.services.length) {
+            validateServicesOneByOne();
+        }
+    }
+};
+
+validateServicesOneByOne(); // Start validation process
+
       console.log('Form data:', formData);
     
       try {
@@ -302,18 +343,30 @@ console.log(schools);
     
         navigate('/Students', { state: { successMessage: 'Student Created successfully!' } });
       } catch (error) {
-        if (error.response?.status === 422) {
-          const errorMessage = error.response.data.errors?.services?.[0];
-          console.log('Validation error:', errorMessage);
-          toast.error(errorMessage);
+        if (error.response && error.response.data.error) {
+            // Handle backend specific errors (like email already taken)
+            toast.error(error.response.data.error, {
+                position: "top-right",
+                autoClose: 5000,
+            });
+        } else if (error.response && error.response.data.errors) {
+            // Handle validation errors
+            const errors = error.response.data.errors;
+            for (const [key, value] of Object.entries(errors)) {
+                // Here we can just display the error message without the field name
+                toast.error(value[0], {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
         } else {
-          toast.error("An error occurred. Please try again.", {
-            position: "top-right",
-            autoClose: 5000,
-          });
-          console.error('There was an error sending data:', error.response?.data || error.message);
+            // Handle other types of errors (e.g., server issues)
+            toast.error('An error occurred. Please try again later.', {
+                position: "top-right",
+                autoClose: 5000,
+            });
         }
-      }
+    }
     };
     
 
@@ -526,7 +579,7 @@ console.log(schools);
                       id="dropdownMenuButton"
                       data-bs-toggle="dropdown"
                       aria-expanded="false">
-                      {iep_doc || "Choose IEP Document"}
+                      {iep_doc || "IEP Document"}
                     </button>
                   <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
@@ -817,6 +870,7 @@ console.log(schools);
               <label>Phone No:</label>
               <input
                 type="text"
+                maxLength="12" 
                 name="phoneNumber"
                 className="stu-pro-input-field"
                 placeholder="Enter parent phone no." value={parent_phnumber} onChange={handleParentPHnumber}
