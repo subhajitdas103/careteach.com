@@ -964,7 +964,7 @@ const handleNavigateWeek = (action) => {
             fontWeight: 'bold',
             textAlign: 'center',
             flex: 1,
-            marginLeft: '143px'
+            marginLeft: '23px'
           }}
         >
           {label}

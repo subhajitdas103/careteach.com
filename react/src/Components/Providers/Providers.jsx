@@ -305,10 +305,9 @@ const handleStudentClick = (studentId) => {
                   <td>{provider.provider_phone}</td>
                   <td>{provider.rate}</td>
                   {/* <td>{provider.status}</td> */}
-                  <td style={{ color: provider.status === "active" ? "green" : "red" , fontWeight: "bold" }}>
-                  {provider.status}
-                 </td>
-
+                  <td style={{ color: provider.status === "active" ? "green" : "red", fontWeight: "bold" }}>
+                    {provider.status === "active" ? "Active" : "In-Active"}
+                  </td>
                   <td className="col-md-2">
                     <div className="status-area">
                     
@@ -387,11 +386,6 @@ const handleStudentClick = (studentId) => {
                 
                 <Modal.Body>
                   {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
-                    loading ? (
-                      <div className="loader-container text-center">
-                        <BeatLoader color="#9ecce8" size={20} />
-                      </div>
-                    ) : (
                       <ul>
                         {ProviderDataAssignProvider.map((assignStudent) => (
                           <li
@@ -403,7 +397,6 @@ const handleStudentClick = (studentId) => {
                           </li>
                         ))}
                       </ul>
-                    )
                   ) : (
                     <p>No Associated Student found.</p>
                   )}

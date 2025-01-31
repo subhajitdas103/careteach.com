@@ -17,6 +17,8 @@ import AddProviders from "./Components/Providers/AddProviders";
 import EditProviders from "./Components/Providers/EditProviders";
 import AddSchool from "./Components/School/AddSchool";
 import AssignProviders from "./Components/Students/AssignProviders";
+import StudentDetails from "./Components/Students/StudentDetails";
+
 import ProtectedRoute from './Components/ProtectedRoute';  // Adjust path if needed
 import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -95,6 +97,12 @@ const App = () => {
           path="/AssignProviders/:id" 
           element={<ProtectedRoute><WithNavbar Component={AssignProviders} /></ProtectedRoute>} 
         />
+        <Route 
+          path="/StudentDetails/:id" 
+          element={<ProtectedRoute><WithNavbar Component={StudentDetails} /></ProtectedRoute>} 
+        />
+
+
         <Route 
           path="/EditSchool/:SchoolID" 
           element={<ProtectedRoute><WithNavbar Component={EditSchool} /></ProtectedRoute>} 

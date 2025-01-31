@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"; 
 import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
-import { TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { TextField, FormControl, InputLabel, Select, MenuItem ,Box } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Import useParams
 import editIcon from '../../Assets/edit-info.png';
 import DeleteAssignProviderIcon from '../../Assets/delete_12319540.png';
@@ -455,7 +455,9 @@ const openModalAssignProvider = (id, name) => {
             <div className="form-row">
               <div className="col-12 col-md-12">
               <FormControl fullWidth style={{ marginBottom: "16px" }}>
+              <Box sx={{ backgroundColor: "red", display: "inline-block", padding: "2px 5px" }}>
                 <InputLabel id="provider-select-label">Select Provider</InputLabel>
+              </Box>
                 <Select
                     labelId="provider-select-label"
                     id="provider-select"

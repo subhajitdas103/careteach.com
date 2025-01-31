@@ -1,3 +1,48 @@
+/* Flex container to align items in one row */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Adjust the gap between the sections */
+  }
+  
+  /* Individual section styles */
+  .details-section {
+    flex: 1; /* Each section will take equal width */
+    padding: 10px;
+  }
+  
+  /* Optional: You can add more styling here to adjust the table appearance */
+  .table {
+    width: 100%; /* Make the table span the full width of the section */
+  }
+  
+.css-lo82f3{
+    background-color: rgb(255, 255, 255) !important; 
+    display: inline-block;
+    /* padding: 2px 5px; */
+}
+
+.css-113d811-MuiFormLabel-root-MuiInputLabel-root {
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    background-color: white !important;
+    line-height: .4375em;
+    letter-spacing: 0.00938em;
+    padding: -25px;
+    position: relative;
+    display: block;
+    transform-origin: top left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 
 /* .datepicker_startDate_of_assignProvider{
     background-color: white;

@@ -122,8 +122,12 @@ const Students = () => {
   };
 
  // ==========End=========Delete Student ====================
-
-  
+ const OpenStudentDetails = (id) => {
+  console.log('Student ID passed:', id);
+  setSelectedStudentId(id); // Store the selected student ID
+  navigate(`/StudentDetails/${id}`);
+};
+ 
 
 
   // ======================Fetch Student details==============================
@@ -311,7 +315,7 @@ return (
                           type="button"
                           className="assignProviderBTN"
                           style={{ backgroundColor: "#fff" }}
-                          onClick={() => OpenAssignProvider(student.id)}
+                          onClick={() => OpenStudentDetails(student.id)}
                         >
                           <div className="assign-pro-btn">View Student Details</div>
                         </button>
