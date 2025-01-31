@@ -10,7 +10,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import useAuth from "../../hooks/useAuth";
 import 'rsuite/dist/rsuite.min.css';
-import ClipLoader from "react-spinners/ClipLoader";
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 
 const Students = () => {
   const [loading, setLoading] = useState(true);
@@ -177,13 +178,63 @@ const fetchStudentDetails = async () => {
         console.error('Error fetching search results:', error);
     }
 };
-  
-
-  
+ 
 return (
 <div>
-<ToastContainer />
+    <ToastContainer />
     <div className="dashboard-container">
+      {loading ? (
+        <div className="dashbord-container">
+          <div className="row dashbord-list">
+            <div className="heading-text">
+              <h3>
+                <Skeleton width={150} height={30} />
+              </h3>
+              <p>
+                <Skeleton width={200} height={20} />
+              </p>
+            </div>
+    
+            <div className="row dashbord-list">
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={120} height={20} /></label>
+                  <Skeleton height={45} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                  <p className="error-message"><Skeleton width={150} height={15} /></p>
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={80} width={'100%'} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+    <header>
       <div className="row dashboard-list">
         <div className="heading-text">
           <h3 style={{ marginTop: "-44px" }}>Students</h3>
@@ -228,15 +279,7 @@ return (
             </tr>
           </thead>
           <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan="9" className="text-center">
-                <div className="loader-container">
-                  <ClipLoader color="#9ecce8" size={40} /> {/* Customize the color and size */}
-                </div>
-              </td>
-            </tr>
-          ) : data.length > 0 ? (
+          {data.length > 0 ? (
               data.map((student, index) => (
                 <tr key={index}>
                   <td className="col-md-5">
@@ -288,6 +331,9 @@ return (
 
         </table>
       </div>
+      </header>
+      </>
+      )}
 
       {/* Modal for Student Deletion */}
       {SelectedStudentToDelete && (

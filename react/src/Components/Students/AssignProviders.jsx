@@ -417,14 +417,14 @@ const openModalAssignProvider = (id, name) => {
                             style={{ backgroundColor: 'white', display: 'inline-block' }}
                             title="Edit Assigned Provider"
                             >
-                            <i className = "fa fa-edit fa-1x fa-icon-img" alt="Edit" style={{ width: '41px', marginRight: '2px' }} />
+                            <i className = "fa fa-edit fa-1x fa-icon-img" alt="Edit" style={{ width: '48px', marginLeft: '2px' }} />
                             </button>
 
                             <button onClick={() => AssignedProviderDelete(provider.id)}
                             style={{ backgroundColor: 'white', display: 'inline-block' , width:'16px'}}
                             title="Delete Assigned Provider"
                             >
-                            <i className="fa fa-trash fa-1x fa-icon-img" alt="Delete" style={{ width: '41px', marginRight: '10px' }} />
+                            <i className="fa fa-trash fa-1x fa-icon-img" alt="Delete" style={{ width: '48px', marginLeft: '-7px' }} />
                             </button>
                         </div>
                         </td>
@@ -593,9 +593,7 @@ const openModalAssignProvider = (id, name) => {
           </Modal.Body>
   
           <Modal.Footer>
-            <Button variant="secondary" onClick={closeModal}>
-              Close
-            </Button>
+           
             <Button variant="primary" onClick={handelAssignProviderData}>
               Save changes
             </Button>
@@ -620,9 +618,7 @@ const openModalAssignProvider = (id, name) => {
                     </p>
                   </Modal.Body>
                   <Modal.Footer>
-                    <Button className="cancel-button" variant="secondary" onClick={handleClose}>
-                      <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-                    </Button>
+                  
                     <Button className="delete-button" variant="danger" onClick={DeleteAssignBTN}  >
                       <i className="fa fa-trash" aria-hidden="true"></i>
                     </Button>
@@ -782,9 +778,7 @@ const openModalAssignProvider = (id, name) => {
           </Modal.Body>
   
           <Modal.Footer>
-            <Button variant="secondary" onClick={closeModalofAssignProvider}>
-              Close
-            </Button>
+           
             <Button variant="primary" onClick={handelAssignProviderDataEdit}>
               Save changes
             </Button>

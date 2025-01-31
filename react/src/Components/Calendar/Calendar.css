@@ -483,7 +483,7 @@ body{
 }
 
 .table tbody td {
-    vertical-align: bottom;
+    vertical-align: middle;
     color: #034b74;
     border: 1px solid #4979a0 !important;
     background-color: #fff;

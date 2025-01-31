@@ -104,8 +104,8 @@ public function addstudent(Request $request)
             'status' => 'nullable|string|max:255',
             'userRollID' => 'required|integer',
             'parent_name' => 'required|string|max:255',
-            // 'parent_email' => 'required|email|max:255',
-            'parent_email' => 'required|email|max:255|unique:parents,parent_email',
+            'parent_email' => 'required|email|max:255',
+            // 'parent_email' => 'required|email|max:255|unique:parents,parent_email',
             'parent_phnumber' => 'nullable|numeric',
             'parent_type' => 'required|string|max:255',
 
@@ -124,7 +124,7 @@ public function addstudent(Request $request)
             'services.*.endDate.required' => 'End date is required.',
             'services.*.weeklyMandate.required' => 'Weekly mandate is required.',
             'services.*.yearlyMandate.required' => 'Yearly mandate is required.',
-            'parent_email.unique' => 'The parent email has already been taken.',
+            // 'parent_email.unique' => 'The parent email has already been taken.',
         ]);
 
       
@@ -171,12 +171,12 @@ public function addstudent(Request $request)
         return response()->json(['message' => 'Student data saved/updated successfully!'], 200);
 
     } catch (\Illuminate\Database\QueryException $e) {
-        // Handle unique constraint violation
-        if ($e->getCode() == 23000) {  // SQLSTATE[23000] is for integrity constraint violation
-            return response()->json([
-                'error' => 'The parent email has already been taken.'
-            ], 400);
-        }
+        // // Handle unique constraint violation
+        // if ($e->getCode() == 23000) {  // SQLSTATE[23000] is for integrity constraint violation
+        //     return response()->json([
+        //         'error' => 'The parent email has already been taken.'
+        //     ], 400);
+        // }
     
         // General error handling
         return response()->json([

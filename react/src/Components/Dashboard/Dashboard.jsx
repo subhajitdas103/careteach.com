@@ -102,7 +102,11 @@ const Dashboard = () => {
             />
           )}
 
+        {userRollName === "Provider" ? (
+          <DashboardCard title="Profile" iconClass="fa-chalkboard-teacher" onClick={() => navigate("/Providers")} />
+        ) : (
           <DashboardCard title="Providers" iconClass="fa-chalkboard-teacher" onClick={() => navigate("/Providers")} />
+        )}
 
           <DashboardCard title="Students" iconClass="fa-user-graduate" onClick={() => navigate("/Students")} />
             

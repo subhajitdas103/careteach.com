@@ -12,9 +12,12 @@ import { DatePicker } from 'rsuite';
 import { IconButton, Tooltip } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 // import React, { useState } from 'react';
 
   const AddStudent = () => {
+    const [loading, setLoading] = useState(true);
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const { id } = useParams();
     // console.log(id);
@@ -418,6 +421,7 @@ useEffect(() => {
     // =============Detch Student Detials=========================
 
     const fetchStudentDetails = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${id}`);
         const data = await response.json();
@@ -436,6 +440,9 @@ useEffect(() => {
       } catch (error) {
         console.error('Error fetching student details:', error);
       }
+      finally {
+        setLoading(false); // Hide loader after the fetch completes
+      }
     };
     
     useEffect(() => {
@@ -446,6 +453,57 @@ useEffect(() => {
   // ======================================================
     return (
     <div className="dashboard-container">
+      {loading ? (
+          
+           <div className="row dashbord-list">
+             <div className="heading-text">
+               <h3>
+                 <Skeleton width={150} height={30} />
+               </h3>
+               <p>
+                 <Skeleton width={200} height={20} />
+               </p>
+             </div>
+      
+             <div className="row dashbord-list">
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={100} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={100} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+               </div>
+      
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={120} height={20} /></label>
+                   <Skeleton height={45} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                   <p className="error-message"><Skeleton width={150} height={15} /></p>
+                 </div>
+               </div>
+      
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={80} width={'100%'} />
+                 </div>
+               </div>
+             </div>
+           </div>
+       
+          ) : (
+            <>
             <div className="row dashboard-list">
               <div className="heading-text personal-info-text">
                 <h2 style={{ marginLeft: '15px' ,marginTop: "-44px" }}>Edit Student</h2>
@@ -462,7 +520,7 @@ useEffect(() => {
         <div className="row dashboard-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">
-                <label>First Name:</label>
+                <label>First Name*</label>
                 <input
                   type="text"  
                   name="firstName"
@@ -472,7 +530,7 @@ useEffect(() => {
               </div>
 
               <div className="col-md-6 student-profile-field widthcss">
-                <label>Last Name:</label>
+                <label>Last Name*</label>
                 <input
                   type="text"
                   name="lastName"
@@ -485,7 +543,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">
-                <label>School Name:</label>
+                <label>School Name*</label>
                 <input
                   type="text"
                   name="schoolName"
@@ -496,7 +554,7 @@ useEffect(() => {
               </div>
             
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Grade:</label>
+                <label>Grade*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -605,7 +663,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Home Address:</label>
+              <label>Home Address*</label>
               <textarea
                 name="homeAddress"
                 rows="6"
@@ -617,7 +675,7 @@ useEffect(() => {
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>DOE Rate:</label>
+              <label>DOE Rate*</label>
               <input
                 type="text"
                 name="doeRate"
@@ -630,7 +688,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Choose IEP:</label>
+                <label>Choose IEP*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -670,7 +728,7 @@ useEffect(() => {
 
     
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Classification Disability:</label>
+                <label>Classification Disability*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -794,7 +852,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>NYC ID:</label>
+              <label>NYC ID*</label>
               <input
                 type="text"
                 name="nycId"
@@ -876,7 +934,7 @@ useEffect(() => {
         <div className="row dashboard-list personal-profile">
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Name:</label>
+              <label>Parent Name*</label>
               <input
                 type="text"
                 name="parentName"
@@ -886,7 +944,7 @@ useEffect(() => {
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Email:</label>
+              <label>Parent Email*</label>
               <input
                 type="text"
                 name="parentEmail"
@@ -1095,6 +1153,8 @@ useEffect(() => {
       <button  type="button" id = "handleAddStudent" className="save-student-btn" onClick={handleAddStudent}>Save Student</button>
       <ToastContainer />
     </div>
+    </>
+      )}
   </div>
     );
 

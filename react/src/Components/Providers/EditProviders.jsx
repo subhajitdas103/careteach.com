@@ -492,23 +492,56 @@ const fetchProviderDetails = async () => {
 
 
   return (
-
-   
-    
-   
-
-    <div className="dashbord-container">
+  <div className="dashbord-container">
        {loading ? (
-    <div className="row dashbord-list">
-      <div className="heading-text">
-        <h3>
-          <Skeleton width={150} height={30} />
-        </h3>
-        <p>
-          <Skeleton width={200} height={20} />
-        </p>
-      </div>
-    </div>
+     <div className="dashbord-container">
+     <div className="row dashbord-list">
+       <div className="heading-text">
+         <h3>
+           <Skeleton width={150} height={30} />
+         </h3>
+         <p>
+           <Skeleton width={200} height={20} />
+         </p>
+       </div>
+
+       <div className="row dashbord-list">
+         <div className="stu-pro-field-div">
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={100} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+           </div>
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={100} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+           </div>
+         </div>
+
+         <div className="stu-pro-field-div">
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={120} height={20} /></label>
+             <Skeleton height={45} width={'100%'} />
+           </div>
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={80} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+             <p className="error-message"><Skeleton width={150} height={15} /></p>
+           </div>
+         </div>
+
+         <div className="stu-pro-field-div">
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={80} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+           </div>
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={80} height={20} /></label>
+             <Skeleton height={80} width={'100%'} />
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
       ) : (
         <>
       <header>
@@ -524,14 +557,14 @@ const fetchProviderDetails = async () => {
           </div>
         </div>
         <h2 style={{ 
-        color: "#333", 
+        color: "#4979a0", 
         fontSize: "24px", 
         fontWeight: "bold", 
         marginBottom: "10px", 
         marginLeft: "26px" 
-      }}>
-        Basic Information
-      </h2>
+        }}>
+          Basic Information
+        </h2>
 
 
         <div className="row dashbord-list personal-profile">
@@ -842,7 +875,7 @@ const fetchProviderDetails = async () => {
               <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
               <ToastContainer />
             </div>
-      </header>
+    </header>
       </>
       )}
     </div>
