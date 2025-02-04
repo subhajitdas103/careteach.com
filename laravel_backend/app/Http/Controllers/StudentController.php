@@ -7,6 +7,7 @@ use App\Models\Students;
 use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\AssignProviderModel;
+use App\Models\Users;
 // use App\Models\Student;
 class StudentController extends Controller
 {
@@ -36,29 +37,25 @@ class StudentController extends Controller
 public function fetchStudentDataCalendar($id, $userRollName)
 {
     try {
-        // Step 1: Check if the user is an admin
         if ($userRollName == 'Admin') {
-            // Fetch all students if the userRollName is 'admin'
             $students = Students::all();
         } else {
-            // Step 2: Get all assign_provider records for the given provider_id
             $assignProviders = AssignProviderModel::where('provider_id', $id)->get();
+            $students = collect(); // Use a collection to avoid duplicates
 
-            // Step 3: Fetch the students for each assign_provider record
-            $students = [];
             foreach ($assignProviders as $assignProvider) {
-                $student = Students::find($assignProvider->student_id); // Fetch student data by student_id
+                $student = Students::find($assignProvider->student_id);
                 if ($student) {
-                    $students[] = $student; // Add student to the result array
+                    $students->push($student); // Add student to the collection
                 }
             }
+
+            $students = $students->unique('id')->values(); // Remove duplicates
         }
 
-        // Step 4: Return the students data as JSON response
         return response()->json($students);
 
     } catch (\Exception $e) {
-        // Log the error message
         \Log::error('Error fetching students: ' . $e->getMessage());
         return response()->json(['error' => 'Error fetching students'], 500);
     }
@@ -231,40 +228,34 @@ public function DeleteStudent($id)
         }
     }
     
-    // public function search(Request $request)
-    // {
-    //     $query = $request->input('query');
-    //     $students = Students::where('first_name', 'LIKE', "%{$query}%")
-    //         ->orWhere('last_name', 'LIKE', "%{$query}%")
-    //         ->get();
-    //     return response()->json($students);
-    // }
     public function search(Request $request)
-    {
-        $query = $request->input('query');
-        $userRollID = $request->input('userRollID');
-        $userRollName = $request->input('userRollName');
-    
+{
+    $query = $request->input('query');
+    $userRollID = $request->input('userRollID');
+    $userRollName = $request->input('userRollName');
 
-    
-        if ($userRollName === 'Admin') {
-            // If the user is admin, search all students
-            $results = Students::where('first_name', 'like', '%' . $query . '%')
-                              ->orWhere('last_name', 'like', '%' . $query . '%')
-                              ->get();
-        } else {
-            // If the user is not admin, search by userRollID
-            $results = Students::where('roll_id', $userRollID)
-                              ->where(function ($queryBuilder) use ($query) {
-                                  $queryBuilder->where('first_name', 'like', '%' . $query . '%')
-                                               ->orWhere('last_name', 'like', '%' . $query . '%');
-                              })
-                              ->get();
-        }
-    
-        // Return the search results as a JSON response
-        return response()->json($results);
+    if ($userRollName === 'Admin') {
+        // If the user is an admin, search all students
+        $results = Students::where('first_name', 'like', '%' . $query . '%')
+                          ->orWhere('last_name', 'like', '%' . $query . '%')
+                          ->get();
+    } else {
+        // Get student IDs assigned to the provider
+        $assignedStudentIDs = AssignProviderModel::where('provider_id', $userRollID)
+                                    ->pluck('student_id');
+
+        // Search only within assigned students
+        $results = Students::whereIn('id', $assignedStudentIDs)
+                          ->where(function ($queryBuilder) use ($query) {
+                              $queryBuilder->where('first_name', 'like', '%' . $query . '%')
+                                           ->orWhere('last_name', 'like', '%' . $query . '%');
+                          })
+                          ->get();
     }
+
+    return response()->json($results);
+}
+
     
 
 

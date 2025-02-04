@@ -57,7 +57,7 @@ const Students = () => {
           console.warn("No data available or invalid data format.");
         }
 
-        console.log(response.data);
+        console.log("VVVVV",response.data);
       })
 
       .catch((error) => {

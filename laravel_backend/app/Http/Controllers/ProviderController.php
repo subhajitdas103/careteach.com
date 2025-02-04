@@ -241,6 +241,7 @@ public function deleteProvider($id)
                     'students.id as student_id',
                     DB::raw("CONCAT(students.first_name, ' ', students.last_name) as student_name")
                 )
+                ->distinct() // Ensure unique student entries
                 ->get();
                
     
