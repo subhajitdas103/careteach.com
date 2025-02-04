@@ -133,9 +133,10 @@ body{
 }
 
 .header-logo {
-    width: 249px;
-    height: 68px;
+    width: 212px;
+    height: 71px;
     margin-left: -13px;
+    margin-top: -11px;
 }
 
 .logout{
@@ -144,7 +145,7 @@ body{
     color: #034b74;
     /* border: 1px solid #034b74; */
     border-radius: 29px;
-    padding: 7px 9px;
+    padding: 5px 8px;
     cursor: pointer;
 
 }

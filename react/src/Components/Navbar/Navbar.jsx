@@ -32,7 +32,7 @@ const Navbar = () => {
       <header>
         <ToastContainer />
           <div className="top_nav nav-hidden-print">
-              <div className="row nav_menu " style={{ height: '74px' }}>
+              <div className="row nav_menu " style={{ height: '60px' }}>
                   <div className="navbar nav_title" style={{ border: 0 }}>
                       <div className="nav-title-logo">
                         <a href="/Dashboard">
@@ -41,7 +41,7 @@ const Navbar = () => {
                           <h2>CARE TEACH</h2>
                       </div>
                       <div 
-                          className="logout" style={{marginTop: '-15px'}}
+                          className="logout" style={{marginTop: '-21px'}}
                           id="dashboard_logout" 
                           onClick={handleLogout}
                       >
