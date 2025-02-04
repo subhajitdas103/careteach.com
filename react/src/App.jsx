@@ -19,7 +19,7 @@ import AddSchool from "./Components/School/AddSchool";
 import AssignProviders from "./Components/Students/AssignProviders";
 import StudentDetails from "./Components/Students/StudentDetails";
 
-import ProtectedRoute from './Components/ProtectedRoute';  // Adjust path if needed
+import ProtectedRoute from './Components/ProtectedRoute';
 import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
