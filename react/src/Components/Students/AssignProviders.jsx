@@ -68,22 +68,23 @@ const { id } = useParams();
 
 //   ----------------Saved Assign Provider Data-----------------------
 
-  const handelAssignProviderData = async () => {
+const handelAssignProviderData = async () => {
   console.log("handleAssignProvider triggered");
   const [providerId, full_name] = selectedAssignProvider.split('|');
+  const FormatassignProviderStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toLocaleDateString('en-CA') : null;
+  const FormatassignProviderEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toLocaleDateString('en-CA') : null;
+  console.log("providerId", providerId);
+  console.log("assignedProviders", assignedProviders);
 
-  const FormatassignProviderStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toISOString().split('T')[0] : null;
-  const FormatassignProviderEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toISOString().split('T')[0] : null;
-
+  // Validation checks
   if (!selectedAssignProvider) {
-          toast.error('Please Select a Provider!');
-          return;
-      }
-  if (!inputRateAssignProvider) {
-      toast.error('Please Enter Rate!');
-      return;
+    toast.error('Please Select a Provider!');
+    return;
   }
-
+  if (!inputRateAssignProvider) {
+    toast.error('Please Enter Rate!');
+    return;
+  }
   if (!selectedAssignProviderService) {
     toast.error('Please Select a Service!');
     return;
@@ -95,57 +96,137 @@ const { id } = useParams();
   if (!inputWklyHoursAssignProvider) {
     toast.error('Please Select a Weekly Hours!');
     return;
-    }
+  }
   if (!inputYearlyHoursAssignProvider) {
-  toast.error('Please Enter Yearly Hours!');
-  return;
+    toast.error('Please Enter Yearly Hours!');
+    return;
   }
   if (!assignProviderStartDate) {
-  toast.error('Please Select a Start Date!');
-  return;
+    toast.error('Please Select a Start Date!');
+    return;
   }
   if (!assignProviderEndDate) {
-  toast.error('Please Select a End Date!');
-  return;
+    toast.error('Please Select a End Date!');
+    return;
   }
-    const formData = {
-      id,
-      selectedProviderId,
-      full_name,
-      inputRateAssignProvider,
-      selectedAssignProviderLocation,
-      selectedAssignProviderService,
-      inputWklyHoursAssignProvider,
-      inputYearlyHoursAssignProvider,
-      assignProviderStartDate : FormatassignProviderStartDate,
-      assignProviderEndDate : FormatassignProviderEndDate ,
-      
-    };
-    console.log('Form data of assign Provider Modal:', formData);
-    try {
-      const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-     
-      fetchAssignedProviderDetails();
-      setIsModalOpen(false);
-      setTimeout(() => {
-        toast.success("Provider assigned successfully", {
-          position: "top-right",
-          autoClose: 5000,
-        });
-      }, 500);
-      console.log('Data sent successfully:', response.data);
-    } catch (error) {
-      toast.error("An error occurred. Please try again.", {
+
+  const startDate = new Date(assignProviderStartDate);
+  const endDate = new Date(assignProviderEndDate);
+  
+  if (startDate > endDate) {
+      toast.error('Start date cannot be later than the end date!');
+      return;
+  }
+  
+
+  const rateData = ProviderDataAssignProvider;
+  console.log("rateData", rateData);
+
+  if (Array.isArray(rateData)) {
+    console.log("Available provider IDs in rateData:", rateData.map(p => p.id));
+    console.log("Type of providerId:", typeof providerId);
+
+    const rate_check = rateData.some(provider => {
+      const providerRate = provider.rate;
+      const providerID = Number(provider.id);
+      const checkProviderId = Number(providerId);
+
+      if (providerID === checkProviderId) {
+        console.log(`Comparing Provider ID: ${providerID} with ${checkProviderId} | Rate: ${providerRate} with ${inputRateAssignProvider}`);
+        if (Number(inputRateAssignProvider) > providerRate) {
+          console.error(`Error: Input rate exceeds provider rate ${providerRate}`);
+
+          toast.error(`Input rate exceeds , the provider rate  ${providerRate}`);
+          return true;
+        }
+        return providerRate <= Number(inputRateAssignProvider);  
+      }
+      return false;
+    });
+
+    if (rate_check) {
+      return;
+    }
+  } else {
+    console.error('rateData is not an array:', rateData);
+  }
+
+  if (Array.isArray(assignedProviders)) {
+    const isDuplicate = assignedProviders.some(provider => {
+      const trimmedProviderId = String(provider.provider_id).trim();
+      const trimmedProviderIdToCheck = String(providerId).trim();
+      const trimmedProviderService = provider.service_type.trim();
+      const trimmedSelectedService = selectedAssignProviderService.trim();
+
+      const normalizeDate = (date) => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+      };
+
+      const trimmedProviderStartDate = normalizeDate(provider.start_date);
+      const trimmedSelectedStartDate = normalizeDate(assignProviderStartDate);
+
+      const trimmedProviderEndDate = normalizeDate(provider.end_date);
+      const trimmedSelectedEndDate = normalizeDate(assignProviderEndDate);
+
+      console.log(`Comparing provider_id: ${trimmedProviderId} with ${trimmedProviderIdToCheck} and service_type: ${trimmedProviderService} with ${trimmedSelectedService}`);
+      console.log(`Comparing start_date: ${trimmedProviderStartDate} with ${trimmedSelectedStartDate} and end_date: ${trimmedProviderEndDate} with ${trimmedSelectedEndDate}`);
+
+      return trimmedProviderId === trimmedProviderIdToCheck &&
+        trimmedProviderService === trimmedSelectedService &&
+        trimmedProviderStartDate === trimmedSelectedStartDate &&
+        trimmedProviderEndDate === trimmedSelectedEndDate;
+    });
+
+    if (isDuplicate) {
+      toast.error('For This Provider, This Service already Taken, So , Please Cahnge The Date!');
+      return;
+    } else {
+      console.log('No duplicate, proceed with assignment.');
+    }
+  } else {
+    console.error('assignedProviders is not an array:', assignedProviders);
+  }
+
+  const formData = {
+    id,
+    selectedProviderId,
+    full_name,
+    inputRateAssignProvider,
+    selectedAssignProviderLocation,
+    selectedAssignProviderService,
+    inputWklyHoursAssignProvider,
+    inputYearlyHoursAssignProvider,
+    assignProviderStartDate: FormatassignProviderStartDate,
+    assignProviderEndDate: FormatassignProviderEndDate,
+  };
+  console.log('Form data of assign Provider Modal:', formData);
+  
+  try {
+    const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    fetchAssignedProviderDetails();
+    setIsModalOpen(false);
+    setTimeout(() => {
+      toast.success("Provider assigned successfully", {
         position: "top-right",
         autoClose: 5000,
       });
-      console.error('There was an error sending data:', error.response?.data || error.message);
-    }
-  };
+    }, 500);
+    console.log('Data sent successfully:', response.data);
+  } catch (error) {
+    toast.error("An error occurred. Please try again.", {
+      position: "top-right",
+      autoClose: 5000,
+    });
+    console.error('There was an error sending data:', error.response?.data || error.message);
+  }
+};
 
 
 // =================Edit Assign Provider=========================
@@ -227,7 +308,7 @@ const fetchAssignedProviderDetails = async () => {
       const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
       const data = await response.json();
       setAssignedProviders(data);
-      // console.log("API Response Assigned:", data);
+      console.log("API Response Assigned:", data);
     } catch (error) {
       console.error('Error fetching provider details:', error);
     }
@@ -250,7 +331,7 @@ const fetchAssignedProviderDetails = async () => {
       try {
         const response = await fetch(`${backendUrl}/api/ViewProviders`);
         const data = await response.json();
-        // console.log("API Response Provider Data:", data);
+        console.log("API Response Provider Data:", data);
         if (Array.isArray(data) && data.length > 0) {
           setProviderData(data);
         } else {
@@ -366,6 +447,91 @@ const openModalAssignProvider = (id, name) => {
 };
   useEffect(() => {
   }, [assignProviderStartDate]);
+// ================================================
+
+
+const [Student_start_end_date, setStudent_start_end_date] = useState(null);
+
+const fetch_start_end_date_of_student = async (id) => {
+  try {
+    const response = await fetch(`${backendUrl}/api/fetch_start_end_date_of_student/${id}`);
+    const data = await response.json();
+
+    if (data) {
+      setStudent_start_end_date(data);
+    } else {
+      console.log("No data in response.");
+    }
+  } catch (error) {
+    console.error("Error fetching student data:", error);
+  }
+};
+
+useEffect(() => {
+
+  fetch_start_end_date_of_student(id);
+}, []);
+console.log("Hours",Student_start_end_date);
+// ==========================
+
+const MAX_WEEKLY_HOURS = Student_start_end_date?.weekly_mandate ? Number(Student_start_end_date.weekly_mandate) : 0;
+
+const MAX_YEARLY_HOURS = Student_start_end_date?.yearly_mandate ? Number(Student_start_end_date.yearly_mandate) : 0;
+console.log("Max Weekly Hours:", MAX_WEEKLY_HOURS);  // 321
+console.log("Max Yearly Hours:", MAX_YEARLY_HOURS); 
+
+const AssignProviderLimitEndDate = Student_start_end_date?.end_date ? new Date(Student_start_end_date.end_date).toISOString().split("T")[0] : null;
+const AssignProviderLimitStartDate = Student_start_end_date?.start_date ? new Date(Student_start_end_date.start_date).toISOString().split("T")[0] : null;
+
+console.log("End AssignProviderLimitEndDate:", AssignProviderLimitEndDate);
+console.log("Start Date:", AssignProviderLimitStartDate);
+
+
+const handleHoursChange = (type, e) => {
+  const value = e.target.value;
+
+  let maxLimit;
+
+  // Set the correct max limit based on the type (weekly or yearly)
+  if (type === 'weekly') {
+    maxLimit = MAX_WEEKLY_HOURS;
+  } else if (type === 'yearly') {
+    maxLimit = MAX_YEARLY_HOURS;
+  }
+
+  // If the value is greater than the max limit, show an alert
+  if (Number(value) > maxLimit) {
+    toast.error(`The maximum allowed ${type} hours is ${maxLimit}`, {
+      position: "top-right",
+      autoClose: 5000,
+    });  // Do not update the state if the value is too large
+  }
+
+  // Only update the value if it is within the limit
+  if (value === "" || (Number(value) >= 0 && Number(value) <= maxLimit)) {
+    if (type === 'weekly') {
+      setinputWklyHoursAssignProvider(value);  // For weekly hours
+    } else if (type === 'yearly') {
+      setInputYearlyHoursAssignProvider(value); // For yearly hours
+    }
+  }
+};
+
+
+
+const disableInvalidDates = (date) => {
+  const startDate = new Date(AssignProviderLimitStartDate);
+  const endDate = new Date(AssignProviderLimitEndDate);
+
+  // Set the time to midnight to ignore time in the comparison
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+
+
+  // Check if the date is within the range
+  return date >= startDate && date <= endDate;
+};
+
 
 
   return (
@@ -548,7 +714,8 @@ const openModalAssignProvider = (id, name) => {
                   variant="outlined"
                   fullWidth
                   value={inputWklyHoursAssignProvider}
-                  onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
+                  // onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
+                  onChange={(e) => handleHoursChange('weekly', e)}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Weekly Hours"
                 />
@@ -561,7 +728,8 @@ const openModalAssignProvider = (id, name) => {
                   variant="outlined"
                   fullWidth
                   value={inputYearlyHoursAssignProvider}
-                  onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
+                  // onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
+                  onChange={(e) => handleHoursChange('yearly', e)}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Yearly Hours"
                 />
@@ -578,6 +746,7 @@ const openModalAssignProvider = (id, name) => {
                     
                     className="datepicker_Date_of_assignProvider" 
                     placeholderText ="Choose a start date"
+                    filterDate={disableInvalidDates} 
                   />
                 </div>
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
@@ -588,6 +757,7 @@ const openModalAssignProvider = (id, name) => {
                     
                     className="datepicker_Date_of_assignProvider" 
                     placeholderText="Choose a end date"
+                    filterDate={disableInvalidDates} 
                   />
                 </div>
               </div>
@@ -734,7 +904,9 @@ const openModalAssignProvider = (id, name) => {
                   variant="outlined"
                   fullWidth
                   value={inputWklyHoursAssignProvider}
-                  onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
+                  // onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
+                  onChange={(e) => handleHoursChange('weekly', e)}
+                
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Weekly Hours"
                 />
@@ -747,7 +919,8 @@ const openModalAssignProvider = (id, name) => {
                   variant="outlined"
                   fullWidth
                   value={inputYearlyHoursAssignProvider}
-                  onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
+                  // onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
+                  onChange={(e) => handleHoursChange('yearly', e)}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Yearly Hours"
                 />

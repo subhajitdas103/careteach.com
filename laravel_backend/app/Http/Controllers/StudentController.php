@@ -110,8 +110,8 @@ public function addstudent(Request $request)
             'services.*.service_type' => 'required|string|max:255',
             'services.*.startDate' => 'required|string|max:255',
             'services.*.endDate' => 'required|string|max:255',
-            'services.*.weeklyMandate' => 'required|string|max:255',
-            'services.*.yearlyMandate' => 'required|string|max:255',
+            'services.*.weeklyMandate' => 'required|numeric|max:168',
+            'services.*.yearlyMandate' => 'required|numeric|max:8760',
 
 
         ], [
@@ -120,7 +120,9 @@ public function addstudent(Request $request)
             'services.*.startDate.required' => 'Start date is required.',
             'services.*.endDate.required' => 'End date is required.',
             'services.*.weeklyMandate.required' => 'Weekly mandate is required.',
+            'services.*.weeklyMandate.max' => 'Weekly mandate was exceeded.',
             'services.*.yearlyMandate.required' => 'Yearly mandate is required.',
+            'services.*.yearlyMandate.max' => 'Yearly mandate was exceeded.',
             // 'parent_email.unique' => 'The parent email has already been taken.',
         ]);
 

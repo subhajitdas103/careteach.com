@@ -327,7 +327,11 @@ public function updateProvider($id, Request $request)
 
 public function searchProvider(Request $request)
 {
-    $query = $request->input('query');
+   
+
+    $query = trim($request->input('query'));
+    $query = str_replace(' ', '+', $query); // Convert spaces back to '+'
+    
     $Providers = Providers::where('provider_first_name', 'LIKE', "%{$query}%")
         ->orWhere('provider_last_name', 'LIKE', "%{$query}%")
         ->orWhere('provider_email', 'LIKE', "%{$query}%")
@@ -390,6 +394,19 @@ public function updateAssignProvider(Request $request, $id)
     }
 }
 
+
+public function fetch_start_end_date_of_student($studentId)
+{
+    $mandates = StudentServices::where('student_id', $studentId)
+        ->select('weekly_mandate', 'yearly_mandate' , 'start_date' , 'end_date')
+        ->first();
+
+    if (!$mandates) {
+        return response()->json(['message' => 'No data found'], 404);
+    }
+
+    return response()->json($mandates);
+}
 
 }
 

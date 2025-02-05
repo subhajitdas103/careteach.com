@@ -90,15 +90,26 @@ public function deleteSchooldata($id)
         }
     }
     
+    // public function SearchSchool(Request $request)
+    // {
+    //     $query = $request->input('query');
+    //     $school = SchoolModel::where('school_name', 'LIKE', "%{$query}%")
+    //         ->orWhere('email', 'LIKE', "%{$query}%")
+    //         ->get();
+    //     return response()->json($school);
+    // }
     public function SearchSchool(Request $request)
     {
-        $query = $request->input('query');
+        $query = trim($request->input('query'));
+        $query = str_replace(' ', '+', $query); // Convert spaces back to '+'
+    
         $school = SchoolModel::where('school_name', 'LIKE', "%{$query}%")
             ->orWhere('email', 'LIKE', "%{$query}%")
             ->get();
+    
         return response()->json($school);
     }
-
+    
     
     public function FetchSchoolDataBYID($id)
     {

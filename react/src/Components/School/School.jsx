@@ -27,7 +27,7 @@ const School = () => {
   const navigate = useNavigate();
   const [schools, setSchools] = useState([]);
   // const [searchQuery, setSearchQuery] = useState("");
- 
+//  console.log("cccc",schools);
   const [show, setShow] = useState(false);
   const [IDSchool, setIDSchool] = useState(null);
     const [data, setData] = useState([]);

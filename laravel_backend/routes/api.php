@@ -41,6 +41,9 @@ Route::post('/AssignProvider', [ProviderController::class,'SaveAssignProviderDet
 Route::get('/FetchAssignedProviders/{id}',[ProviderController::class,'FetchAssignedProviders']);
 Route::get('/FetchStudentOfAssignedProviders/{id}',[ProviderController::class,'FetchStudentOfAssignedProviders']);
 
+Route::get('/fetch_start_end_date_of_student/{id}',[ProviderController::class,'fetch_start_end_date_of_student']);
+
+
 Route::get('/ProviderDataFetchAsID/{id}', [ProviderController::class, 'fetchProviderById']);
 // Route::delete('/DeleteAssignedProviders/{id}',[ProviderController::class,'DeleteAssignedProviders']);
 // Route::post('/AddSchool', [SchoolController::class,'addschool']);
