@@ -41,7 +41,7 @@ const CalendarComponent = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   // console.log("Selected student",selectedStudent);
   const [events, setEvents] = useState([]);
-
+ 
   
 
   const [Bulkevents, setBulkEvents] = useState([
@@ -98,7 +98,7 @@ const CalendarComponent = () => {
   // ====================Confirm Session================================
   const [confirmSession, setConfirmSession] = useState(null);
 
-console.log("ccccddddddd",confirmSession);
+console.log("confirmSession",confirmSession);
 
 useEffect(() => {
   const FetchConfirmSessionDetails = async () => {
@@ -139,6 +139,17 @@ useEffect(() => {
           const formattedEndTime = moment(session.end_time, 'HH:mm:ss').format('h:mm A');
 
 
+          console.log('Checking for session:', session.date); 
+      
+          console.log('Confirm Session Dates:', Array.isArray(confirmSession) ? confirmSession.map(cs => cs.date) : []);
+        
+ 
+          const isMatched = Array.isArray(confirmSession) && confirmSession.some(cs => {
+            console.log('Comparing:', cs.date, 'with', session.date); // Log individual comparison
+            return cs.student_id === session.student_id && cs.date === session.date;
+          });
+          
+        const eventStyle = isMatched ? { backgroundColor: '#cb1313' } : {}; 
 
           const matchedData = confirmSession && Array.isArray(confirmSession)
           ? confirmSession.some(cs => 
@@ -163,8 +174,8 @@ useEffect(() => {
           student_id :session.student_id,
           session_name: session.session_name, 
           session_date :session.date, 
-          eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
-          // Combined Date and end_time
+          // eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
+          style: eventStyle,
         };
       });
 
@@ -423,6 +434,32 @@ console.log("SingleSession Date",SingleSessionChooseDate);
             return;  // Exit the function as there is a conflict
         }
     }
+    // Check for conflicts in `all_event_bulk`
+
+    const conflict = Bulkevents.some(event => {
+      // Extract time part (HH:mm:ss) from the event start and end times
+      const eventStartTime = new Date(event.start).toLocaleTimeString('en-GB', { hour12: false });
+      const eventEndTime = new Date(event.end).toLocaleTimeString('en-GB', { hour12: false });
+  
+  
+      console.log("eventStartTime:", eventStartTime);
+      console.log("sessionStartTime:", sessionStartTime);
+      console.log("eventEndTime:", eventEndTime);
+      console.log("sessionEndTime:", sessionEndTime);
+  
+      // Compare the start and end times
+      return eventStartTime === sessionStartTime && eventEndTime === sessionEndTime;
+  });
+  
+  if (conflict) {
+      toast.error("A session already exists at this time. Please choose a different time.", {
+          position: "top-right",
+          autoClose: 5000,
+      });
+      return;  // Stop execution if conflict is found
+  }
+  
+    
 
     const sessionData = {
         id: slectedStudentID,
@@ -569,6 +606,10 @@ const eventsOnSameDateBulk = Bulkevents.filter(event => {
     return true; // Keep this event
   } else {
     console.log(`Skipping event on ${eventDates.join(', ')}: already has an event.`);
+    toast.error("Session already have", {
+      position: "top-right",
+      autoClose: 5000,
+    });
     return false; // Skip this event
   }
 });
@@ -626,13 +667,16 @@ const sessionData = {
       }
   } catch (error) {
       console.error('Error:', error);
-      alert('There was an error creating the session.');
+     toast.error("Failed to create", {
+          position: "top-right",
+          autoClose: 5000,
+        });
   }
 };
 
 
 // ==========================================
-
+console.log("studentDetails",studentData);
 useEffect(() => {
   const FetchBulkSessionDetails = async () => {
     try {
@@ -938,6 +982,9 @@ const handleNavigateWeek = (action) => {
       onView={handleViewChange} // View change handler
       onNavigate={handleNavigate}
       onSelectEvent={handleSessionClick}
+      eventPropGetter={(event) => ({
+        style: event.style || {},
+      })}
       components={{
       toolbar: ({ label }) => (
       <div
@@ -1036,12 +1083,9 @@ const handleNavigateWeek = (action) => {
     : undefined,
     //  ==========End of Add Session Click=======
   }}
-
-
 />
 
   
-
       {/* Modal */}
       {showModal && (
         <div className="modal show" style={{ display: 'block' }}>

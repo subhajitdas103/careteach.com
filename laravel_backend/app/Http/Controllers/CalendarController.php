@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\CalendarModel;
 use App\Models\BulkSessionModel;
 use App\Models\ConfirmSession;
+use Illuminate\Support\Facades\Log;
 class CalendarController extends Controller
 {
     public function AddSingleSessions(Request $request){
@@ -180,41 +181,44 @@ public function deleteSession(Request $request)
 public function CalendarConfirmSession(Request $request)
 {
     try {
-        // Retrieve input values from the request
-        $sessionType = $request->input('session_type');
-        $studentId = $request->input('student_id');
-        $selectedDateConfirmSession = $request->input('selectedDateConfirmSession');
-        $provider_id = $request->input('userRollID');
-        $startTimeConfirmSession = $request->input('startTimeConfirmSession');
-        $endTimeConfirmSession = $request->input('endTimeConfirmSession');
-        
-        // Check if the selected date is provided
-        if ($selectedDateConfirmSession) {
-            // Check if session already exists
-            $existingSession = ConfirmSession::where('student_id', $studentId)
-                                            ->where('date', $selectedDateConfirmSession)
-                                            ->first();
-            if ($existingSession) {
-                return response()->json(['error' => 'Session already exists for this student on this date'], 400);
-            }
+        // Convert 12-hour time to 24-hour format
+        $startTime = date("H:i", strtotime($request->input('startTimeConfirmSession')));
+        $endTime = date("H:i", strtotime($request->input('endTimeConfirmSession')));
 
-            // Create new session
-            $add = ConfirmSession::create([
-                'session_type' => $sessionType,
-                'student_id' => $studentId,
-                'date' => $selectedDateConfirmSession,
-                'start_time' => $startTimeConfirmSession,
-                'end_time' => $endTimeConfirmSession,
-                'provider_id' => $provider_id,
-            ]);
-            
-            return response()->json(['message' => 'Session confirmed successfully'], 200);
-        } else {
-            return response()->json(['error' => 'No session date provided'], 400);
+        // Validate request data
+        $validatedData = $request->validate([
+            'session_type' => 'required|string',
+            'student_id' => 'required|integer|exists:students,id',
+            'selectedDateConfirmSession' => 'required|date',
+            'userRollID' => 'required|integer|exists:providers,id',
+        ]);
+
+        // Check if session already exists
+        $existingSession = ConfirmSession::where('student_id', $validatedData['student_id'])
+                                         ->where('date', $validatedData['selectedDateConfirmSession'])
+                                         ->exists();
+
+        if ($existingSession) {
+            return response()->json(['error' => 'Session already exists for this student on this date'], 409);
         }
 
+        // Insert session
+        ConfirmSession::create([
+            'session_type' => $validatedData['session_type'],
+            'student_id' => $validatedData['student_id'],
+            'date' => $validatedData['selectedDateConfirmSession'],
+            'start_time' => $startTime, // Converted format
+            'end_time' => $endTime, // Converted format
+            'provider_id' => $validatedData['userRollID'],
+        ]);
+
+        return response()->json(['message' => 'Session confirmed successfully'], 201);
+        
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json(['error' => $e->errors()], 422);
     } catch (\Exception $e) {
-        return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+        \Log::error('Session Confirmation Error: ' . $e->getMessage());
+        return response()->json(['error' => 'Something went wrong.'], 500);
     }
 }
 

@@ -117,6 +117,8 @@ const handelAssignProviderData = async () => {
       toast.error('Start date cannot be later than the end date!');
       return;
   }
+
+  
   
 
   const rateData = ProviderDataAssignProvider;
@@ -130,15 +132,19 @@ const handelAssignProviderData = async () => {
       const providerRate = provider.rate;
       const providerID = Number(provider.id);
       const checkProviderId = Number(providerId);
-
+      // const ptsaprovaldate = (provider.pets_approval_date);
+      // const start_date = (provider.start_date);
       if (providerID === checkProviderId) {
         console.log(`Comparing Provider ID: ${providerID} with ${checkProviderId} | Rate: ${providerRate} with ${inputRateAssignProvider}`);
-        if (Number(inputRateAssignProvider) > providerRate) {
+
+         if (Number(inputRateAssignProvider) > providerRate) {
           console.error(`Error: Input rate exceeds provider rate ${providerRate}`);
 
           toast.error(`Input rate exceeds , the provider rate  ${providerRate}`);
           return true;
-        }
+        } 
+
+
         return providerRate <= Number(inputRateAssignProvider);  
       }
       return false;
@@ -242,8 +248,9 @@ const handelAssignProviderDataEdit = async () => {
   }
 
   const [providerId, full_name] = selectedAssignProvider.split('|');
-  const formattedStartDate = assignProviderStartDate ? new Date(assignProviderStartDate).toISOString().split('T')[0] : null;
-  const formattedEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toISOString().split('T')[0] : null;
+  const formattedStartDate =assignProviderStartDate ? new Date(assignProviderStartDate).toLocaleDateString('en-CA') : null;
+
+  const formattedEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toLocaleDateString('en-CA') : null;
 
   const requiredFields = [
     { value: inputRateAssignProvider, message: 'Please Enter Rate!' },
@@ -260,6 +267,80 @@ const handelAssignProviderDataEdit = async () => {
       toast.error(field.message);
       return;
     }
+  }
+
+  const rateData = ProviderDataAssignProvider;
+  console.log("rateData", rateData);
+
+  if (Array.isArray(rateData)) {
+    console.log("Available provider IDs in rateData:", rateData.map(p => p.id));
+    console.log("Type of providerId:", typeof providerId);
+
+    const rate_check = rateData.some(provider => {
+      const providerRate = provider.rate;
+      const providerID = Number(provider.id);
+      const checkProviderId = Number(providerId);
+      // const ptsaprovaldate = (provider.pets_approval_date);
+      // const start_date = (provider.start_date);
+      if (providerID === checkProviderId) {
+        console.log(`Comparing Provider ID: ${providerID} with ${checkProviderId} | Rate: ${providerRate} with ${inputRateAssignProvider}`);
+
+         if (Number(inputRateAssignProvider) > providerRate) {
+          console.error(`Error: Input rate exceeds provider rate ${providerRate}`);
+
+          toast.error(`Input rate exceeds , the provider rate  ${providerRate}`);
+          return true;
+        } 
+
+
+        return providerRate <= Number(inputRateAssignProvider);  
+      }
+      return false;
+    });
+
+    if (rate_check) {
+      return;
+    }
+  } else {
+    console.error('rateData is not an array:', rateData);
+  }
+
+  if (Array.isArray(assignedProviders)) {
+    const isDuplicate = assignedProviders.some(provider => {
+      const trimmedProviderId = String(provider.provider_id).trim();
+      const trimmedProviderIdToCheck = String(providerId).trim();
+      const trimmedProviderService = provider.service_type.trim();
+      const trimmedSelectedService = selectedAssignProviderService.trim();
+
+      const normalizeDate = (date) => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d.getTime();
+      };
+
+      const trimmedProviderStartDate = normalizeDate(provider.start_date);
+      const trimmedSelectedStartDate = normalizeDate(assignProviderStartDate);
+
+      const trimmedProviderEndDate = normalizeDate(provider.end_date);
+      const trimmedSelectedEndDate = normalizeDate(assignProviderEndDate);
+
+      console.log(`Comparing provider_id: ${trimmedProviderId} with ${trimmedProviderIdToCheck} and service_type: ${trimmedProviderService} with ${trimmedSelectedService}`);
+      console.log(`Comparing start_date: ${trimmedProviderStartDate} with ${trimmedSelectedStartDate} and end_date: ${trimmedProviderEndDate} with ${trimmedSelectedEndDate}`);
+
+      return trimmedProviderId === trimmedProviderIdToCheck &&
+        trimmedProviderService === trimmedSelectedService &&
+        trimmedProviderStartDate === trimmedSelectedStartDate &&
+        trimmedProviderEndDate === trimmedSelectedEndDate;
+    });
+
+    if (isDuplicate) {
+      toast.error('For This Provider, This Service already Taken, So , Please Cahnge The Date!');
+      return;
+    } else {
+      console.log('No duplicate, proceed with assignment.');
+    }
+  } else {
+    console.error('assignedProviders is not an array:', assignedProviders);
   }
 
   const formData = {
@@ -663,9 +744,14 @@ const disableInvalidDates = (date) => {
                   variant="outlined"
                   fullWidth
                   value={inputRateAssignProvider}
-                  onChange={(e) => setInputRateAssignProvider(e.target.value)}
+                  onChange={(e) => {
+                    // Allow only numeric input
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setInputRateAssignProvider(value);
+                  }}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter rate"
+                  
                 />
               </div>
   
@@ -747,6 +833,7 @@ const disableInvalidDates = (date) => {
                     className="datepicker_Date_of_assignProvider" 
                     placeholderText ="Choose a start date"
                     filterDate={disableInvalidDates} 
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                 </div>
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
@@ -758,6 +845,7 @@ const disableInvalidDates = (date) => {
                     className="datepicker_Date_of_assignProvider" 
                     placeholderText="Choose a end date"
                     filterDate={disableInvalidDates} 
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                 </div>
               </div>
