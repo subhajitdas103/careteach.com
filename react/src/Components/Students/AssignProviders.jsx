@@ -227,7 +227,11 @@ const handelAssignProviderData = async () => {
     toast.error('Start date cannot be later than the end date!');
     return;
   }
-
+  if (parseFloat(inputWklyHoursAssignProvider) > parseFloat(inputYearlyHoursAssignProvider)) {
+    toast.error('Weekly hours cannot be greater than yearly hours!');
+    return;
+  }
+  
   console.log("rateData", ProviderDataAssignProvider);
 
   if (Array.isArray(ProviderDataAssignProvider)) {
@@ -303,6 +307,8 @@ const handelAssignProviderData = async () => {
         return true;
       }
 
+
+      // ===================================
       if (
         providerIdStr === selectedProviderIdStr &&
         providerService === selectedService &&
@@ -941,7 +947,7 @@ const openModalAssignProvider = (id, name) => {
                       selected={assignProviderStartDate}
                       onChange={(date) => setAssignProviderStartDate(date)}
                       className="datepicker_Date_of_assignProvider"
-                      placeholderText="Choose a start date"
+                      placeholderText="Start Date"
                       filterDate={disableInvalidDates}
                       onKeyDown={(e) => e.preventDefault()}
                     />
@@ -956,7 +962,7 @@ const openModalAssignProvider = (id, name) => {
                       selected={assignProviderEndDate}
                       onChange={(date) => setAssignProviderEndDate(date)}
                       className="datepicker_Date_of_assignProvider"
-                      placeholderText="Choose an end date"
+                      placeholderText="End date"
                       filterDate={disableInvalidDates}
                       onKeyDown={(e) => e.preventDefault()}
                     />
