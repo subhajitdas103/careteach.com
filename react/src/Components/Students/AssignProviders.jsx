@@ -303,6 +303,17 @@ const handelAssignProviderData = async () => {
         return true;
       }
 
+      if (
+        providerIdStr === selectedProviderIdStr &&
+        providerService === selectedService &&
+        new Date(selectedStartDate) <= new Date(providerEndDate) // Blocks selection before providerEndDate
+      ) {
+        const formattedEndDate = new Date(providerEndDate).toLocaleDateString('en-GB');
+        toast.error(`This Date is occupied. You can only assign after ${formattedEndDate}.`);
+        return true;
+      }
+      
+
       return false;
     });
 
@@ -382,7 +393,6 @@ const handelAssignProviderDataEdit = async () => {
   const startDate = new Date(assignProviderStartDate);
   const endDate = new Date(assignProviderEndDate);
   if (startDate > endDate) {
-    console.error("Validation failed: Start date is later than end date");
     toast.error('Start date cannot be later than the end date!');
     return;
   }
