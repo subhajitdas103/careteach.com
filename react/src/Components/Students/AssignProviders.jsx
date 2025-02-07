@@ -379,6 +379,13 @@ const handelAssignProviderDataEdit = async () => {
     toast.error("Please Select a Provider!");
     return;
   }
+  const startDate = new Date(assignProviderStartDate);
+  const endDate = new Date(assignProviderEndDate);
+  if (startDate > endDate) {
+    console.error("Validation failed: Start date is later than end date");
+    toast.error('Start date cannot be later than the end date!');
+    return;
+  }
 
   const [providerId, full_name] = selectedAssignProvider.split('|');
   const formattedStartDate =assignProviderStartDate ? new Date(assignProviderStartDate).toLocaleDateString('en-CA') : null;
