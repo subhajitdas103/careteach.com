@@ -1,3 +1,27 @@
+
+.datepicker-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .datepicker-container .react-datepicker__input-container input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 35px; /* Space for the icon */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .calendar-icon {
+    position: absolute;
+    right: 10px;
+    color: #4979a0;
+    pointer-events: none; /* Prevents clicking on the icon */
+  }
+  
+  
 /* Flex container to align items in one row */
 .flex-container {
     display: flex;

@@ -12,7 +12,8 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns"; 
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendar } from "@fortawesome/free-solid-svg-icons";
 
 import "react-datepicker/dist/react-datepicker.css"; 
 const AssignProviders = () => {
@@ -855,31 +856,36 @@ const openModalAssignProvider = (id, name) => {
                 </div>
               </div>
               {/* ============== */}
-  
+           
               <div className="col-12 lctDropdown">
+                {/* Start Date Picker */}
                 <div className="col-6" style={{ paddingRight: "4px" }}>
-                  <DatePicker
-                    label="Sart Date"
-                    selected={assignProviderStartDate}
-                    onChange={(date) => setAssignProviderStartDate(date)}
-                    
-                    className="datepicker_Date_of_assignProvider" 
-                    placeholderText ="Choose a start date"
-                    filterDate={disableInvalidDates} 
-                    onKeyDown={(e) => e.preventDefault()}
-                  />
+                  <div className="datepicker-container">
+                    <DatePicker
+                      selected={assignProviderStartDate}
+                      onChange={(date) => setAssignProviderStartDate(date)}
+                      className="datepicker_Date_of_assignProvider"
+                      placeholderText="Choose a start date"
+                      filterDate={disableInvalidDates}
+                      onKeyDown={(e) => e.preventDefault()}
+                    />
+                    <FontAwesomeIcon icon={faCalendar} className="calendar-icon" />
+                  </div>
                 </div>
+
+                {/* End Date Picker */}
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
-                  <DatePicker
-                     label="End Date"
-                    selected={assignProviderEndDate}
-                    onChange={(date) => setAssignProviderEndDate(date)}
-                    
-                    className="datepicker_Date_of_assignProvider" 
-                    placeholderText="Choose a end date"
-                    filterDate={disableInvalidDates} 
-                    onKeyDown={(e) => e.preventDefault()}
-                  />
+                  <div className="datepicker-container">
+                    <DatePicker
+                      selected={assignProviderEndDate}
+                      onChange={(date) => setAssignProviderEndDate(date)}
+                      className="datepicker_Date_of_assignProvider"
+                      placeholderText="Choose an end date"
+                      filterDate={disableInvalidDates}
+                      onKeyDown={(e) => e.preventDefault()}
+                    />
+                    <FontAwesomeIcon icon={faCalendar} className="calendar-icon" />
+                  </div>
                 </div>
               </div>
             </div>
