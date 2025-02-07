@@ -67,17 +67,17 @@ const { id } = useParams();
   }, [id]);
 // ===========================================
 
-const [Student_start_end_date, setStudent_start_end_date] = useState(null);
+const [Student_start_end_date, setStudentStartEndDate] = useState(null);
 
 const fetch_start_end_date_of_student = async (id) => {
   try {
     const response = await fetch(`${backendUrl}/api/fetch_start_end_date_of_student/${id}`);
     const data = await response.json();
 
-    if (data) {
-      setStudent_start_end_date(data);
+    if (Array.isArray(data)) {
+      setStudentStartEndDate(data); // Ensure data is set correctly
     } else {
-      console.log("No data in response.");
+      console.error("Unexpected response format:", data);
     }
   } catch (error) {
     console.error("Error fetching student data:", error);
@@ -99,17 +99,19 @@ let MAX_YEARLY_HOURS = 0;
 let AssignProviderLimitEndDate = null;
 let AssignProviderLimitStartDate = null;
 
-if (validServices.includes(selectedAssignProviderService)) {
-    MAX_WEEKLY_HOURS = Student_start_end_date?.weekly_mandate 
-        ? Number(Student_start_end_date.weekly_mandate) || 0 
-        : 0;
+console.log("selectedAssignProviderService", selectedAssignProviderService);
 
-    MAX_YEARLY_HOURS = Student_start_end_date?.yearly_mandate 
-        ? Number(Student_start_end_date.yearly_mandate) || 0 
-        : 0;
+// Ensure Student_start_end_date is an array and find the matching service type
+const selectedService = Array.isArray(Student_start_end_date) 
+    ? Student_start_end_date.find(service => service.service_type === selectedAssignProviderService) 
+    : null;
 
-    console.log("Max Weekly Hours:", MAX_WEEKLY_HOURS);  
-    console.log("Max Yearly Hours:", MAX_YEARLY_HOURS);  
+if (selectedService && validServices.includes(selectedAssignProviderService)) {
+    MAX_WEEKLY_HOURS = Number(selectedService.weekly_mandate) || 0;
+    MAX_YEARLY_HOURS = Number(selectedService.yearly_mandate) || 0;
+
+    console.log("Max Weekly Hours:", MAX_WEEKLY_HOURS);
+    console.log("Max Yearly Hours:", MAX_YEARLY_HOURS);
 
     const formatDate = (date) => {
         if (!date || isNaN(new Date(date).getTime())) return null;
@@ -117,8 +119,8 @@ if (validServices.includes(selectedAssignProviderService)) {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     };
 
-    AssignProviderLimitEndDate = formatDate(Student_start_end_date?.end_date);
-    AssignProviderLimitStartDate = formatDate(Student_start_end_date?.start_date);
+    AssignProviderLimitEndDate = formatDate(selectedService.end_date);
+    AssignProviderLimitStartDate = formatDate(selectedService.start_date);
 }
 
 console.log("End AssignProviderLimitEndDate:", AssignProviderLimitEndDate);
