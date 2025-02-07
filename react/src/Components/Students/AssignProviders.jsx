@@ -1012,7 +1012,11 @@ const openModalAssignProvider = (id, name) => {
                   variant="outlined"
                   fullWidth
                   value={inputRateAssignProvider}
-                  onChange={(e) => setInputRateAssignProvider(e.target.value)}
+                  onChange={(e) => {
+                    // Allow only numeric input
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setInputRateAssignProvider(value);
+                  }}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter rate"
                 />
@@ -1088,30 +1092,38 @@ const openModalAssignProvider = (id, name) => {
               {/* ============== */}
   
               <div className="col-12 lctDropdown">
-                <div className="col-6" style={{ paddingRight: "4px" }}>
-                <DatePicker
-                  selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null}
-                  onChange={(date) => {
-                    // console.log("Selected Date:", date);
-                    setAssignProviderStartDate(format(date, "yyyy-MM-dd"));
-                  }}
-                  dateFormat="dd/MM/yyyy" 
-                  className="datepicker_Date_of_assignProvider"
-                  filterDate={disableInvalidDates}
-                  onKeyDown={(e) => e.preventDefault()} 
-                />
-                </div>
-                <div className="col-6" style={{ paddingLeft: "5px" }}>
-                  <DatePicker
-                    selected={assignProviderEndDate}
-                    onChange={(date) => setAssignProviderEndDate(date)}
-                    placeholdertext="Select an end date"
-                    className="datepicker_Date_of_assignProvider" 
-                    filterDate={disableInvalidDates}
-                    onKeyDown={(e) => e.preventDefault()}
-                  />
-                </div>
-              </div>
+                    <div className="col-6" style={{ paddingRight: "4px" }}>
+                     <div className="datepicker-container">
+                        <DatePicker
+                          selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null}
+                          onChange={(date) => {
+                            // console.log("Selected Date:", date);
+                            setAssignProviderStartDate(format(date, "yyyy-MM-dd"));
+                          }}
+                          dateFormat="dd/MM/yyyy" 
+                          className="datepicker_Date_of_assignProvider"
+                          filterDate={disableInvalidDates}
+                          onKeyDown={(e) => e.preventDefault()} 
+                        />
+                      
+                         <FontAwesomeIcon icon={faCalendar} className="calendar-icon" />
+                      </div>
+                    </div>
+               
+                    <div className="col-6" style={{ paddingLeft: "5px" }}>
+                        <div className="datepicker-container">
+                          <DatePicker
+                            selected={assignProviderEndDate}
+                            onChange={(date) => setAssignProviderEndDate(date)}
+                            placeholdertext="Select an end date"
+                            className="datepicker_Date_of_assignProvider" 
+                            filterDate={disableInvalidDates}
+                            onKeyDown={(e) => e.preventDefault()}
+                          />
+                          <FontAwesomeIcon icon={faCalendar} className="calendar-icon" />
+                        </div>
+                     </div>
+                 </div>
             </div>
           </Modal.Body>
   
