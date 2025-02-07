@@ -490,6 +490,33 @@ const handelAssignProviderDataEdit = async () => {
         toast.error('This provider already has a service assigned. You cannot assign a different service.');
         return true;
       }
+
+      if (
+        trimmedProviderId === trimmedProviderIdToCheck &&
+        trimmedProviderService === trimmedSelectedService
+      ) {
+        const providerStart = new Date(trimmedProviderStartDate);
+        const providerEnd = new Date(trimmedProviderEndDate);
+        const selectedStart = new Date(trimmedSelectedStartDate);
+        const selectedEnd = new Date(trimmedSelectedEndDate);
+      
+        // ✅ Allow reducing within the same range
+        if (selectedStart >= providerStart && selectedEnd <= providerEnd) {
+          return false; // Allowed
+        }
+      
+        // ❌ Block selection if the new date overlaps with any existing service
+        if (
+          (selectedStart >= providerStart && selectedStart <= providerEnd) || 
+          (selectedEnd >= providerStart && selectedEnd <= providerEnd) ||
+          (selectedStart <= providerStart && selectedEnd >= providerEnd) // Fully overlapping range
+        ) {
+          const formattedEndDate = providerEnd.toLocaleDateString('en-GB');
+          toast.error(`This Date is occupied. You can only assign after ${formattedEndDate}.`);
+          return true;
+        }
+      }
+      
   
       return false;
     });
