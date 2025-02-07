@@ -298,6 +298,11 @@ const handelAssignProviderData = async () => {
         return true;
       }
 
+      if (providerIdStr === selectedProviderIdStr && providerService !== selectedService) {
+        toast.error('This provider already has a service assigned. You cannot assign a different service.');
+        return true;
+      }
+
       return false;
     });
 
@@ -1091,7 +1096,9 @@ const openModalAssignProvider = (id, name) => {
                     setAssignProviderStartDate(format(date, "yyyy-MM-dd"));
                   }}
                   dateFormat="dd/MM/yyyy" 
-                  className="datepicker_Date_of_assignProvider" 
+                  className="datepicker_Date_of_assignProvider"
+                  filterDate={disableInvalidDates}
+                  onKeyDown={(e) => e.preventDefault()} 
                 />
                 </div>
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
@@ -1100,6 +1107,8 @@ const openModalAssignProvider = (id, name) => {
                     onChange={(date) => setAssignProviderEndDate(date)}
                     placeholdertext="Select an end date"
                     className="datepicker_Date_of_assignProvider" 
+                    filterDate={disableInvalidDates}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                 </div>
               </div>
