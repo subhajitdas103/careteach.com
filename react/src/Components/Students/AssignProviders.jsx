@@ -213,6 +213,7 @@ const handelAssignProviderData = async () => {
 
   for (const [field, value] of Object.entries(requiredFields)) {
     if (!value) {
+      console.error(`Validation failed: Missing ${field}`);
       toast.error(`Please enter ${field}!`);
       return;
     }
@@ -222,6 +223,7 @@ const handelAssignProviderData = async () => {
   const endDate = new Date(assignProviderEndDate);
 
   if (startDate > endDate) {
+    console.error("Validation failed: Start date is later than end date");
     toast.error('Start date cannot be later than the end date!');
     return;
   }
@@ -240,6 +242,7 @@ const handelAssignProviderData = async () => {
         console.log(`Comparing Provider ID: ${providerID} with ${checkProviderId} | Rate: ${providerRate} with ${inputRateAssignProvider}`);
 
         if (Number(inputRateAssignProvider) > providerRate) {
+          console.error("Validation failed: Input rate exceeds provider rate");
           toast.error(`Input rate exceeds provider rate: ${providerRate}`);
           return true;
         }
@@ -249,17 +252,22 @@ const handelAssignProviderData = async () => {
       return false;
     });
 
-    if (rate_check) return;
-  } else {
-    console.error('rateData is not an array:', ProviderDataAssignProvider);
+    if (rate_check) {
+      console.log("Rate validation failed, stopping execution.");
+      return;
+    }
   }
 
+  // Check for duplicate providers
+  let isDuplicate = false;
   if (Array.isArray(assignedProviders)) {
-    const isDuplicate = assignedProviders.some(provider => {
-      const trimmedProviderId = String(provider.provider_id).trim();
-      const trimmedProviderIdToCheck = String(providerId).trim();
-      const trimmedProviderService = provider.service_type.trim();
-      const trimmedSelectedService = selectedAssignProviderService.trim();
+    console.log("Existing assignedProviders:", assignedProviders);
+
+    isDuplicate = assignedProviders.some(provider => {
+      const providerIdStr = String(provider.provider_id).trim();
+      const selectedProviderIdStr = String(providerId).trim();
+      const providerService = provider.service_type.trim();
+      const selectedService = selectedAssignProviderService.trim();
 
       const normalizeDate = (date) => {
         if (!date) return null;
@@ -268,29 +276,25 @@ const handelAssignProviderData = async () => {
         return d.getTime();
       };
 
-      const trimmedProviderStartDate = normalizeDate(provider.start_date);
-      const trimmedSelectedStartDate = normalizeDate(assignProviderStartDate);
+      const providerStartDate = normalizeDate(provider.start_date);
+      const selectedStartDate = normalizeDate(assignProviderStartDate);
 
-      const trimmedProviderEndDate = normalizeDate(provider.end_date);
-      const trimmedSelectedEndDate = normalizeDate(assignProviderEndDate);
+      const providerEndDate = normalizeDate(provider.end_date);
+      const selectedEndDate = normalizeDate(assignProviderEndDate);
 
-      console.log(`Comparing provider_id: ${trimmedProviderId} with ${trimmedProviderIdToCheck}`);
-      console.log(`Comparing service_type: ${trimmedProviderService} with ${trimmedSelectedService}`);
-      console.log(`Comparing start_date: ${trimmedProviderStartDate} with ${trimmedSelectedStartDate}`);
-      console.log(`Comparing end_date: ${trimmedProviderEndDate} with ${trimmedSelectedEndDate}`);
+      console.log(`Comparing provider_id: ${providerIdStr} with ${selectedProviderIdStr}`);
+      console.log(`Comparing service_type: ${providerService} with ${selectedService}`);
+      console.log(`Comparing start_date: ${providerStartDate} with ${selectedStartDate}`);
+      console.log(`Comparing end_date: ${providerEndDate} with ${selectedEndDate}`);
 
       if (
-        trimmedProviderId === trimmedProviderIdToCheck &&
-        trimmedProviderService === trimmedSelectedService &&
-        trimmedProviderStartDate === trimmedSelectedStartDate &&
-        trimmedProviderEndDate === trimmedSelectedEndDate
+        providerIdStr === selectedProviderIdStr &&
+        providerService === selectedService &&
+        providerStartDate === selectedStartDate &&
+        providerEndDate === selectedEndDate
       ) {
+        console.error("Validation failed: Duplicate provider entry");
         toast.error('For This Provider, This Service already Taken, So, Please Change The Date!');
-        return true;
-      }
-
-      if (trimmedProviderId === trimmedProviderIdToCheck && trimmedProviderService !== trimmedSelectedService) {
-        toast.error('This provider already has a service assigned. You cannot assign a different service.');
         return true;
       }
 
@@ -298,14 +302,15 @@ const handelAssignProviderData = async () => {
     });
 
     if (isDuplicate) {
-      console.log('Duplicate detected, stopping execution.');
+      console.log("Duplicate detected, stopping execution.");
       return;
     }
   }
 
+  // Proceed to API call if no errors
   const formData = {
     id,
-    selectedProviderId,
+    selectedProviderId: providerId,
     full_name,
     inputRateAssignProvider,
     selectedAssignProviderLocation,
@@ -315,23 +320,45 @@ const handelAssignProviderData = async () => {
     assignProviderStartDate: FormatassignProviderStartDate,
     assignProviderEndDate: FormatassignProviderEndDate,
   };
-  
-  console.log('Form data of assign Provider Modal:', formData);
+
+  console.log("Final validation passed, proceeding to API call...");
+  console.log("FormData:", formData);
 
   try {
     const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
       headers: { 'Content-Type': 'application/json' },
     });
 
+    console.log('Data sent successfully:', response.data);
+
     fetchAssignedProviderDetails();
     setIsModalOpen(false);
     setTimeout(() => {
       toast.success("Provider assigned successfully", { position: "top-right", autoClose: 5000 });
     }, 500);
-    console.log('Data sent successfully:', response.data);
   } catch (error) {
+    console.error('Error during axios request:', error.response?.data || error.message);
     toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
-    console.error('There was an error sending data:', error.response?.data || error.message);
+
+    // Fallback to fetch in case axios is not working
+    console.log("Attempting fetch request as fallback...");
+    try {
+      const fetchResponse = await fetch(`${backendUrl}/api/AssignProvider`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const fetchData = await fetchResponse.json();
+      console.log("Fetch response:", fetchData);
+
+      fetchAssignedProviderDetails();
+      setIsModalOpen(false);
+      setTimeout(() => {
+        toast.success("Provider assigned successfully (via fetch)", { position: "top-right", autoClose: 5000 });
+      }, 500);
+    } catch (fetchError) {
+      console.error("Error during fetch request:", fetchError);
+    }
   }
 };
 

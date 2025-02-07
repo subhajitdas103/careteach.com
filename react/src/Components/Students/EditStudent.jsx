@@ -98,6 +98,7 @@ const removeService = (index) => {
     const [school_name, setSchoolName] = useState(student?.school_name || '');
     const [home_address, setHomeaddress] = useState(student?.home_address || '');
     const [doe_rate, setDOE] = useState(student?.doe_rate || '');
+    const [DOEError, setDOEError] = useState("");
     const [iep_doc, setIEP] = useState("");
     const [disability, setDisability] = useState("");
     const [nyc_id, setNYC] = useState(student?.nyc_id || '');
