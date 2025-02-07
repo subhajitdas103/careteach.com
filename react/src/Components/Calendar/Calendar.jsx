@@ -606,13 +606,17 @@ const eventsOnSameDateBulk = Bulkevents.filter(event => {
     return true; // Keep this event
   } else {
     console.log(`Skipping event on ${eventDates.join(', ')}: already has an event.`);
-    toast.error("Session already have", {
-      position: "top-right",
-      autoClose: 5000,
-    });
     return false; // Skip this event
   }
 });
+
+if (eventsOnSameDateBulk.length > 0) {
+  toast.error("Session already exists on the selected date(s). Please choose another date.", {
+    position: "top-right",
+    autoClose: 5000,
+  });
+  return; // Stop execution before making the API call
+}
 
 console.log("Events on the same date:", existingEventDates); // Set of existing event dates
 console.log("All session dates:", allSessionDates); // Array of session dates (day numbers)

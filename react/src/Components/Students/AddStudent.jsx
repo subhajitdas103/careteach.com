@@ -59,14 +59,27 @@ import axios from "axios";
     setFormDataList(updatedFormDataList);
   };
 
-  // Function to add a new service (clone the form)
+  // // Function to add a new service (clone the form)
+  // const addService = () => {
+  //   setFormDataList([
+  //     ...formDataList,
+  //     { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' ,  isClone: true}
+  //   ]);
+  // };
   const addService = () => {
-    setFormDataList([
-      ...formDataList,
-      { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' ,  isClone: true}
+    setFormDataList((prevList) => [
+      ...(prevList || []),
+      {
+        service_type: '',
+        startDate: new Date().toISOString(), // ISO format
+        endDate: new Date().toISOString(), // ISO format
+        weeklyMandate: '',
+        yearlyMandate: '',
+        isClone: true
+      }
     ]);
   };
-
+  
   // Function to remove a service (form)
 const removeService = (index) => {
   const updatedFormDataList = formDataList.filter((_, i) => i !== index);

@@ -395,10 +395,27 @@ public function updateAssignProvider(Request $request, $id)
 }
 
 
+// public function fetch_start_end_date_of_student($studentId)
+// {
+//     $mandates = StudentServices::where('student_id', $studentId)
+    
+//         ->select('weekly_mandate', 'yearly_mandate' , 'start_date' , 'end_date')
+//         ->first();
+
+//     if (!$mandates) {
+//         return response()->json(['message' => 'No data found'], 404);
+//     }
+
+//     return response()->json($mandates);
+// }
+
 public function fetch_start_end_date_of_student($studentId)
 {
+    $validServiceTypes = ['SEIT', 'SETSS', 'PT', 'OT', 'SPEECH', 'HEALTH PARA', 'COUNSELING'];
+
     $mandates = StudentServices::where('student_id', $studentId)
-        ->select('weekly_mandate', 'yearly_mandate' , 'start_date' , 'end_date')
+        ->whereIn('service_type', $validServiceTypes) // Filter by valid service types
+        ->select('weekly_mandate', 'yearly_mandate', 'start_date', 'end_date')
         ->first();
 
     if (!$mandates) {
@@ -407,6 +424,7 @@ public function fetch_start_end_date_of_student($studentId)
 
     return response()->json($mandates);
 }
+
 
 }
 
