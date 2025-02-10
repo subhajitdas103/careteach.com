@@ -90,7 +90,28 @@ useEffect(() => {
   fetch_start_end_date_of_student(id);
 }, []);
 console.log("Hours",Student_start_end_date);
+//-----------Start-----------Fetch  AssgniedProvider data------------
+const [assignedProviders, setAssignedProviders] = useState([]);
+const [AssignProviderID, setAssignProviderID] = useState(null);
+const fetchAssignedProviderDetails = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
+      const data = await response.json();
+      setAssignedProviders(data);
+      console.log("API Response Assigned:", data);
+    } catch (error) {
+      console.error('Error fetching provider details:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAssignedProviderDetails();
+  }, [id]);
 
+
+  
+//   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
+  
 // =================================
 
 const validServices = ['SEIT', 'SETSS', 'PT', 'OT', 'SPEECH', 'HEALTH PARA', 'COUNSELING'];
@@ -308,16 +329,58 @@ const handelAssignProviderData = async () => {
       }
 
 
-      // ===================================
-      if (
-        providerIdStr === selectedProviderIdStr &&
-        providerService === selectedService &&
-        new Date(selectedStartDate) <= new Date(providerEndDate) // Blocks selection before providerEndDate
-      ) {
-        const formattedEndDate = new Date(providerEndDate).toLocaleDateString('en-GB');
-        toast.error(`This Date is occupied. You can only assign after ${formattedEndDate}.`);
-        return true;
+    
+   
+      const selectedStart = new Date(selectedStartDate);
+      const selectedEnd = new Date(selectedEndDate);
+      
+      // Step 1: Filter by service type and sort by start date
+      const filteredServices = assignedProviders
+          .filter(service => service.service_type === selectedService)
+          .map(service => ({
+              start: new Date(service.start_date),
+              end: new Date(service.end_date)
+          }))
+          .sort((a, b) => a.start - b.start);
+      
+      // Step 2: Check if there's a gap available for the selected range
+      let canAssign = false;
+      let lastEnd = null; // Initialize `lastEnd`
+      
+      for (let i = 0; i < filteredServices.length; i++) {
+          const currentStart = new Date(filteredServices[i].start);
+      
+          if (lastEnd !== null) {
+              // Check if selected range fits in the gap
+              if (selectedStart >= lastEnd && selectedEnd <= currentStart) {
+                  canAssign = true;
+                  break;
+              }
+          }
+      
+          lastEnd = new Date(filteredServices[i].end); // Update `lastEnd`
       }
+      
+      // If the selected range is after the last service, allow it
+      if (!canAssign && (lastEnd === null || selectedStart > lastEnd)) {
+          canAssign = true;
+      }
+      if (!canAssign) {
+        console.log("Invalid selection ❌");
+        toast.error("This Date is occupied. You can only assign within available gaps.");
+        return true;
+    }
+      
+      // ===================================
+      // if (
+      //   providerIdStr === selectedProviderIdStr &&
+      //   providerService === selectedService &&
+      //   new Date(selectedStartDate) <= new Date(providerEndDate) // Blocks selection before providerEndDate
+      // ) {
+      //   const formattedEndDate = new Date(providerEndDate).toLocaleDateString('en-GB');
+      //   toast.error(`This Date is occupied. You can only assign after ${formattedEndDate}.`);
+      //   return true;
+      // }
       
 
       return false;
@@ -383,7 +446,7 @@ const handelAssignProviderData = async () => {
     }
   }
 };
-
+console.log("assignedProviders",assignedProviders);
 
 // =================Edit Assign Provider=========================
 const [AssignEditID, setAssignID] = useState("");
@@ -574,28 +637,7 @@ const handelAssignProviderDataEdit = async () => {
 
 //   =================Modal Open==================
 
-//-----------Start-----------Fetch  AssgniedProvider data------------
-const [assignedProviders, setAssignedProviders] = useState([]);
-const [AssignProviderID, setAssignProviderID] = useState(null);
-const fetchAssignedProviderDetails = async () => {
-    try {
-      const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
-      const data = await response.json();
-      setAssignedProviders(data);
-      console.log("API Response Assigned:", data);
-    } catch (error) {
-      console.error('Error fetching provider details:', error);
-    }
-  };
-  
-  useEffect(() => {
-    fetchAssignedProviderDetails();
-  }, [id]);
 
-
-  
-//   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
-  
 
 // ========================================
 
