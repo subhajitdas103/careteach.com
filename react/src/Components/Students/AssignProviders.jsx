@@ -289,12 +289,6 @@ const handelAssignProviderData = async () => {
     return;
   }
 
-// Check if weekly and yearly hours are greater than zero
-if (parseFloat(inputWklyHoursAssignProvider) <= 0 || parseFloat(inputYearlyHoursAssignProvider) <= 0) {
-  toast.error('Weekly and Yearly hours must be greater than zero!');
-  return;
-}
-
   
   console.log("rateData", ProviderDataAssignProvider);
 
