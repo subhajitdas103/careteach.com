@@ -288,6 +288,13 @@ const handelAssignProviderData = async () => {
     toast.error('Weekly hours cannot be greater than yearly hours!');
     return;
   }
+
+// Check if weekly and yearly hours are greater than zero
+if (parseFloat(inputWklyHoursAssignProvider) <= 0 || parseFloat(inputYearlyHoursAssignProvider) <= 0) {
+  toast.error('Weekly and Yearly hours must be greater than zero!');
+  return;
+}
+
   
   console.log("rateData", ProviderDataAssignProvider);
 
@@ -836,7 +843,9 @@ const openModalAssignProvider = (id, name) => {
   useEffect(() => {
   }, [assignProviderStartDate]);
 // ================================================
-
+useEffect(() => {
+  setInputYearlyHoursAssignProvider(""); // Reset Yearly Hours when service type changes
+}, [selectedAssignProviderService]);
 
 
   return (
