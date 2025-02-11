@@ -68,3 +68,4 @@ Route::post('/ConfirmSession', [CalendarController::class, 'CalendarConfirmSessi
 // Route::post('/ConfirmSession', [CalendarController::class, 'CalendarConfirmSession']);
 Route::get('/FetchConfirmSession',[CalendarController::class,'FetchConfirmessionDetails']);
 
+// Route::get('/StudentServicesDataFetchAsID/{id}', [StudentController::class, 'StudentServicesDataFetchAsID']);

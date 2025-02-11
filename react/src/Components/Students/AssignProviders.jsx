@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"; 
 import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
+import {InputAdornment } from "@mui/material";
 import { TextField, FormControl, InputLabel, Select, MenuItem ,Box } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Import useParams
 import editIcon from '../../Assets/edit-info.png';
@@ -108,13 +109,13 @@ const fetchAssignedProviderDetails = async () => {
   useEffect(() => {
     fetchAssignedProviderDetails();
   }, [id]);
-
-console.log("iiiiiiidddddddd", editingServiceId);
+// ======================================================================================
+ 
+  
   
 //   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
   
 // =================================
-
 const validServices = ['SEIT', 'SETSS', 'PT', 'OT', 'SPEECH', 'HEALTH PARA', 'COUNSELING'];
 
 let MAX_WEEKLY_HOURS = 0;
@@ -149,14 +150,37 @@ if (selectedService && validServices.includes(selectedAssignProviderService)) {
 console.log("End AssignProviderLimitEndDate:", AssignProviderLimitEndDate);
 console.log("Start AssignProviderLimitStartDate:", AssignProviderLimitStartDate);
 
+// Ensure assignedProviders is an array
+const assignedProvidersArray = Array.isArray(assignedProviders) 
+  ? assignedProviders 
+  : Object.values(assignedProviders || {}); // Avoid errors if null/undefined
 
+console.log("Converted assignedProvidersArray:", assignedProvidersArray);
 
+const getTotalYearlyHours = () => {
+  // Filter providers by service type
+  const filteredProviders = assignedProvidersArray.filter(
+    provider => provider.service_type === selectedAssignProviderService
+  );
+
+  console.log("Filtered Providers:", filteredProviders);
+
+  // Calculate total yearly hours
+  const totalHours = filteredProviders.reduce(
+    (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
+    0
+  );
+
+  console.log(`Total yearly hours for service type ${selectedAssignProviderService}:`, totalHours);
+  return totalHours;
+};
 
 const handleHoursChange = (type, e) => {
-  const value = e.target.value;
+  let value = Number(e.target.value);
+  const totalYearlyHours = getTotalYearlyHours(); // Get already assigned hours
 
-  let maxLimit;
-
+  let maxLimit = 0;
+  
   // Set the correct max limit based on the type (weekly or yearly)
   if (type === 'weekly') {
     maxLimit = MAX_WEEKLY_HOURS;
@@ -164,23 +188,34 @@ const handleHoursChange = (type, e) => {
     maxLimit = MAX_YEARLY_HOURS;
   }
 
-  // If the value is greater than the max limit, show an alert
-  if (Number(value) > maxLimit) {
-    toast.error(`The maximum allowed ${type} hours is ${maxLimit}`, {
+  let remainingHours = maxLimit - totalYearlyHours; // Subtract assigned hours
+
+  // Prevent negative remaining hours
+  remainingHours = Math.max(remainingHours, 0);
+
+  console.log(`Max allowed ${type} hours: ${maxLimit}`);
+  console.log(`Total assigned ${type} hours: ${totalYearlyHours}`);
+  console.log(`Remaining ${type} hours before limit: ${remainingHours}`);
+
+  if (value > remainingHours) {
+    toast.error(`You can only assign up to ${remainingHours} more ${type} hours.`, {
       position: "top-right",
       autoClose: 5000,
-    });  // Do not update the state if the value is too large
+    });
+    return; // Stop further execution
   }
 
-  // Only update the value if it is within the limit
-  if (value === "" || (Number(value) >= 0 && Number(value) <= maxLimit)) {
+  // Only update state if within allowed range
+  if (value === "" || (value >= 0 && value <= remainingHours)) {
     if (type === 'weekly') {
-      setinputWklyHoursAssignProvider(value);  // For weekly hours
+      setinputWklyHoursAssignProvider(value.toString()); // Store as string
     } else if (type === 'yearly') {
-      setInputYearlyHoursAssignProvider(value); // For yearly hours
+      setInputYearlyHoursAssignProvider(value.toString()); // Store as string
     }
   }
 };
+const remainingHours = MAX_YEARLY_HOURS - getTotalYearlyHours();
+console.log("remainingHours",remainingHours);
 
 
 
@@ -460,6 +495,9 @@ const handelAssignProviderData = async () => {
 };
 console.log("assignedProviders",assignedProviders);
 
+// ====================================
+const AssignProviderEditID = selectedAssignProvider.split("|")[0];
+
 
 
 
@@ -468,9 +506,9 @@ console.log("assignedProviders",assignedProviders);
 const [AssignEditID, setAssignID] = useState("");
 
 // console.log("AssignEditID",AssignEditID);
-const AssignProviderEditID = selectedAssignProvider.split("|")[0];
 
 
+console.log("AssignProviderEditID",AssignProviderEditID);
 const handleAssignProviderDataEdit = async () => {
   console.log("handleAssignProvider triggered");
 
@@ -801,12 +839,6 @@ const openModalAssignProvider = (id, name) => {
 
 
 
-// ==========================
-
-
-
-
-
   return (
 <div>
     <ToastContainer />
@@ -999,18 +1031,25 @@ const openModalAssignProvider = (id, name) => {
                 />
                 </div>
   
+
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
-                <TextField
-                  id="yearly-input"
-                  label="Yearly Hours"
-                  variant="outlined"
-                  fullWidth
-                  value={inputYearlyHoursAssignProvider}
-                  // onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
-                  onChange={(e) => handleHoursChange('yearly', e)}
-                  style={{ marginBottom: "16px" }}
-                  placeholder="Enter Yearly Hours"
-                />
+                  <TextField
+                    id="yearly-input"
+                    label="Yearly Hours"
+                    variant="outlined"
+                    fullWidth
+                    value={inputYearlyHoursAssignProvider || 0}
+                    onChange={(e) =>
+                      handleHoursChange("yearly", { target: { value: e.target.value } })
+                    }
+                    style={{ marginBottom: "16px" }}
+                    placeholder="Enter Yearly Hours"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">/ {remainingHours}</InputAdornment>
+                      ),
+                    }}
+                  />
                 </div>
               </div>
               {/* ============== */}
