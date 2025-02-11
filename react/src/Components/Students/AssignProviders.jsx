@@ -69,7 +69,7 @@ const { id } = useParams();
 // ===========================================
 
 const [Student_start_end_date, setStudentStartEndDate] = useState(null);
-
+const [editingServiceId, setEditingServiceId] = useState(null);
 const fetch_start_end_date_of_student = async (id) => {
   try {
     const response = await fetch(`${backendUrl}/api/fetch_start_end_date_of_student/${id}`);
@@ -98,6 +98,7 @@ const fetchAssignedProviderDetails = async () => {
       const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
       const data = await response.json();
       setAssignedProviders(data);
+    
       console.log("API Response Assigned:", data);
     } catch (error) {
       console.error('Error fetching provider details:', error);
@@ -108,7 +109,7 @@ const fetchAssignedProviderDetails = async () => {
     fetchAssignedProviderDetails();
   }, [id]);
 
-
+console.log("iiiiiiidddddddd", editingServiceId);
   
 //   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
   
@@ -330,58 +331,69 @@ const handelAssignProviderData = async () => {
 
 
     
-   
       const selectedStart = new Date(selectedStartDate);
       const selectedEnd = new Date(selectedEndDate);
       
-      // Step 1: Filter by service type and sort by start date
+      // Step 1: Filter and sort services by start date
       const filteredServices = assignedProviders
-          .filter(service => service.service_type === selectedService)
+          .filter(service => service.provider_id == selectedProviderIdStr && service.service_type === selectedService)
           .map(service => ({
               start: new Date(service.start_date),
               end: new Date(service.end_date)
           }))
           .sort((a, b) => a.start - b.start);
+          console.log("Filtered Services for Provider:", selectedProviderIdStr, filteredServices);
+      // Step 2: Check for direct overlaps
+      const isOverlap = filteredServices.some(service => 
+          selectedStart <= service.end && selectedEnd >= service.start
+         
+      );
       
-      // Step 2: Check if there's a gap available for the selected range
+      if (isOverlap) {
+          console.log("Invalid selection ❌ - Overlap detected!");
+          toast.error("This Date is occupied. Choose a non-overlapping period.");
+          return true;
+      }
+      
+      // Step 3: Check for available gaps
       let canAssign = false;
-      let lastEnd = null; // Initialize `lastEnd`
+      let lastEnd = null;
       
-      for (let i = 0; i < filteredServices.length; i++) {
-          const currentStart = new Date(filteredServices[i].start);
+      for (const service of filteredServices) {
+          const currentStart = service.start;
       
           if (lastEnd !== null) {
-              // Check if selected range fits in the gap
-              if (selectedStart >= lastEnd && selectedEnd <= currentStart) {
+              if (selectedStart >= lastEnd && selectedEnd <= currentStart) { // Allow exact fits
+                  canAssign = true;
+                  break;
+              }
+          } else {
+              // If the selected range starts before the first service
+              if (selectedEnd <= currentStart) {
                   canAssign = true;
                   break;
               }
           }
       
-          lastEnd = new Date(filteredServices[i].end); // Update `lastEnd`
+          lastEnd = service.end;
       }
       
-      // If the selected range is after the last service, allow it
-      if (!canAssign && (lastEnd === null || selectedStart > lastEnd)) {
+      // Allow scheduling after the last assigned service
+      if (!canAssign && (lastEnd === null || selectedStart >= lastEnd)) {
           canAssign = true;
       }
+      
       if (!canAssign) {
-        console.log("Invalid selection ❌");
-        toast.error("This Date is occupied. You can only assign within available gaps.");
-        return true;
-    }
+          console.log("Invalid selection ❌ - No available gap!");
+          toast.error("This Date is occupied. You can only assign within available gaps.");
+          return true;
+      }
       
-      // ===================================
-      // if (
-      //   providerIdStr === selectedProviderIdStr &&
-      //   providerService === selectedService &&
-      //   new Date(selectedStartDate) <= new Date(providerEndDate) // Blocks selection before providerEndDate
-      // ) {
-      //   const formattedEndDate = new Date(providerEndDate).toLocaleDateString('en-GB');
-      //   toast.error(`This Date is occupied. You can only assign after ${formattedEndDate}.`);
-      //   return true;
-      // }
+      console.log("Valid selection ✅ - Slot is available!");
+      return false;
       
+  
+     
 
       return false;
     });
@@ -448,37 +460,43 @@ const handelAssignProviderData = async () => {
 };
 console.log("assignedProviders",assignedProviders);
 
+
+
+
 // =================Edit Assign Provider=========================
+
 const [AssignEditID, setAssignID] = useState("");
 
+// console.log("AssignEditID",AssignEditID);
 const AssignProviderEditID = selectedAssignProvider.split("|")[0];
-const handelAssignProviderDataEdit = async () => {
+
+
+const handleAssignProviderDataEdit = async () => {
   console.log("handleAssignProvider triggered");
 
   if (!selectedAssignProvider) {
     toast.error("Please Select a Provider!");
     return;
   }
+
+  const [providerId, full_name] = selectedAssignProvider.split("|");
+  console.log("selectedAssignProvider",providerId);
   const startDate = new Date(assignProviderStartDate);
   const endDate = new Date(assignProviderEndDate);
   if (startDate > endDate) {
-    toast.error('Start date cannot be later than the end date!');
+    toast.error("Start date cannot be later than the end date!");
     return;
   }
 
-  const [providerId, full_name] = selectedAssignProvider.split('|');
-  const formattedStartDate =assignProviderStartDate ? new Date(assignProviderStartDate).toLocaleDateString('en-CA') : null;
-
-  const formattedEndDate = assignProviderEndDate ? new Date(assignProviderEndDate).toLocaleDateString('en-CA') : null;
-
+  // Required Fields Validation
   const requiredFields = [
-    { value: inputRateAssignProvider, message: 'Please Enter Rate!' },
-    { value: selectedAssignProviderService, message: 'Please Select a Service!' },
-    { value: selectedAssignProviderLocation, message: 'Please Select a Location!' },
-    { value: inputWklyHoursAssignProvider, message: 'Please Enter Weekly Hours!' },
-    { value: inputYearlyHoursAssignProvider, message: 'Please Enter Yearly Hours!' },
-    { value: assignProviderStartDate, message: 'Please Select a Start Date!' },
-    { value: assignProviderEndDate, message: 'Please Select an End Date!' },
+    { value: inputRateAssignProvider, message: "Please Enter Rate!" },
+    { value: selectedAssignProviderService, message: "Please Select a Service!" },
+    { value: selectedAssignProviderLocation, message: "Please Select a Location!" },
+    { value: inputWklyHoursAssignProvider, message: "Please Enter Weekly Hours!" },
+    { value: inputYearlyHoursAssignProvider, message: "Please Enter Yearly Hours!" },
+    { value: assignProviderStartDate, message: "Please Select a Start Date!" },
+    { value: assignProviderEndDate, message: "Please Select an End Date!" },
   ];
 
   for (const field of requiredFields) {
@@ -488,119 +506,134 @@ const handelAssignProviderDataEdit = async () => {
     }
   }
 
-  const rateData = ProviderDataAssignProvider;
-  console.log("rateData", rateData);
+  // Format Dates
+  const formattedStartDate = startDate.toLocaleDateString("en-CA");
+  const formattedEndDate = endDate.toLocaleDateString("en-CA");
 
-  if (Array.isArray(rateData)) {
-    console.log("Available provider IDs in rateData:", rateData.map(p => p.id));
-    console.log("Type of providerId:", typeof providerId);
-
-    const rate_check = rateData.some(provider => {
-      const providerRate = provider.rate;
-      const providerID = Number(provider.id);
-      const checkProviderId = Number(providerId);
-      // const ptsaprovaldate = (provider.pets_approval_date);
-      // const start_date = (provider.start_date);
-      if (providerID === checkProviderId) {
-        console.log(`Comparing Provider ID: ${providerID} with ${checkProviderId} | Rate: ${providerRate} with ${inputRateAssignProvider}`);
-
-         if (Number(inputRateAssignProvider) > providerRate) {
-          console.error(`Error: Input rate exceeds provider rate ${providerRate}`);
-
-          toast.error(`Input rate exceeds , the provider rate  ${providerRate}`);
+  // Check if rate is valid
+  if (Array.isArray(ProviderDataAssignProvider)) {
+    const rate_check = ProviderDataAssignProvider.some((provider) => {
+      if (Number(provider.id) === Number(providerId)) {
+        if (Number(inputRateAssignProvider) > provider.rate) {
+          toast.error(`Input rate exceeds provider rate ${provider.rate}`);
           return true;
-        } 
-
-
-        return providerRate <= Number(inputRateAssignProvider);  
+        }
       }
       return false;
     });
 
-    if (rate_check) {
-      return;
-    }
+    if (rate_check) return;
   } else {
-    console.error('rateData is not an array:', rateData);
+    console.error("rateData is not an array:", ProviderDataAssignProvider);
   }
 
+  // Check for duplicate provider assignments
   if (Array.isArray(assignedProviders)) {
-    const isDuplicate = assignedProviders.some(provider => {
-      const trimmedProviderId = String(provider.provider_id).trim();
-      const trimmedProviderIdToCheck = String(providerId).trim();
-      const trimmedProviderService = provider.service_type.trim();
-      const trimmedSelectedService = selectedAssignProviderService.trim();
-  
-      const normalizeDate = (date) => {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        return d.getTime();
-      };
-  
-      const trimmedProviderStartDate = normalizeDate(provider.start_date);
-      const trimmedSelectedStartDate = normalizeDate(assignProviderStartDate);
-      const trimmedProviderEndDate = normalizeDate(provider.end_date);
-      const trimmedSelectedEndDate = normalizeDate(assignProviderEndDate);
-  
-      console.log(`Comparing provider_id: ${trimmedProviderId} with ${trimmedProviderIdToCheck} and service_type: ${trimmedProviderService} with ${trimmedSelectedService}`);
-      console.log(`Comparing start_date: ${trimmedProviderStartDate} with ${trimmedSelectedStartDate} and end_date: ${trimmedProviderEndDate} with ${trimmedSelectedEndDate}`);
-  
+    const isDuplicate = assignedProviders.some((provider) => {
+      const providerIdStr = String(provider.provider_id).trim();
+      const providerServiceStr = provider.service_type.trim();
+      const selectedServiceStr = selectedAssignProviderService.trim();
+      const providerStartDate = new Date(provider.start_date).setHours(0, 0, 0, 0);
+      const providerEndDate = new Date(provider.end_date).setHours(0, 0, 0, 0);
+      const selectedStartDate = startDate.setHours(0, 0, 0, 0);
+      const selectedEndDate = endDate.setHours(0, 0, 0, 0);
+
+      console.log(`Comparing Provider: ${providerIdStr} with ${providerId}, Service: ${providerServiceStr} with ${selectedServiceStr}`);
+
       if (
-        trimmedProviderId === trimmedProviderIdToCheck &&
-        trimmedProviderService === trimmedSelectedService &&
-        trimmedProviderStartDate === trimmedSelectedStartDate &&
-        trimmedProviderEndDate === trimmedSelectedEndDate
+        providerIdStr === String(providerId).trim() &&
+        providerServiceStr === selectedServiceStr &&
+        providerStartDate === selectedStartDate &&
+        providerEndDate === selectedEndDate
       ) {
-        toast.error('For This Provider, This Service already Taken, So, Please Change The Date!');
-        return true;
-      }
-  
-      if (trimmedProviderId === trimmedProviderIdToCheck && trimmedProviderService !== trimmedSelectedService) {
-        toast.error('This provider already has a service assigned. You cannot assign a different service.');
+        toast.error("For This Provider, This Service is already assigned on these dates!");
         return true;
       }
 
-      if (
-        trimmedProviderId === trimmedProviderIdToCheck &&
-        trimmedProviderService === trimmedSelectedService
-      ) {
-        const providerStart = new Date(trimmedProviderStartDate);
-        const providerEnd = new Date(trimmedProviderEndDate);
-        const selectedStart = new Date(trimmedSelectedStartDate);
-        const selectedEnd = new Date(trimmedSelectedEndDate);
-      
-        // ✅ Allow reducing within the same range
-        if (selectedStart >= providerStart && selectedEnd <= providerEnd) {
-          return false; // Allowed
-        }
-      
-        // ❌ Block selection if the new date overlaps with any existing service
-        if (
-          (selectedStart >= providerStart && selectedStart <= providerEnd) || 
-          (selectedEnd >= providerStart && selectedEnd <= providerEnd) ||
-          (selectedStart <= providerStart && selectedEnd >= providerEnd) // Fully overlapping range
-        ) {
-          const formattedEndDate = providerEnd.toLocaleDateString('en-GB');
-          toast.error(`This Date is occupied. You can only assign after ${formattedEndDate}.`);
-          return true;
-        }
+      if (providerIdStr === String(providerId).trim() && providerServiceStr !== selectedServiceStr) {
+        toast.error("This provider already has a service assigned. You cannot assign a different service.");
+        return true;
       }
-      
-  
+
       return false;
     });
-  
-    if (isDuplicate) {
-      return;  // Stop further execution
-    }
+
+    if (isDuplicate) return;
   } else {
-    console.error('assignedProviders is not an array:', assignedProviders);
-    return;  // Prevent execution if assignedProviders is invalid
+    console.error("assignedProviders is not an array:", assignedProviders);
+    return;
+  }
+
+  const selectedStart = new Date(assignProviderStartDate);
+  const selectedEnd = new Date(assignProviderEndDate);
+  
+  if (isNaN(selectedStart) || isNaN(selectedEnd)) {
+    toast.error("Invalid date selection.");
+    return;
+  }
+  
+  const filteredServices = assignedProviders
+    .filter(
+      (service) =>
+        service.service_type === selectedAssignProviderService &&
+        String(service.provider_id).trim() === String(providerId).trim()
+    )
+    .map((service) => ({
+      id: service.id,
+      start: new Date(service.start_date),
+      end: new Date(service.end_date),
+    }))
+    .sort((a, b) => a.start - b.start);
+  
+  // **Check for overlap, including edit case**
+  const isOverlap = filteredServices.some(
+    (service) =>
+      service.id == editingServiceId && // Ignore the service being edited
+      selectedStart < service.end && 
+      selectedEnd > service.start
+  );
+  
+  if (isOverlap) {
+    toast.error("This date range is occupied by another service. Choose a different period.");
+    return;
+  }
+  
+  // **Check for available gaps**
+  let canAssign = filteredServices.length === 0;
+  let lastEnd = null;
+  
+  for (const service of filteredServices) {
+    if (service.id === editingServiceId) {
+      continue; // Skip the service being edited
+    }
+  
+    if (lastEnd !== null && selectedStart >= lastEnd && selectedEnd <= service.start) {
+      canAssign = true;
+      break;
+    }
+    lastEnd = service.end;
+  }
+  
+  // **If editing, ensure it still fits**
+  if (editingServiceId) {
+    const editingService = filteredServices.find(service => service.id === editingServiceId);
+    if (editingService) {
+      if (selectedStart >= editingService.start && selectedEnd <= editingService.end) {
+        canAssign = true; // Allow resizing within its original range
+      }
+    }
+  }
+  
+  if (!canAssign) {
+    toast.error("This Date is occupied. You can only assign within available gaps.");
+    return;
   }
   
 
+
+
+  // Prepare Form Data
   const formData = {
-    id,
     providerId,
     full_name,
     inputRateAssignProvider,
@@ -612,28 +645,29 @@ const handelAssignProviderDataEdit = async () => {
     assignProviderEndDate: formattedEndDate,
   };
 
-  console.log('Form data of assign Provider Modal:', formData);
+  console.log("Form data of assign Provider Modal:", formData);
 
   try {
     const response = await axios.post(
       `${backendUrl}/api/UpdateAssignProvider/${AssignEditID}`,
       formData,
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
 
     fetchAssignedProviderDetails();
     setIsModalOpenofAssignProvider(false);
 
     setTimeout(() => {
-      toast.success("Assigned provider update successfully", { position: "top-right", autoClose: 5000 });
+      toast.success("Assigned provider updated successfully", { position: "top-right", autoClose: 5000 });
     }, 500);
 
-    console.log('Data sent successfully:', response.data);
+    console.log("Data sent successfully:", response.data);
   } catch (error) {
     toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
-    console.error('Error during API call:', error.response?.data || error.message);
+    console.error("Error during API call:", error.response?.data || error.message);
   }
 };
+
 
 //   =================Modal Open==================
 
@@ -732,7 +766,7 @@ const closeModal = () => {
     };
     
     const AssignedProviderEdit = (id) => {
- 
+      setEditingServiceId(id);
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
     // console.log("uegf",providerDetails.service_type);
       if (providerDetails) {
@@ -1221,7 +1255,7 @@ const openModalAssignProvider = (id, name) => {
   
           <Modal.Footer>
            
-            <Button variant="primary" onClick={handelAssignProviderDataEdit}>
+            <Button variant="primary" onClick={handleAssignProviderDataEdit}>
               Save changes
             </Button>
           </Modal.Footer>
