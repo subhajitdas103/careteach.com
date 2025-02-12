@@ -175,50 +175,103 @@ const getTotalYearlyHours = () => {
   return totalHours;
 };
 
-const handleHoursChange = (type, e) => {
-  let value = Number(e.target.value);
-  const totalYearlyHours = getTotalYearlyHours(); // Get already assigned hours
+// ==================================================================================================================
 
+const handleHoursChange = (type, e, startDate, endDate) => {
+  let value = Number(e.target.value);
+  const totalYearlyHours = getTotalYearlyHours(); // Get already assigned yearly hours
   let maxLimit = 0;
-  
-  // Set the correct max limit based on the type (weekly or yearly)
-  if (type === 'weekly') {
-    maxLimit = MAX_WEEKLY_HOURS;
-  } else if (type === 'yearly') {
+
+  if (type === 'yearly') {
     maxLimit = MAX_YEARLY_HOURS;
   }
 
-  let remainingHours = maxLimit - totalYearlyHours; // Subtract assigned hours
-
-  // Prevent negative remaining hours
-  remainingHours = Math.max(remainingHours, 0);
+  let remainingHours = maxLimit - totalYearlyHours;
+  remainingHours = Math.max(remainingHours, 0); // Ensure non-negative values
 
   console.log(`Max allowed ${type} hours: ${maxLimit}`);
   console.log(`Total assigned ${type} hours: ${totalYearlyHours}`);
   console.log(`Remaining ${type} hours before limit: ${remainingHours}`);
 
-  if (value > remainingHours) {
+  if (type === 'yearly' && value > remainingHours) {
     toast.error(`You can only assign up to ${remainingHours} more ${type} hours.`, {
       position: "top-right",
       autoClose: 5000,
     });
-    return; // Stop further execution
+    return;
   }
 
-  // Only update state if within allowed range
-  if (value === "" || (value >= 0 && value <= remainingHours)) {
-    if (type === 'weekly') {
-      setinputWklyHoursAssignProvider(value.toString()); // Store as string
-    } else if (type === 'yearly') {
-      setInputYearlyHoursAssignProvider(value.toString()); // Store as string
+  // Fix: Validate date format before processing weekly hours
+  if (type === 'weekly' && Date.parse(startDate) && Date.parse(endDate)) {
+    const weekStart = getWeekStartDate(startDate); // Get the start of the week (Monday)
+    const weekEnd = getWeekEndDate(startDate); // Get the end of the week (Sunday)
+
+    const assignedHoursThisWeek = getAssignedHoursForWeek(weekStart, weekEnd); // Fetch existing weekly hours
+
+    const remainingWeeklyHours = MAX_WEEKLY_HOURS - assignedHoursThisWeek;
+    
+    console.log(`Selected week: ${weekStart} to ${weekEnd}`);
+    console.log(`Already assigned hours this week: ${assignedHoursThisWeek}`);
+    console.log(`Remaining hours for this week: ${remainingWeeklyHours}`);
+
+    if (value > remainingWeeklyHours) {
+      toast.error(`You can only assign up to ${remainingWeeklyHours} more hours for this week.`, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
     }
   }
+
+  if (type === 'yearly' && value >= 0 && value <= remainingHours) {
+    setInputYearlyHoursAssignProvider(value.toString());
+  }
+
+  if (type === 'weekly') {
+    setinputWklyHoursAssignProvider(value.toString());
+  }
 };
+
+// Ensure date is correctly formatted
+const getWeekStartDate = (date) => {
+  if (!Date.parse(date)) return null; // Validate date
+  const d = new Date(date);
+  d.setDate(d.getDate() - d.getDay() + 1); // Move to Monday
+  return d.toISOString().split("T")[0]; // Return as YYYY-MM-DD
+};
+
+const getWeekEndDate = (date) => {
+  if (!Date.parse(date)) return null; // Validate date
+  const d = new Date(date);
+  d.setDate(d.getDate() - d.getDay() + 7); // Move to Sunday
+  return d.toISOString().split("T")[0]; // Return as YYYY-MM-DD
+};
+
+const getAssignedHoursForWeek = (weekStart, weekEnd) => {
+  if (!weekStart || !weekEnd) return 0; // Prevent invalid calculations
+
+  let assignedHours = 0;
+  const assignedData = {
+    "2025-02-02": 10, 
+    "2025-02-03": 5, 
+    "2025-02-04": 3 
+  };
+
+  Object.keys(assignedData).forEach((date) => {
+    if (date >= weekStart && date <= weekEnd) {
+      assignedHours += assignedData[date];
+    }
+  });
+
+  return assignedHours;
+};
+
+
 const remainingHours = MAX_YEARLY_HOURS - getTotalYearlyHours();
 console.log("remainingHours",remainingHours);
 
 
-
+// --------------------------------------------------------------------------------
 const disableInvalidDates = (date) => {
   const startDate = new Date(AssignProviderLimitStartDate);
   const endDate = new Date(AssignProviderLimitEndDate);
@@ -1237,7 +1290,6 @@ useEffect(() => {
                   value={inputWklyHoursAssignProvider}
                   // onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
                   onChange={(e) => handleHoursChange('weekly', e)}
-                
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Weekly Hours"
                 />
