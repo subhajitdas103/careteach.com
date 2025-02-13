@@ -43,19 +43,18 @@ class ProviderController extends Controller
         return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
         }
 
-        // Fetch the weekly mandate dynamically
         $maxWeeklyMandate = $existingService->weekly_mandate;
 
-        Log::info("Max weekly mandate for service '{$validatedData['selectedAssignProviderService']}': $maxWeeklyMandate");
+        // Log::info("Max weekly mandate for service '{$validatedData['selectedAssignProviderService']}': $maxWeeklyMandate");
 
 
         // Get start and end dates
         $startDate = Carbon::parse($validatedData['assignProviderStartDate']);
         $endDate = Carbon::parse($validatedData['assignProviderEndDate']);
     
-        // Max weekly mandate (define based on service)
+     
         $service = $validatedData['selectedAssignProviderService'];
-        // $maxWeeklyMandate = 12; // Example: Fetch from DB based on service type
+        
     
         Log::info("Max weekly mandate for service '$service': $maxWeeklyMandate");
     
@@ -73,17 +72,18 @@ class ProviderController extends Controller
     
         // Ensure the requested weekly hours do not exceed the max mandate
         if ($requestedWeeklyHours > $allowedTotalHours) {
-            Log::error("Requested weekly hours ($requestedWeeklyHours) exceed max allowed ($allowedTotalHours)");
+            // Log::error("Requested weekly hours ($requestedWeeklyHours) exceed max allowed ($allowedTotalHours)");
             return response()->json([
-                'error' => "Requested weekly hours ($requestedWeeklyHours) exceed the allowed limit ($allowedTotalHours)."
+                // 'error' => "Requested weekly hours $requestedWeeklyHours exceed the allowed limit $allowedTotalHours Hours."
+                 'error' => " The Weekly Hours Limit was $allowedTotalHours,in this Date Range"
             ], 400);
         }
     
         // Ensure the requested total hours do not exceed the allowed total hours
         if ($requestedWeeklyHours > $allowedTotalHours) {
-            Log::error("Requested total hours ($requestedWeeklyHours) exceed allowed ($allowedTotalHours)");
+            // Log::error("Requested total hours ($requestedWeeklyHours) exceed allowed ($allowedTotalHours)");
             return response()->json([
-                'error' => "Requested total hours ($requestedWeeklyHours) exceed the allowed total ($allowedTotalHours)."
+                'error' => "Requested total hours  $requestedWeeklyHours exceed the allowed total $allowedTotalHours Hours."
             ], 400);
         }
 
