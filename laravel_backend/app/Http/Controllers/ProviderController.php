@@ -10,6 +10,8 @@ use App\Models\Providers;
 use App\Models\AssignProviderModel; 
 use App\Models\User; 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ProviderController extends Controller
 {
@@ -29,6 +31,62 @@ class ProviderController extends Controller
             'selectedProviderId' => 'required|integer',
             'id' => 'required|integer',
         ]);
+        
+        Log::info("Validated data: " . json_encode($validatedData));
+
+        // Get the existing service record for the student and selected service type
+        $existingService = StudentServices::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->first();
+
+        if (!$existingService || !$existingService->weekly_mandate) {
+        return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
+        }
+
+        // Fetch the weekly mandate dynamically
+        $maxWeeklyMandate = $existingService->weekly_mandate;
+
+        Log::info("Max weekly mandate for service '{$validatedData['selectedAssignProviderService']}': $maxWeeklyMandate");
+
+
+        // Get start and end dates
+        $startDate = Carbon::parse($validatedData['assignProviderStartDate']);
+        $endDate = Carbon::parse($validatedData['assignProviderEndDate']);
+    
+        // Max weekly mandate (define based on service)
+        $service = $validatedData['selectedAssignProviderService'];
+        // $maxWeeklyMandate = 12; // Example: Fetch from DB based on service type
+    
+        Log::info("Max weekly mandate for service '$service': $maxWeeklyMandate");
+    
+       
+        $totalWeeks = $startDate->diffInWeeks($endDate) + 1;
+        $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
+    
+        Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
+    
+        // Requested hours from user input
+        $requestedWeeklyHours = $validatedData['inputWklyHoursAssignProvider'];
+        $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
+    
+        Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedWeeklyHours");
+    
+        // Ensure the requested weekly hours do not exceed the max mandate
+        if ($requestedWeeklyHours > $allowedTotalHours) {
+            Log::error("Requested weekly hours ($requestedWeeklyHours) exceed max allowed ($allowedTotalHours)");
+            return response()->json([
+                'error' => "Requested weekly hours ($requestedWeeklyHours) exceed the allowed limit ($allowedTotalHours)."
+            ], 400);
+        }
+    
+        // Ensure the requested total hours do not exceed the allowed total hours
+        if ($requestedWeeklyHours > $allowedTotalHours) {
+            Log::error("Requested total hours ($requestedWeeklyHours) exceed allowed ($allowedTotalHours)");
+            return response()->json([
+                'error' => "Requested total hours ($requestedWeeklyHours) exceed the allowed total ($allowedTotalHours)."
+            ], 400);
+        }
+
 
         $AssignProvider = AssignProviderModel::create([
            

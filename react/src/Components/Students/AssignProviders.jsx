@@ -218,6 +218,19 @@ const remainingHours = MAX_YEARLY_HOURS - getTotalYearlyHours();
 console.log("remainingHours",remainingHours);
 
 
+
+const FormatassignPStartDate = assignProviderStartDate 
+? new Date(assignProviderStartDate).toLocaleDateString('en-CA') 
+: null;
+const FormatassignPEndDate = assignProviderEndDate 
+? new Date(assignProviderEndDate).toLocaleDateString('en-CA') 
+: null;
+
+console.log("Max Weekly Hours:", MAX_WEEKLY_HOURS);
+console.log("End AssignProviderLimitEndDate:", AssignProviderLimitEndDate);
+console.log("Start AssignProviderLimitStartDate:", AssignProviderLimitStartDate);
+console.log("assignProviderStartDate",FormatassignPStartDate);
+console.log("assignProviderEndDate",FormatassignPEndDate);
 // --------------------------------------------------------------------------------
 const disableInvalidDates = (date) => {
   const startDate = new Date(AssignProviderLimitStartDate);
@@ -470,11 +483,25 @@ const handelAssignProviderData = async () => {
       toast.success("Provider assigned successfully", { position: "top-right", autoClose: 5000 });
     }, 500);
   } catch (error) {
-    console.error('Error during axios request:', error.response?.data || error.message);
-    toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
-
-    // Fallback to fetch in case axios is not working
-    console.log("Attempting fetch request as fallback...");
+    if (error.response) {
+      // Handle Laravel validation errors
+      if (error.response.status === 400 && error.response.data.error) {
+        toast.error(error.response.data.error, { position: "top-right", autoClose: 5000 });
+        return; // Stop execution
+      } else if (error.response.data.errors) {
+        // Laravel validation errors (multiple fields)
+        Object.values(error.response.data.errors).forEach((errorMsg) => {
+          toast.error(errorMsg[0], { position: "top-right", autoClose: 5000 });
+        });
+        return;
+      } else {
+        toast.error("An unexpected error occurred", { position: "top-right", autoClose: 5000 });
+        return; // Stop execution
+      }
+    } else {
+      toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
+      return; // Stop execution
+    }
     try {
       const fetchResponse = await fetch(`${backendUrl}/api/AssignProvider`, {
         method: 'POST',
