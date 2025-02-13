@@ -606,15 +606,15 @@ const handleAssignProviderDataEdit = async () => {
 
       console.log(`Comparing Provider: ${providerIdStr} with ${providerId}, Service: ${providerServiceStr} with ${selectedServiceStr}`);
 
-      if (
-        providerIdStr === String(providerId).trim() &&
-        providerServiceStr === selectedServiceStr &&
-        providerStartDate === selectedStartDate &&
-        providerEndDate === selectedEndDate
-      ) {
-        toast.error("For This Provider, This Service is already assigned on these dates!");
-        return true;
-      }
+      // if (
+      //   providerIdStr === String(providerId).trim() &&
+      //   providerServiceStr === selectedServiceStr &&
+      //   providerStartDate === selectedStartDate &&
+      //   providerEndDate === selectedEndDate
+      // ) {
+      //   toast.error("For This Provider, This Service is already assigned on these dates!");
+      //   return true;
+      // }
 
       if (providerIdStr === String(providerId).trim() && providerServiceStr !== selectedServiceStr) {
         toast.error("This provider already has a service assigned. You cannot assign a different service.");
@@ -700,6 +700,7 @@ const handleAssignProviderDataEdit = async () => {
 
   // Prepare Form Data
   const formData = {
+    id:AssignEditID,
     providerId,
     full_name,
     inputRateAssignProvider,
