@@ -17,9 +17,6 @@ class ProviderController extends Controller
     public function SaveAssignProviderDetails(Request $request)
 {
     try {
-       
-
-        // Validate incoming data
         $validatedData = $request->validate([
             'full_name' => 'nullable|string|max:255',
             'inputRateAssignProvider' => 'nullable|string|max:255',
@@ -32,9 +29,6 @@ class ProviderController extends Controller
             'selectedProviderId' => 'required|integer',
             'id' => 'required|integer',
         ]);
-
-      
-
 
         $AssignProvider = AssignProviderModel::create([
            
@@ -140,11 +134,13 @@ public function fetchProviderData()
 
         $providers = Providers::orderBy('id', 'desc')->get();
         // dd($students);
+     
         return response()->json($providers); 
     } catch (\Exception $e) {
         \Log::error('Error fetching Providers: ' . $e->getMessage());
         return response()->json(['error' => 'Error fetching Providers'], 500);
     }
+ 
 }
 public function FetchAssignedProviders($id)
 {
