@@ -449,9 +449,19 @@ $existingAssignServices = AssignProviderModel::where('student_id', $validatedDat
     ->first();
     
     if ($existingService) {
-        $startDate = Carbon::parse($existingService->start_date)->toDateString(); // Extracts YYYY-MM-DD
-        $endDate = Carbon::parse($existingService->end_date)->toDateString();     // Extracts YYYY-MM-DD
+        $localTimezone = Carbon::now()->timezoneName; // Get machine's timezone
+    
+        $startDate = Carbon::parse($existingService->start_date)
+            ->tz($localTimezone)
+            ->startOfMonth()
+            ->format('j.n.y');  // 1.2.25
+    
+        $endDate = Carbon::parse($existingService->end_date)
+            ->tz($localTimezone)
+            ->endOfMonth()
+            ->format('j.n.y');  // 28.2.25 or 29.2.25 (leap year)
     }
+    
 
 
    
