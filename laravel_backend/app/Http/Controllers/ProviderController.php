@@ -413,62 +413,6 @@ public function updateAssignProvider(Request $request, $id)
         'id' => 'required|integer',
     ]);
 
-    Log::info("Validated data: " . json_encode($validatedData));
-
-        // Get the existing service record for the student and selected service type
-        $existingService = StudentServices::where('student_id', $validatedData['id'])
-        ->where('service_type', $validatedData['selectedAssignProviderService'])
-        ->first();
-
-        if (!$existingService || !$existingService->weekly_mandate) {
-        return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
-        }
-
-        $maxWeeklyMandate = $existingService->weekly_mandate;
-
-        Log::info("Max weekly mandate for service '{$validatedData['selectedAssignProviderService']}': $maxWeeklyMandate");
-
-
-        // Get start and end dates
-        $startDate = Carbon::parse($validatedData['assignProviderStartDate']);
-        $endDate = Carbon::parse($validatedData['assignProviderEndDate']);
-    
-     
-        $service = $validatedData['selectedAssignProviderService'];
-        
-    
-        Log::info("Max weekly mandate for service '$service': $maxWeeklyMandate");
-    
-       
-        $totalWeeks = $startDate->diffInWeeks($endDate) + 1;
-        $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
-    
-        Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
-    
-        // Requested hours from user input
-        $requestedWeeklyHours = $validatedData['inputWklyHoursAssignProvider'];
-        $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
-    
-        Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedWeeklyHours");
-    
-        // Ensure the requested weekly hours do not exceed the max mandate
-        if ($requestedWeeklyHours > $allowedTotalHours) {
-            // Log::error("Requested weekly hours ($requestedWeeklyHours) exceed max allowed ($allowedTotalHours)");
-            return response()->json([
-                // 'error' => "Requested weekly hours $requestedWeeklyHours exceed the allowed limit $allowedTotalHours Hours."
-                 'error' => " The Weekly Hours Limit was $allowedTotalHours,in this Date Range"
-            ], 400);
-        }
-    
-        // Ensure the requested total hours do not exceed the allowed total hours
-        if ($requestedWeeklyHours > $allowedTotalHours) {
-            // Log::error("Requested total hours ($requestedWeeklyHours) exceed allowed ($allowedTotalHours)");
-            return response()->json([
-                'error' => "Requested total hours  $requestedWeeklyHours exceed the allowed total $allowedTotalHours Hours."
-            ], 400);
-        }
-
-    // Prepare the data for update
     $updateData = [
         'provider_id' => $validatedData['providerId'],
         'provider_name' => $validatedData['full_name'],

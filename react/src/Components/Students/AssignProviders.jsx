@@ -593,114 +593,14 @@ const handleAssignProviderDataEdit = async () => {
     console.error("rateData is not an array:", ProviderDataAssignProvider);
   }
 
-  // Check for duplicate provider assignments
-  if (Array.isArray(assignedProviders)) {
-    const isDuplicate = assignedProviders.some((provider) => {
-      const providerIdStr = String(provider.provider_id).trim();
-      const providerServiceStr = provider.service_type.trim();
-      const selectedServiceStr = selectedAssignProviderService.trim();
-      const providerStartDate = new Date(provider.start_date).setHours(0, 0, 0, 0);
-      const providerEndDate = new Date(provider.end_date).setHours(0, 0, 0, 0);
-      const selectedStartDate = startDate.setHours(0, 0, 0, 0);
-      const selectedEndDate = endDate.setHours(0, 0, 0, 0);
-
-      console.log(`Comparing Provider: ${providerIdStr} with ${providerId}, Service: ${providerServiceStr} with ${selectedServiceStr}`);
-
-      // if (
-      //   providerIdStr === String(providerId).trim() &&
-      //   providerServiceStr === selectedServiceStr &&
-      //   providerStartDate === selectedStartDate &&
-      //   providerEndDate === selectedEndDate
-      // ) {
-      //   toast.error("For This Provider, This Service is already assigned on these dates!");
-      //   return true;
-      // }
-
-      if (providerIdStr === String(providerId).trim() && providerServiceStr !== selectedServiceStr) {
-        toast.error("This provider already has a service assigned. You cannot assign a different service.");
-        return true;
-      }
-
-      return false;
-    });
-
-    if (isDuplicate) return;
-  } else {
-    console.error("assignedProviders is not an array:", assignedProviders);
-    return;
-  }
-
-  const selectedStart = new Date(assignProviderStartDate);
-  const selectedEnd = new Date(assignProviderEndDate);
   
-  if (isNaN(selectedStart) || isNaN(selectedEnd)) {
-    toast.error("Invalid date selection.");
-    return;
-  }
-  
-  const filteredServices = assignedProviders
-    .filter(
-      (service) =>
-        service.service_type === selectedAssignProviderService &&
-        String(service.provider_id).trim() === String(providerId).trim()
-    )
-    .map((service) => ({
-      id: service.id,
-      start: new Date(service.start_date),
-      end: new Date(service.end_date),
-    }))
-    .sort((a, b) => a.start - b.start);
-  
-  // **Check for overlap, including edit case**
-  const isOverlap = filteredServices.some(
-    (service) =>
-      service.id == editingServiceId && // Ignore the service being edited
-      selectedStart < service.end && 
-      selectedEnd > service.start
-  );
-  
-  if (isOverlap) {
-    toast.error("This date range is occupied by another service. Choose a different period.");
-    return;
-  }
-  
-  // **Check for available gaps**
-  let canAssign = filteredServices.length === 0;
-  let lastEnd = null;
-  
-  for (const service of filteredServices) {
-    if (service.id === editingServiceId) {
-      continue; // Skip the service being edited
-    }
-  
-    if (lastEnd !== null && selectedStart >= lastEnd && selectedEnd <= service.start) {
-      canAssign = true;
-      break;
-    }
-    lastEnd = service.end;
-  }
-  
-  // **If editing, ensure it still fits**
-  if (editingServiceId) {
-    const editingService = filteredServices.find(service => service.id === editingServiceId);
-    if (editingService) {
-      if (selectedStart >= editingService.start && selectedEnd <= editingService.end) {
-        canAssign = true; // Allow resizing within its original range
-      }
-    }
-  }
-  
-  if (!canAssign) {
-    toast.error("This Date is occupied. You can only assign within available gaps.");
-    return;
-  }
   
 
 
 
   // Prepare Form Data
   const formData = {
-    id:AssignEditID,
+    id,
     providerId,
     full_name,
     inputRateAssignProvider,
@@ -1181,6 +1081,7 @@ useEffect(() => {
                       setSelectedProviderId(id);                   // Store the provider ID
                       
                     }}  
+                    disabled={true}
                 >
                     {ProviderDataAssignProvider.length > 0 ? (
                       ProviderDataAssignProvider.map((provider) => (
@@ -1226,6 +1127,7 @@ useEffect(() => {
                       labelId="location-select-label"
                       value={selectedAssignProviderLocation}
                       onChange={(e) => setSelectedAssignProviderLocation(e.target.value)}
+                      disabled={true}
                     >
                       <MenuItem value="Home">Home</MenuItem>
                       <MenuItem value="School">School</MenuItem>
@@ -1240,6 +1142,7 @@ useEffect(() => {
                       labelId="service-select-label"
                       value={selectedAssignProviderService}
                       onChange={(e) => setSelectedAssignProviderService(e.target.value)}
+                      disabled={true}
                     >
                       {StudentServices.length > 0 ? (
                         StudentServices.map((service) => (
@@ -1281,6 +1184,11 @@ useEffect(() => {
                   onChange={(e) => handleHoursChange('yearly', e)}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Yearly Hours"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">/ {remainingHours}</InputAdornment>
+                    ),
+                  }}
                 />
                 </div>
               </div>
