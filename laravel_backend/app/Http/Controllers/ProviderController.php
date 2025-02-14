@@ -430,43 +430,75 @@ public function updateAssignProvider(Request $request, $id)
 
 
 
+// =========================================================================
+
 // Get all service records for the student and selected service type
 $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
     ->where('service_type', $validatedData['selectedAssignProviderService'])
     ->get(); // Collection of records
 
-    $startDates = $existingAssignServices->pluck('start_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
-    $endDates = $existingAssignServices->pluck('end_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
+$AssignstartDates = $existingAssignServices->pluck('start_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
+$AssignendDates = $existingAssignServices->pluck('end_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
 
-    Log::info('Assigned Service Dates', ['start_dates' => $startDates, 'end_dates' => $endDates]);
+Log::info('Assigned Service Dates', ['start_dates' => $AssignstartDates, 'end_dates' => $AssignendDates]);
 
-
-
-
-
-    $existingService = StudentServices::where('student_id', $validatedData['id'])
+$existingService = StudentServices::where('student_id', $validatedData['id'])
     ->where('service_type', $validatedData['selectedAssignProviderService'])
     ->first();
+
+if ($existingService) {
+    $localTimezone = Carbon::now()->timezoneName; // Get machine's timezone
     
-    if ($existingService) {
-        $localTimezone = Carbon::now()->timezoneName; // Get machine's timezone
+    $startDate = Carbon::parse($existingService->start_date)
+        ->tz($localTimezone)
+        ->startOfMonth()
+        ->format('j.n.y');  // 1.2.25
     
-        $startDate = Carbon::parse($existingService->start_date)
-            ->tz($localTimezone)
-            ->startOfMonth()
-            ->format('j.n.y');  // 1.2.25
-    
-        $endDate = Carbon::parse($existingService->end_date)
-            ->tz($localTimezone)
-            ->endOfMonth()
-            ->format('j.n.y');  // 28.2.25 or 29.2.25 (leap year)
+    $endDate = Carbon::parse($existingService->end_date)
+        ->tz($localTimezone)
+        ->endOfMonth()
+        ->format('j.n.y');  // 28.2.25 or 29.2.25 (leap year)
+}
+
+// Corrected logging to use $startDate and $endDate variables
+Log::info("Main Service Period: Start = $startDate, End = $endDate");
+
+$gaps = [];
+$lastEndDate = $startDate; // Start checking from the beginning of the service period
+
+for ($i = 0; $i < count($AssignstartDates); $i++) {
+    $currentStart = Carbon::parse($AssignstartDates[$i])->toDateString();
+    $currentEnd = Carbon::parse($AssignendDates[$i])->toDateString();
+
+    // Check for gaps within the existing service period
+    if (Carbon::parse($lastEndDate)->addDay()->lessThan($currentStart)) {
+        $gaps[] = [
+            'gap_start' => Carbon::parse($lastEndDate)->addDay()->toDateString(),
+            'gap_end' => Carbon::parse($currentStart)->subDay()->toDateString()
+        ];
     }
-    
 
+    $lastEndDate = $currentEnd; // Move to the next end date
+}
 
-   
+// Final check for gap at the end of the service period
+if (Carbon::parse($lastEndDate)->addDay()->lessThan($endDate)) {
+    $gaps[] = [
+        'gap_start' => Carbon::parse($lastEndDate)->addDay()->toDateString(),
+        'gap_end' => $endDate
+    ];
+}
 
-    Log::info("startDate End date '$startDate': $endDate");
+if (!empty($gaps)) {
+    Log::info('Detected gaps in assigned service within the main service period:', $gaps);
+} else {
+    Log::info('No gaps found within the main service period.');
+}
+
+Log::info("Service Period Start Date: $startDate, End Date: $endDate");
+
+// ==========================================================
+
 // ==================================================================================================
     if (!$existingService || !$existingService->weekly_mandate) {
     return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
