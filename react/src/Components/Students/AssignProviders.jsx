@@ -630,8 +630,25 @@ const handleAssignProviderDataEdit = async () => {
 
     console.log("Data sent successfully:", response.data);
   } catch (error) {
-    toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
-    console.error("Error during API call:", error.response?.data || error.message);
+
+
+    if (error.response) {
+      // Handle Laravel validation errors
+      if (error.response.status === 400 && error.response.data.error) {
+        toast.error(error.response.data.error, { position: "top-right", autoClose: 5000 });
+        return; // Stop execution
+      } else if (error.response.data.errors) {
+        // Laravel validation errors (multiple fields)
+        Object.values(error.response.data.errors).forEach((errorMsg) => {
+          toast.error(errorMsg[0], { position: "top-right", autoClose: 5000 });
+        });
+        return;
+      } else {
+        toast.error("An unexpected error occurred", { position: "top-right", autoClose: 5000 });
+        return; // Stop execution
+      }
+   
+    }
   }
 };
 

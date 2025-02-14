@@ -8,6 +8,8 @@ use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\AssignProviderModel;
 use App\Models\Users;
+use Carbon\Carbon;
+
 // use App\Models\Student;
 class StudentController extends Controller
 {
@@ -223,6 +225,7 @@ public function DeleteStudent($id)
                 'parent' => $parent,
                 'StudentServices' => $StudentServices
             ];
+            \Log::info('Update Status:', [$response]);
     
             return response()->json($response);
         } else {
