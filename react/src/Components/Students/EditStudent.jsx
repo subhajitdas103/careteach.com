@@ -62,11 +62,15 @@ import Skeleton from "react-loading-skeleton";
           toast.error("Start date cannot be greater than end date!");
       return;
     }
+
     if (field === "endDate" && new Date(value) < new Date(updatedFormDataList[index].startDate)) {
       // alert("End date cannot be before start date!");
       toast.error("End date cannot be before start date!");
       return;
     }
+   
+
+
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
   };
@@ -420,14 +424,27 @@ useEffect(() => {
         console.log('Data sent successfully:', response.data);  
       } 
       
-      catch (error) {
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
-        console.error('There was an error sending data:', error.response?.data || error.message);
+     catch (error) {
+      if (error.response && error.response.status === 422) {
+          // Handle validation errors returned from the backend (Laravel)
+          const errors = error.response.data.errors;
+          for (const [key, value] of Object.entries(errors)) {
+              toast.error(value[0], {
+                  position: "top-right",
+                  autoClose: 5000,
+              });
+          }
+      } else {
+          // Handle other types of errors
+          toast.error("An error occurred. Please try again.", {
+              position: "top-right",
+              autoClose: 5000,
+          });
+          console.error('There was an error sending data:', error.response?.data || error.message);
       }
     }
+  }
+    
 
     // =============Detch Student Detials=========================
 
