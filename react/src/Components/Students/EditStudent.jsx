@@ -1091,12 +1091,15 @@ useEffect(() => {
                   <div className="col-md-6 student-profile-field widthcss">
                       <label>Start Date:</label>
                       <DatePicker
-                          className=""
-                          value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
-                          placeholder="Enter Start Date"
-                          onChange={(value) => handleInputChange(index, 'startDate', value)}  // Handle Date object change
-                          style={{ width: '100%' }}  // Optional: Set width to match the input field's size
-                      />
+                        className=""
+                        value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
+                        placeholder="Enter Start Date"
+                        onChange={(value) => {
+                            const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;
+                            handleInputChange(index, 'startDate', formattedStartDate);  // Handle Date object change
+                        }}
+                        style={{ width: '100%' }}  // Optional: Set width to match the input field's size
+                     />
                   </div>
                   {/* -------Delete Button of services----------- */}
                   
@@ -1110,7 +1113,9 @@ useEffect(() => {
                             className=""
                             value={formData.endDate ? new Date(formData.endDate) : null}  // Convert string to Date object if needed
                             placeholder="Enter End Date"
-                            onChange={(value) => handleInputChange(index, 'endDate', value)}  // Handle Date object change
+                            onChange={(value) => {
+                              const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
+                              handleInputChange(index, 'endDate', formattedEndDate)}}  // Handle Date object change
                             style={{ width: '100%', height: '45px' }}  // Optional: Set height and width
                         />
                     </div>

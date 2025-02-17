@@ -932,9 +932,12 @@ console.log(schools);
                     <label>Start Date*</label>
                     <DatePicker
                       className=""
-                      value={formData.startDate}
+                      // value={formData.startDate}
+                      value={formData.startDate ? new Date(formData.startDate) : null} // Ensure the value is a Date object
                       placeholder="Enter Start Date"
-                      onChange={(value) => handleInputChange(index, 'startDate', value)}
+                      onChange={(value) => {
+                        const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;
+                         handleInputChange(index, 'startDate', formattedStartDate)}}
                       style={{ width: '100%'}}  // Optional: Set width to match the input field's size
                     />
                   </div>
@@ -945,9 +948,12 @@ console.log(schools);
                     <label>End Date*</label>
                     <DatePicker
                       className=""
-                      value={formData.endDate}
+                      value={formData.endDate ? new Date(formData.endDate) : null} 
+                      // value={formData.endDate}
                       placeholder="Enter End Date"
-                      onChange={(value) => handleInputChange(index, 'endDate', value)}
+                      onChange={(value) => {
+                        const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
+                        handleInputChange(index, 'endDate', formattedEndDate)}}
                       style={{ width: '100%', height: '45px' }}  // Added height and width
                     />
                   </div>
