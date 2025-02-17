@@ -394,7 +394,9 @@ const handelAssignProviderData = async () => {
           console.log("Filtered Services for Provider:", selectedProviderIdStr, filteredServices);
       // Step 2: Check for direct overlaps
       const isOverlap = filteredServices.some(service => 
-          selectedStart <= service.end && selectedEnd >= service.start
+          // selectedStart < service.end && selectedEnd >service.start
+          // selectedEnd > service.start && selectedStart < service.end && service.start !== selectedEnd
+          selectedStart < service.end && selectedEnd > service.start
          
       );
       

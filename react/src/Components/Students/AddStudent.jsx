@@ -45,6 +45,16 @@ import axios from "axios";
   // Function to handle changes in form inputs (e.g., Start Date, End Date)
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];
+     if (field === "startDate" && new Date(value) > new Date(updatedFormDataList[index].endDate)) {
+          // alert("Start date cannot be greater than end date!");
+              toast.error("Start date cannot be greater than end date!");
+          return;
+        }
+        if (field === "endDate" && new Date(value) < new Date(updatedFormDataList[index].startDate)) {
+          // alert("End date cannot be before start date!");
+          toast.error("End date cannot be before start date!");
+          return;
+        }    
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
   };
