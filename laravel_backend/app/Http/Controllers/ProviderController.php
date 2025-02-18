@@ -449,23 +449,59 @@ $existingAssignServices = AssignProviderModel::where('student_id', $validatedDat
     ->first();
     
     if ($existingService) {
-        // Convert start date and end date to UTC and keep them constant
-        $startDate1 = Carbon::parse($existingService->start_date)
-            ->setTimezone('UTC')       // Make sure the date is treated as UTC
-            ->startOfMonth()           // Get the start of the month in UTC
-            ->format('j.n.y');         // Format it as day.month.year (e.g., 1.2.25)
+        $startDateofSaveStudent = $existingService->start_date;
+        $endDateofSaveStudent = $existingService->end_date;
     
-        $endDate1 = Carbon::parse($existingService->end_date)
-            ->setTimezone('UTC')       // Make sure the date is treated as UTC
-            ->endOfMonth()             // Get the end of the month in UTC
-            ->format('j.n.y');         // Format it as day.month.year (e.g., 28.2.25)
+        Log::info("Start Date: $startDateofSaveStudent, End Date: $endDateofSaveStudent");
+    } else {
+        Log::info("No existing service found.");
+    }
+
+
+    // ----------------------------
+    // Overlap Check Implementation
+    // ----------------------------
+
+    // Parse the new service dates
+    $newStartDate = Carbon::parse($validatedData['assignProviderStartDate']);
+    $newEndDate   = Carbon::parse($validatedData['assignProviderEndDate']);
+
+    $hasOverlap = false;
+    foreach ($existingAssignServices as $service) {
+        // Skip the record being updated
+        if ($service->id == $id) {
+            continue;
+        }
+
+        $serviceStart = Carbon::parse($service->start_date);
+        $serviceEnd   = Carbon::parse($service->end_date);
+
+        /*
+         * Check if the new service dates overlap with this existing service:
+         * Overlap occurs if:
+         *   newStartDate is on or before serviceEnd
+         *   AND
+         *   newEndDate is on or after serviceStart.
+         *
+         * For example:
+         * - If an existing service is from 1.2.25 to 9.2.25 and another from 11.2.25 to 20.2.25,
+         *   then a new service from 9.2.25 to 15.2.25 would be considered overlapping
+         *   because it touches the end of the first service (9.2.25) and intrudes into the second.
+         * - However, a new service from 10.2.25 to 10.2.25 would not overlap since it fits exactly in the gap.
+         */
+        if ($newStartDate->lte($serviceEnd) && $newEndDate->gte($serviceStart)) {
+            $hasOverlap = true;
+            break;
+        }
+    }
+
+    if ($hasOverlap) {
+        return response()->json([
+            'error' => 'The selected service dates overlap with an existing assigned service. Please choose different dates.'
+        ], 400);
     }
     
 
-
-   
-
-    Log::info("startDate End 3333date '$startDate1': $endDate1");
 // ==================================================================================================
     if (!$existingService || !$existingService->weekly_mandate) {
     return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
@@ -487,7 +523,10 @@ $existingAssignServices = AssignProviderModel::where('student_id', $validatedDat
     Log::info("Max weekly mandate for service '$service': $maxWeeklyMandate");
 
    
-    $totalWeeks = $startDate->diffInWeeks($endDate) + 1;
+    // $totalWeeks = $startDate->diffInWeeks($endDate) + 1;
+    $totalWeeks = ceil($startDate->diffInWeeks($endDate) + 1);
+    // $totalWeeks = ceil($startDate->diffInDays($endDate) / 7);
+
     $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
 
     Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
