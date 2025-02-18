@@ -193,22 +193,35 @@ public function addstudent(Request $request)
 
 
 public function DeleteStudent($id)
+{
+    try {
+        // Find the student by ID
+        $students = Students::find($id);
 
-    {
-        try {
-            $students = Students::find($id);
-            if (!$students) {
-                return response()->json(['message' => 'students not found'], 404);
-            }
-            $students->delete();
-
-            return response()->json(['message' => 'students deleted successfully'], 200);
-        } catch (\Exception $e) {
-            Log::error('Error deleting students: ' . $e->getMessage());
-
-            return response()->json(['message' => 'Error deleting students'], 500);
+        // Check if student exists
+        if (!$students) {
+            return response()->json(['message' => 'Student not found'], 404);
         }
+
+        // Delete associated services (StudentServices) for the student
+        $services = StudentServices::where('student_id', $id);
+        
+        // Check if services exist before deleting
+        if ($services->exists()) {
+            $services->delete();
+        }
+
+        // Now delete the student record
+        $students->delete();
+
+        return response()->json(['message' => 'Student and associated services deleted successfully'], 200);
+    } catch (\Exception $e) {
+        Log::error('Error deleting student and services: ' . $e->getMessage());
+
+        return response()->json(['message' => 'Error deleting student and services'], 500);
     }
+}
+
 
 
     public function fetchStudentById($id)
@@ -266,101 +279,126 @@ public function DeleteStudent($id)
 
 
     // ============================
-public function editstudent(Request $request, $id)
-{
-    try {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'grade' => 'nullable|string|max:255',
-            'school_name' => 'nullable|string|max:255',
-            'home_address' => 'nullable|string|max:255',
-            'doe_rate' => 'nullable|string|max:255',
-            'iep_doc' => 'nullable|string|max:255',
-            'disability' => 'nullable|string|max:255',
-            'nyc_id' => 'nullable|string|max:255', // Removed the 'exists' rule for nyc_id validation
-            'notesPerHour' => 'nullable|numeric',
-            'case_v' => 'nullable|string|max:255',
-            'resolutionInvoice' => 'nullable|boolean',
-            'status' => 'nullable|string|max:255',
-
-            'parent_name' => 'nullable|string|max:255',
-            'parent_email' => 'nullable|string|max:255',
-            'parent_phnumber' => 'nullable|string|max:255',
-            'parent_type' => 'nullable|string|max:255',
-
-            // ........Service .......
-            'services' => 'required|array',
-            'services.*.id' => 'nullable|integer',
-            'services.*.service_type' => 'nullable|string|max:255',
-            'services.*.startDate' => 'required|string|max:255',
-            'services.*.endDate' => 'required|string|max:255',
-            'services.*.weeklyMandate' => 'required|string|max:255',
-            'services.*.yearlyMandate' => 'required|string|max:255',
-        ]);
-
-        // Find the existing student or return an error if not found
-        $student = Students::findOrFail($id);
-
-        // Update the parent record where student_id matches parent_id
-        $parent = Parents::where('id', $student->parent_id)->first();
-        if ($parent) {
-            $parent->update([
-                'parent_name' => $validatedData['parent_name'],
-                'ph_no' => $validatedData['parent_phnumber'],
-                'parent_type' => $validatedData['parent_type'],
-                'parent_email' => $validatedData['parent_email'],
+    public function editstudent(Request $request, $id)
+    {
+        try {
+            // Validate the request data
+            $validatedData = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'grade' => 'nullable|string|max:255',
+                'school_name' => 'nullable|string|max:255',
+                'home_address' => 'nullable|string|max:255',
+                'doe_rate' => 'nullable|string|max:255',
+                'iep_doc' => 'nullable|string|max:255',
+                'disability' => 'nullable|string|max:255',
+                'nyc_id' => 'nullable|string|max:255',
+                'notesPerHour' => 'nullable|numeric',
+                'case_v' => 'nullable|string|max:255',
+                'resolutionInvoice' => 'nullable|boolean',
+                'status' => 'nullable|string|max:255',
+    
+                'parent_name' => 'nullable|string|max:255',
+                'parent_email' => 'nullable|string|max:255',
+                'parent_phnumber' => 'nullable|string|max:255',
+                'parent_type' => 'nullable|string|max:255',
+    
+                // ........Service .......
+                'services' => 'required|array',
+                'services.*.id' => 'nullable|integer',
+                'services.*.service_type' => 'nullable|string|max:255',
+                'services.*.startDate' => 'required|string|max:255',
+                'services.*.endDate' => 'required|string|max:255',
+                'services.*.weeklyMandate' => 'nullable|numeric',  // change to numeric
+                'services.*.yearlyMandate' => 'nullable|numeric',  // change to numeric
             ]);
-        } else {
-            // Handle case where the parent does not exist (optional)
-            $parent = Parents::create([
-                'parent_name' => $validatedData['parent_name'],
-                'ph_no' => $validatedData['parent_phnumber'],
-                'parent_type' => $validatedData['parent_type'],
-                'parent_email' => $validatedData['parent_email'],
+    
+            // Find the existing student or return an error if not found
+            $student = Students::findOrFail($id);
+    
+            // Update the parent record where student_id matches parent_id
+            $parent = Parents::where('id', $student->parent_id)->first();
+            if ($parent) {
+                $parent->update([
+                    'parent_name' => $validatedData['parent_name'],
+                    'ph_no' => $validatedData['parent_phnumber'],
+                    'parent_type' => $validatedData['parent_type'],
+                    'parent_email' => $validatedData['parent_email'],
+                ]);
+            } else {
+                // Handle case where the parent does not exist (optional)
+                $parent = Parents::create([
+                    'parent_name' => $validatedData['parent_name'],
+                    'ph_no' => $validatedData['parent_phnumber'],
+                    'parent_type' => $validatedData['parent_type'],
+                    'parent_email' => $validatedData['parent_email'],
+                ]);
+            }
+    
+            // Update student data
+            $student->update([
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
+                'grade' => $validatedData['grade'],
+                'school_name' => $validatedData['school_name'],
+                'home_address' => $validatedData['home_address'],
+                'doe_rate' => $validatedData['doe_rate'],
+                'iep_doc' => $validatedData['iep_doc'],
+                'disability' => $validatedData['disability'],
+                'nyc_id' => $validatedData['nyc_id'],
+                'notes_per_hour' => $validatedData['notesPerHour'],
+                'case' => $validatedData['case_v'],
+                'resulation_invoice' => $validatedData['resolutionInvoice'],
+                'status' => $validatedData['status'],
+                'parent_id' => $parent->id,  // Update with the correct parent_id
             ]);
+    
+            // Loop through services to validate weekly and yearly mandate
+            $totalWeeklyHours = 0;
+            $totalYearlyHours = 0;
+    
+            foreach ($validatedData['services'] as $service) {
+                $weeklyMandate = $service['weeklyMandate'];
+                $yearlyMandate = $service['yearlyMandate'];
+    
+              
+    
+                // Validate that weekly mandate does not exceed yearly mandate (if yearlyMandate is provided)
+                if (!empty($weeklyMandate) && !empty($yearlyMandate) && $weeklyMandate > $yearlyMandate) {
+                    return response()->json(['error' => 'Weekly Mandate cannot exceed Yearly Mandate'], 400);
+                }
+    
+            }
+
+
+    
+                // Update or create services for the student
+                StudentServices::updateOrCreate(
+                    ['id' => $service['id']],  // Match by service id
+                    [
+                        'service_type' => $service['service_type'],
+                        'start_date' => $service['startDate'],
+                        'end_date' => $service['endDate'],
+                        'weekly_mandate' => $weeklyMandate,
+                        'yearly_mandate' => $yearlyMandate,
+                        'student_id' => $student->id,
+                    ]
+                );
+            
+    
+            // Return response with the total hours
+            return response()->json([
+                'message' => 'Student data updated successfully!',
+                'totalWeeklyHours' => $totalWeeklyHours,
+                'totalYearlyHours' => $totalYearlyHours,
+            ], 200);
+    
+        } catch (\Exception $e) {
+            \Log::error('Error updating student data: ' . $e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
         }
-
-        // Update student data
-        $student->update([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'grade' => $validatedData['grade'],
-            'school_name' => $validatedData['school_name'],
-            'home_address' => $validatedData['home_address'],
-            'doe_rate' => $validatedData['doe_rate'],
-            'iep_doc' => $validatedData['iep_doc'],
-            'disability' => $validatedData['disability'],
-            'nyc_id' => $validatedData['nyc_id'],
-            'notes_per_hour' => $validatedData['notesPerHour'],
-            'case' => $validatedData['case_v'],
-            'resulation_invoice' => $validatedData['resolutionInvoice'],
-            'status' => $validatedData['status'],
-            'parent_id' => $parent->id,  // Update with the correct parent_id
-        ]);
-
-        // Update or create services for the student
-        foreach ($validatedData['services'] as $service) {
-            StudentServices::updateOrCreate(
-                ['id' => $service['id']],  // Match by service type
-                [
-                    'service_type' => $service['service_type'],
-                    'start_date' => $service['startDate'],
-                    'end_date' => $service['endDate'],
-                    'weekly_mandate' => $service['weeklyMandate'],
-                    'yearly_mandate' => $service['yearlyMandate'],
-                    'student_id' => $student->id , 
-                ]
-            );
-        }
-
-        return response()->json(['message' => 'Student data updated successfully!'], 200);
-    } catch (\Exception $e) {
-        \Log::error('Error updating student data: ' . $e->getMessage());
-        return response()->json(['error' => 'Internal Server Error'], 500);
     }
-}
+    
 
 
 

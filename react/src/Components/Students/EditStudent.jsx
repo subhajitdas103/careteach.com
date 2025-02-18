@@ -68,11 +68,17 @@ import Skeleton from "react-loading-skeleton";
       toast.error("End date cannot be before start date!");
       return;
     }
-   
+
+ 
+  
 
 
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
+
+
+  
+  
   };
 
   const handleServiceTypeChange = (index, type) => {
@@ -422,26 +428,30 @@ useEffect(() => {
      
 
         console.log('Data sent successfully:', response.data);  
-      } 
-      
-     catch (error) {
-      if (error.response && error.response.status === 422) {
-          // Handle validation errors returned from the backend (Laravel)
-          const errors = error.response.data.errors;
-          for (const [key, value] of Object.entries(errors)) {
-              toast.error(value[0], {
-                  position: "top-right",
-                  autoClose: 5000,
-              });
-          }
-      } else {
-          // Handle other types of errors
-          toast.error("An error occurred. Please try again.", {
-              position: "top-right",
-              autoClose: 5000,
-          });
-          console.error('There was an error sending data:', error.response?.data || error.message);
-      }
+      } catch (error) {
+        // Check if the error is a validation or custom error (like the weekly mandate issue)
+        if (error.response && error.response.data.error) {
+            // Show custom error (e.g., Weekly Mandate cannot exceed Yearly Mandate)
+            toast.error(error.response.data.error, {
+                position: "top-right",
+                autoClose: 5000,
+            });
+        } else if (error.response && error.response.status === 422) {
+            const errors = error.response.data.errors;
+            for (const [key, value] of Object.entries(errors)) {
+                toast.error(value[0], {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+        } else {
+            // Handle other types of errors (network, server, etc.)
+            toast.error("An error occurred. Please try again.", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+            console.error('There was an error sending data:', error.response?.data || error.message);
+        }
     }
   }
     

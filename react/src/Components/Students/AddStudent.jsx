@@ -54,7 +54,22 @@ import axios from "axios";
           // alert("End date cannot be before start date!");
           toast.error("End date cannot be before start date!");
           return;
-        }    
+        }   
+        
+        if (field === "weeklyMandate") {
+          // Convert both to numbers for comparison
+          const weeklyHours = parseFloat(value); // New weekly mandate value
+          const yearlyHours = parseFloat(updatedFormDataList[index].yearlyMandate); // Existing yearly mandate value
+      
+          // Ensure that the weekly mandate multiplied by 52 (weeks in a year) is not greater than the yearly mandate
+          const calculatedYearlyHours = weeklyHours * 52;
+      
+          if (calculatedYearlyHours > yearlyHours) {
+              toast.error("Weekly Mandate exceeds the Yearly Mandate!");
+              return;
+          }
+      }
+      
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
   };
