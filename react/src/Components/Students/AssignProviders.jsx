@@ -380,68 +380,68 @@ const handelAssignProviderData = async () => {
 
 
     
-      const selectedStart = new Date(selectedStartDate);
-      const selectedEnd = new Date(selectedEndDate);
+      // const selectedStart = new Date(selectedStartDate);
+      // const selectedEnd = new Date(selectedEndDate);
       
-      // Step 1: Filter and sort services by start date
-      const filteredServices = assignedProviders
-          .filter(service => service.provider_id == selectedProviderIdStr && service.service_type === selectedService)
-          .map(service => ({
-              start: new Date(service.start_date),
-              end: new Date(service.end_date)
-          }))
-          .sort((a, b) => a.start - b.start);
-          console.log("Filtered Services for Provider:", selectedProviderIdStr, filteredServices);
-      // Step 2: Check for direct overlaps
-      const isOverlap = filteredServices.some(service => 
-          // selectedStart < service.end && selectedEnd >service.start
-          // selectedEnd > service.start && selectedStart < service.end && service.start !== selectedEnd
-          selectedStart < service.end && selectedEnd > service.start
+      // // Step 1: Filter and sort services by start date
+      // const filteredServices = assignedProviders
+      //     .filter(service => service.provider_id == selectedProviderIdStr && service.service_type === selectedService)
+      //     .map(service => ({
+      //         start: new Date(service.start_date),
+      //         end: new Date(service.end_date)
+      //     }))
+      //     .sort((a, b) => a.start - b.start);
+      //     console.log("Filtered Services for Provider:", selectedProviderIdStr, filteredServices);
+      // // Step 2: Check for direct overlaps
+      // const isOverlap = filteredServices.some(service => 
+      //     // selectedStart < service.end && selectedEnd >service.start
+      //     // selectedEnd > service.start && selectedStart < service.end && service.start !== selectedEnd
+      //     selectedStart < service.end && selectedEnd > service.start
          
-      );
+      // );
       
-      if (isOverlap) {
-          console.log("Invalid selection ❌ - Overlap detected!");
-          toast.error("This Date is occupied. Choose a non-overlapping period.");
-          return true;
-      }
+      // if (isOverlap) {
+      //     console.log("Invalid selection ❌ - Overlap detected!");
+      //     toast.error("This Date is occupied. Choose a non-overlapping period.");
+      //     return true;
+      // }
       
       // Step 3: Check for available gaps
-      let canAssign = false;
-      let lastEnd = null;
+    //   let canAssign = false;
+    //   let lastEnd = null;
       
-      for (const service of filteredServices) {
-          const currentStart = service.start;
+    //   for (const service of filteredServices) {
+    //       const currentStart = service.start;
       
-          if (lastEnd !== null) {
-              if (selectedStart >= lastEnd && selectedEnd <= currentStart) { // Allow exact fits
-                  canAssign = true;
-                  break;
-              }
-          } else {
-              // If the selected range starts before the first service
-              if (selectedEnd <= currentStart) {
-                  canAssign = true;
-                  break;
-              }
-          }
+    //       if (lastEnd !== null) {
+    //           if (selectedStart >= lastEnd && selectedEnd <= currentStart) { // Allow exact fits
+    //               canAssign = true;
+    //               break;
+    //           }
+    //       } else {
+    //           // If the selected range starts before the first service
+    //           if (selectedEnd <= currentStart) {
+    //               canAssign = true;
+    //               break;
+    //           }
+    //       }
       
-          lastEnd = service.end;
-      }
+    //       lastEnd = service.end;
+    //   }
       
-      // Allow scheduling after the last assigned service
-      if (!canAssign && (lastEnd === null || selectedStart >= lastEnd)) {
-          canAssign = true;
-      }
+    //   // Allow scheduling after the last assigned service
+    //   if (!canAssign && (lastEnd === null || selectedStart >= lastEnd)) {
+    //       canAssign = true;
+    //   }
       
-      if (!canAssign) {
-          console.log("Invalid selection ❌ - No available gap!");
-          toast.error("This Date is occupied. You can only assign within available gaps.");
-          return true;
-      }
+    //   if (!canAssign) {
+    //       console.log("Invalid selection ❌ - No available gap!");
+    //       toast.error("This Date is occupied. You can only assign within available gaps.");
+    //       return true;
+    //   }
       
-      console.log("Valid selection ✅ - Slot is available!");
-      return false;
+    //   console.log("Valid selection ✅ - Slot is available!");
+    //   return false;
       
   
      
@@ -970,7 +970,8 @@ useEffect(() => {
                 <div className="col-6" style={{ paddingRight: "5px" }}>
                 <TextField
                   id="weekly-input"
-                  label="Weekly Hours"
+                  // label="Weekly Hours - Total"
+                  label={`Weekly Hours Total - ${MAX_WEEKLY_HOURS} `}
                   variant="outlined"
                   fullWidth
                   value={inputWklyHoursAssignProvider}
@@ -985,7 +986,9 @@ useEffect(() => {
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
                   <TextField
                     id="yearly-input"
-                    label="Yearly Hours"
+                    // label="Yearly Hours"
+                    label={`Yearly Hours Total - ${MAX_YEARLY_HOURS} `}
+
                     variant="outlined"
                     fullWidth
                     value={inputYearlyHoursAssignProvider || 0}

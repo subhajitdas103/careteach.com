@@ -34,6 +34,9 @@ class ProviderController extends Controller
         
         Log::info("Validated data: " . json_encode($validatedData));
 
+
+        // ===================================================
+
         // Get the existing service record for the student and selected service type
         $existingService = StudentServices::where('student_id', $validatedData['id'])
         ->where('service_type', $validatedData['selectedAssignProviderService'])

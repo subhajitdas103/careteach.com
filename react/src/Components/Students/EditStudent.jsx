@@ -454,8 +454,46 @@ useEffect(() => {
         }
     }
   }
+    //-----------Start-----------Fetch  AssgniedProvider data------------
+    const [assignedProviders, setAssignedProviders] = useState([]);
+    const [AssignProviderID, setAssignProviderID] = useState(null);
+    const fetchAssignedProviderDetails = async () => {
+        try {
+          const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
+          const data = await response.json();
+          setAssignedProviders(data);
+        
+          console.log("API Response Assigned:", data);
+        } catch (error) {
+          console.error('Error fetching provider details:', error);
+        }
+      };
+      
+      useEffect(() => {
+        fetchAssignedProviderDetails();
+      }, [id]);
+    // ======================================================================================
+    useEffect(() => {
+      if (!assignedProviders || !StudentServices) return; // Ensure they're not null
     
-
+      if (assignedProviders.length > 0 && StudentServices.length > 0) {
+        const studentIdToCheck = id;
+    
+        assignedProviders.forEach(provider => {
+          const StudentHasService = StudentServices.some(service =>
+            service.student_id === studentIdToCheck && service.service_type === provider.service_type
+          );
+    
+          if (StudentHasService) {
+            console.log(`Student has service type: ${provider.service_type} in StudentServices.`);
+          } else {
+            console.log(`Student does NOT have service type: ${provider.service_type} in StudentServices.`);
+          }
+        });
+      }
+    }, [assignedProviders, StudentServices]);
+    
+    
     // =============Detch Student Detials=========================
 
     const fetchStudentDetails = async () => {
