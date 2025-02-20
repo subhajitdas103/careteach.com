@@ -24,17 +24,38 @@ import Skeleton from "react-loading-skeleton";
     const [student, setStudent] = useState(null);
     const [parent, setParentData] = useState(null);
     const [StudentServices, setStudentServices] = useState(null);
-  
+
+    const selectedServices = StudentServices?.map(service => service.service_type) || [];
+
   const navigate = useNavigate();
 
   //==============================================================
     const backtostudent = () => {
       navigate('/Students'); 
     };
-
-
-    
    
+
+//-----------Start-----------Fetch  AssgniedProvider data------------
+const [assignedProviders, setAssignedProviders] = useState([]);
+const [AssignProviderID, setAssignProviderID] = useState(null);
+const fetchAssignedProviderDetails = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
+      const data = await response.json();
+      setAssignedProviders(data);
+    
+      console.log("API Response Assigned:", data);
+    } catch (error) {
+      console.error('Error fetching provider details:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAssignedProviderDetails();
+  }, [id]);
+// ======================================================================================
+
+
   // ==========================Clone Service Div====================================
 
   const [formDataList, setFormDataList] = useState([
@@ -53,7 +74,8 @@ import Skeleton from "react-loading-skeleton";
       setFormDataList(updatedFormDataList);
     }
   }, [StudentServices]);
-  
+ 
+
 
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];
@@ -69,18 +91,12 @@ import Skeleton from "react-loading-skeleton";
       return;
     }
 
- 
-  
-
-
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
 
-
-  
-  
   };
 
+ console.log("assignedProviders",assignedProviders);
   const handleServiceTypeChange = (index, type) => {
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index] = {
@@ -454,44 +470,7 @@ useEffect(() => {
         }
     }
   }
-    //-----------Start-----------Fetch  AssgniedProvider data------------
-    const [assignedProviders, setAssignedProviders] = useState([]);
-    const [AssignProviderID, setAssignProviderID] = useState(null);
-    const fetchAssignedProviderDetails = async () => {
-        try {
-          const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
-          const data = await response.json();
-          setAssignedProviders(data);
-        
-          console.log("API Response Assigned:", data);
-        } catch (error) {
-          console.error('Error fetching provider details:', error);
-        }
-      };
-      
-      useEffect(() => {
-        fetchAssignedProviderDetails();
-      }, [id]);
-    // ======================================================================================
-    // useEffect(() => {
-    //   if (!assignedProviders || !StudentServices) return; // Ensure they're not null
     
-    //   if (assignedProviders.length > 0 && StudentServices.length > 0) {
-    //     const studentIdToCheck = id;
-    
-    //     assignedProviders.forEach(provider => {
-    //       const StudentHasService = StudentServices.some(service =>
-    //         service.student_id === studentIdToCheck && service.service_type === provider.service_type
-    //       );
-    
-    //       if (StudentHasService) {
-    //         console.log(`Student has service type: ${provider.service_type} in StudentServices.`);
-    //       } else {
-    //         console.log(`Student does NOT have service type: ${provider.service_type} in StudentServices.`);
-    //       }
-    //     });
-    //   }
-    // }, [assignedProviders, StudentServices]);
     
     
     // =============Detch Student Detials=========================
@@ -1106,56 +1085,72 @@ useEffect(() => {
                         type="button"
                         id="dropdownMenuButton"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                        aria-expanded="false"  
+                        >
                         {formData.service_type || "Choose Service Type"}
                       </button>
                       <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                       <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "SEIT")}>
+                            onClick={() => handleServiceTypeChange(index, "SEIT")}
+                            disabled={selectedServices.includes("SEIT")} 
+                            >
                             SEIT
+                            
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "SETSS")}>
+                            onClick={() => handleServiceTypeChange(index, "SETSS")}
+                            disabled={selectedServices.includes("SETSS")} 
+                            >
                             SETSS
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "PT")}>
+                            onClick={() => handleServiceTypeChange(index, "PT")}
+                            disabled={selectedServices.includes("PT")} 
+                            >
                             PT
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "OT")}>
+                            onClick={() => handleServiceTypeChange(index, "OT")}
+                            disabled={selectedServices.includes("OT")} 
+                            >
                             OT
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "SPEECH")}>
+                            onClick={() => handleServiceTypeChange(index, "SPEECH")}
+                            disabled={selectedServices.includes("SPEECH")} 
+                            >
                             SPEECH
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "HEALTH PARA")}>
+                            onClick={() => handleServiceTypeChange(index, "HEALTH PARA")}
+                            disabled={selectedServices.includes("HEALTH PARA")} 
+                            >
                             HEALTH PARA
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "COUNSELING")}>
+                            onClick={() => handleServiceTypeChange(index, "COUNSELING")}
+                            disabled={selectedServices.includes("COUNSELING")} 
+                            >
                             COUNSELING
                           </button>
                         </li>

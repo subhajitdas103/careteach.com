@@ -74,8 +74,18 @@ import axios from "axios";
     setFormDataList(updatedFormDataList);
   };
 
-  // Function to handle the service type change (Male or Fe-Male)
   const handleServiceTypeChange = (index, type) => {
+    // ------When Add Student , Andif Service type Choose two times show error------
+    const isTypeAlreadySelected = formDataList.some((service, i) => 
+      service.service_type === type && i !== index
+    );
+    
+    if (isTypeAlreadySelected) {
+      toast.error(`${type} has already been selected. You cannot select it again.`);
+      return;
+    }
+
+
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index] = {
       ...updatedFormDataList[index], // Preserve the other fields
@@ -182,8 +192,6 @@ const removeService = (index) => {
       
     };
 
-
-
     const handelDoe_rate = (event) => {
     const value = event.target.value;
     if (/^\d+$/.test(value) || value === "") {
@@ -196,16 +204,14 @@ const removeService = (index) => {
 
     const handelNycID = (event) => {
       const value = event.target.value;
-      // Allow only numeric input (whole numbers)
     if (/^\d+$/.test(value) || value === "") {
-      setNYC(value); // Update state if input is valid
+      setNYC(value);
     }
     };
     const handlenotesPerHour = (event) => {
       const value = event.target.value;
-      // Allow only numeric input (whole numbers)
   if (/^\d+$/.test(value) || value === "") {
-    setNotesPerHour(value); // Update state if input is valid
+    setNotesPerHour(value);
   }
     };
     const handleCase = (event) => {
@@ -219,7 +225,7 @@ const removeService = (index) => {
       setDisability(selectedDisability);
       
     };
-    // Handle grade change
+
     const handelIEP = (selectedIEP) => {
       setIEP(selectedIEP);
 
@@ -390,7 +396,6 @@ console.log(schools);
                   className="stu-pro-input-field"
                   placeholder="Enter Last Name"  value={last_name} onChange={handleLastNameChange}
                 />
-               
               </div>
             </div>
 
@@ -542,7 +547,6 @@ console.log(schools);
                 className="text-field stu-pro-input-field"
                 placeholder="Enter home address"  value={home_address} onChange={handleHomeAddress}
               ></textarea>
-           
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
@@ -553,7 +557,6 @@ console.log(schools);
                 className="stu-pro-input-field"
                 placeholder="Enter Rate"  value={doe_rate} onChange={handelDoe_rate}
               />
-     
             </div>
           </div>
 
@@ -712,7 +715,6 @@ console.log(schools);
                       Other
                     </button>
                   </li>
-
                 </ul>
               </div>
             </div>
@@ -849,7 +851,6 @@ console.log(schools);
                       Female
                     </button>
                   </li>
-                
                 </ul>
               </div>
             </div>
