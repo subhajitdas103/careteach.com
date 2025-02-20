@@ -473,25 +473,25 @@ useEffect(() => {
         fetchAssignedProviderDetails();
       }, [id]);
     // ======================================================================================
-    useEffect(() => {
-      if (!assignedProviders || !StudentServices) return; // Ensure they're not null
+    // useEffect(() => {
+    //   if (!assignedProviders || !StudentServices) return; // Ensure they're not null
     
-      if (assignedProviders.length > 0 && StudentServices.length > 0) {
-        const studentIdToCheck = id;
+    //   if (assignedProviders.length > 0 && StudentServices.length > 0) {
+    //     const studentIdToCheck = id;
     
-        assignedProviders.forEach(provider => {
-          const StudentHasService = StudentServices.some(service =>
-            service.student_id === studentIdToCheck && service.service_type === provider.service_type
-          );
+    //     assignedProviders.forEach(provider => {
+    //       const StudentHasService = StudentServices.some(service =>
+    //         service.student_id === studentIdToCheck && service.service_type === provider.service_type
+    //       );
     
-          if (StudentHasService) {
-            console.log(`Student has service type: ${provider.service_type} in StudentServices.`);
-          } else {
-            console.log(`Student does NOT have service type: ${provider.service_type} in StudentServices.`);
-          }
-        });
-      }
-    }, [assignedProviders, StudentServices]);
+    //       if (StudentHasService) {
+    //         console.log(`Student has service type: ${provider.service_type} in StudentServices.`);
+    //       } else {
+    //         console.log(`Student does NOT have service type: ${provider.service_type} in StudentServices.`);
+    //       }
+    //     });
+    //   }
+    // }, [assignedProviders, StudentServices]);
     
     
     // =============Detch Student Detials=========================

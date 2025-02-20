@@ -4,10 +4,7 @@ import axios from "axios";
 import {InputAdornment } from "@mui/material";
 import { TextField, FormControl, InputLabel, Select, MenuItem ,Box } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Import useParams
-import editIcon from '../../Assets/edit-info.png';
-import DeleteAssignProviderIcon from '../../Assets/delete_12319540.png';
 import "./Students.css";
-// import { DatePicker } from 'rsuite';
 import { toast , ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns"; 
@@ -114,8 +111,6 @@ const fetchAssignedProviderDetails = async () => {
   
   
 //   -----------End-------,----------Fetch Assigned data to Show--------------------------------------
-  
-// =================================
 const validServices = ['SEIT', 'SETSS', 'PT', 'OT', 'SPEECH', 'HEALTH PARA', 'COUNSELING'];
 
 let MAX_WEEKLY_HOURS = 0;
@@ -321,8 +316,8 @@ const handelAssignProviderData = async () => {
           toast.error(`Input rate exceeds provider rate: ${providerRate}`);
           return true;
         }
+        return Number(inputRateAssignProvider) > providerRate;
 
-        return providerRate <= Number(inputRateAssignProvider);
       }
       return false;
     });
@@ -574,11 +569,10 @@ const handleAssignProviderDataEdit = async () => {
     }
   }
 
-  // Format Dates
   const formattedStartDate = startDate.toLocaleDateString("en-CA");
   const formattedEndDate = endDate.toLocaleDateString("en-CA");
 
-  // Check if rate is valid
+
   if (Array.isArray(ProviderDataAssignProvider)) {
     const rate_check = ProviderDataAssignProvider.some((provider) => {
       if (Number(provider.id) === Number(providerId)) {
@@ -594,13 +588,6 @@ const handleAssignProviderDataEdit = async () => {
   } else {
     console.error("rateData is not an array:", ProviderDataAssignProvider);
   }
-
-  
-  
-
-
-
-  // Prepare Form Data
   const formData = {
     id,
     providerId,
@@ -657,8 +644,6 @@ const handleAssignProviderDataEdit = async () => {
 
 //   =================Modal Open==================
 
-
-
 // ========================================
 
   const [ProviderDataAssignProvider, setProviderData] = useState(null);
@@ -698,8 +683,6 @@ const handleAssignProviderDataEdit = async () => {
     
   };
 
- 
-  
   const handleClose = () => {
     setShow(false);  // Closes the modal
   };
@@ -750,13 +733,11 @@ const closeModal = () => {
       setIsModalOpenofAssignProvider(false);
       resetFormData();
     };
-    
     const AssignedProviderEdit = (id) => {
       setEditingServiceId(id);
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
     // console.log("uegf",providerDetails.service_type);
       if (providerDetails) {
-
        setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
        setAssignID(providerDetails.id);
         setInputRateAssignProvider(providerDetails.provider_rate);
@@ -871,8 +852,6 @@ useEffect(() => {
           </Modal.Header>
   
           <Modal.Body>
-                
-
             <div className="form-row">
               <div className="col-12 col-md-12">
               <FormControl fullWidth style={{ marginBottom: "16px" }}>
@@ -889,7 +868,6 @@ useEffect(() => {
                       setSelectedAssignProvider(e.target.value);   // Update the full `id|name` in state
                       setSelectedProviderId(id);                   // Store the provider ID
                     }}
-                    
                 >
                     {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
                       ProviderDataAssignProvider.map((provider) => (
@@ -899,9 +877,7 @@ useEffect(() => {
                         >
                           {provider.provider_first_name} {provider.provider_last_name}
                         </MenuItem>
-                      ))
-
-                  
+                      ))                  
                     ) : (
                     <MenuItem disabled>No Providers Available</MenuItem>
                     )}
@@ -925,7 +901,6 @@ useEffect(() => {
                   }}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter rate"
-                  
                 />
               </div>
   
@@ -1040,9 +1015,7 @@ useEffect(() => {
               </div>
             </div>
           </Modal.Body>
-  
           <Modal.Footer>
-           
             <Button variant="primary" onClick={handelAssignProviderData}>
               Save changes
             </Button>
@@ -1061,13 +1034,11 @@ useEffect(() => {
                     <p>
                       Are you sure you want to delete this Service {"Provider "}
                       <strong className="student-name-delete-modal">
-                        
                       </strong>
                       ?
                     </p>
                   </Modal.Body>
                   <Modal.Footer>
-                  
                     <Button className="delete-button" variant="danger" onClick={DeleteAssignBTN}  >
                       <i className="fa fa-trash" aria-hidden="true"></i>
                     </Button>
@@ -1079,12 +1050,10 @@ useEffect(() => {
       {/* Edit Modal for Assigning Provider */}
        {isModalOpenofEditAssignProvider && (
       <div className="modal show" style={{ display: "block", background: "rgba(0, 0, 0, 0.5)" }}>
-          
         <Modal.Dialog>
           <Modal.Header closeButton onClick={closeModalofAssignProvider}>
             <Modal.Title>Edit of Assign Provider</Modal.Title>
           </Modal.Header>
-  
           <Modal.Body>
                 
 
@@ -1119,9 +1088,7 @@ useEffect(() => {
                     <MenuItem disabled>No Providers Available</MenuItem>
                     )}
                 </Select>
-                
                 </FormControl>
-
               </div>
   
               <div className="col-12">
@@ -1215,7 +1182,6 @@ useEffect(() => {
                 </div>
               </div>
               {/* ============== */}
-  
               <div className="col-12 lctDropdown">
                     <div className="col-6" style={{ paddingRight: "4px" }}>
                      <div className="datepicker-container">
@@ -1230,7 +1196,6 @@ useEffect(() => {
                           filterDate={disableInvalidDates}
                           onKeyDown={(e) => e.preventDefault()} 
                         />
-                      
                          <FontAwesomeIcon icon={faCalendar} className="calendar-icon" />
                       </div>
                     </div>
@@ -1251,9 +1216,7 @@ useEffect(() => {
                  </div>
             </div>
           </Modal.Body>
-  
           <Modal.Footer>
-           
             <Button variant="primary" onClick={handleAssignProviderDataEdit}>
               Save changes
             </Button>

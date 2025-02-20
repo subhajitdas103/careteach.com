@@ -34,7 +34,55 @@ class ProviderController extends Controller
         
         Log::info("Validated data: " . json_encode($validatedData));
 
+        // ===========================================================
+        // =============================================================
 
+        $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->get();
+    
+        $AssignstartDates = $existingAssignServices->pluck('start_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
+        $AssignendDates = $existingAssignServices->pluck('end_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
+    
+        Log::info('Assigned Service Dates', ['start_dates' => $AssignstartDates, 'end_dates' => $AssignendDates]);
+    
+        $existingService = StudentServices::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->first();
+        
+        if ($existingService) {
+            $startDateofSaveStudent = $existingService->start_date;
+            $endDateofSaveStudent = $existingService->end_date;
+        
+            Log::info("Start Date: $startDateofSaveStudent, End Date: $endDateofSaveStudent");
+        } else {
+            Log::info("No existing service found.");
+        }
+    
+        $newStartDate = Carbon::parse($validatedData['assignProviderStartDate']);
+        $newEndDate   = Carbon::parse($validatedData['assignProviderEndDate']);
+    
+        $hasOverlap = false;
+        foreach ($existingAssignServices as $service) {
+            // Skip the record being updated
+           if ( $service->provider_id != $validatedData['selectedProviderId']) {
+        continue;
+    }
+    
+            $serviceStart = Carbon::parse($service->start_date);
+            $serviceEnd   = Carbon::parse($service->end_date);
+    
+            if ($newStartDate->lte($serviceEnd) && $newEndDate->gte($serviceStart)) {
+                $hasOverlap = true;
+                break;
+            }
+        }
+    
+        if ($hasOverlap) {
+            return response()->json([
+                'error' => 'The selected service dates overlap with an existing assigned service. Please choose different dates.'
+            ], 400);
+        }
         // ===================================================
 
         // Get the existing service record for the student and selected service type
@@ -432,20 +480,14 @@ public function updateAssignProvider(Request $request, $id)
     Log::info("Validated data: " . json_encode($validatedData));
 
 
-
-// Get all service records for the student and selected service type
-$existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
+    $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
     ->where('service_type', $validatedData['selectedAssignProviderService'])
-    ->get(); // Collection of records
+    ->get();
 
     $AssignstartDates = $existingAssignServices->pluck('start_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
     $AssignendDates = $existingAssignServices->pluck('end_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
 
     Log::info('Assigned Service Dates', ['start_dates' => $AssignstartDates, 'end_dates' => $AssignendDates]);
-
-
-
-
 
     $existingService = StudentServices::where('student_id', $validatedData['id'])
     ->where('service_type', $validatedData['selectedAssignProviderService'])
@@ -460,12 +502,6 @@ $existingAssignServices = AssignProviderModel::where('student_id', $validatedDat
         Log::info("No existing service found.");
     }
 
-
-    // ----------------------------
-    // Overlap Check Implementation
-    // ----------------------------
-
-    // Parse the new service dates
     $newStartDate = Carbon::parse($validatedData['assignProviderStartDate']);
     $newEndDate   = Carbon::parse($validatedData['assignProviderEndDate']);
 
@@ -479,19 +515,6 @@ $existingAssignServices = AssignProviderModel::where('student_id', $validatedDat
         $serviceStart = Carbon::parse($service->start_date);
         $serviceEnd   = Carbon::parse($service->end_date);
 
-        /*
-         * Check if the new service dates overlap with this existing service:
-         * Overlap occurs if:
-         *   newStartDate is on or before serviceEnd
-         *   AND
-         *   newEndDate is on or after serviceStart.
-         *
-         * For example:
-         * - If an existing service is from 1.2.25 to 9.2.25 and another from 11.2.25 to 20.2.25,
-         *   then a new service from 9.2.25 to 15.2.25 would be considered overlapping
-         *   because it touches the end of the first service (9.2.25) and intrudes into the second.
-         * - However, a new service from 10.2.25 to 10.2.25 would not overlap since it fits exactly in the gap.
-         */
         if ($newStartDate->lte($serviceEnd) && $newEndDate->gte($serviceStart)) {
             $hasOverlap = true;
             break;
