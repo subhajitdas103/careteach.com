@@ -327,15 +327,7 @@ button, input, optgroup, select, textarea {
 	justify-content: space-between;
 }
 
-.text-under {
-	font-size: 32px;
-	font-weight: 600;
-	text-align: end;
-	margin-right: 148px;
-	margin-top: -53px;
-	color: #007ec5;
-	text-transform: uppercase;
-}
+
 
 .user-loginarea {
 	padding: 60px 50px 60px 50px;

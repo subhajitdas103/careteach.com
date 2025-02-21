@@ -161,15 +161,7 @@ form > p {
 	justify-content: space-between;
 }
 
-.text-under {
-	font-size: 32px;
-	font-weight: 600;
-	text-align: end;
-	margin-right: 148px;
-	margin-top: -53px;
-	color: #007ec5;
-	text-transform: uppercase;
-}
+
 
 .user-loginarea {
 	padding: 60px 50px 60px 50px;
@@ -177,7 +169,7 @@ form > p {
 	/* border-top-right-radius: 18px; */
 	/* border-bottom-right-radius: 18px; */
 	border-radius: 18px;
-	width: 35%;
+	width: 35% !important;
 }
 
 .user-loginarea:hover {

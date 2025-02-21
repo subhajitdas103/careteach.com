@@ -38,11 +38,11 @@ form > p {
 }
 
 .text-under {
-	font-size: 32px;
+	font-size: 30px;
 	font-weight: 600;
 	text-align: end;
 	margin-right: 148px;
-	margin-top: -53px;
+	margin-top: -35px;
 	color: #007ec5;
 	text-transform: uppercase;
 }
