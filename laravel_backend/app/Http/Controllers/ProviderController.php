@@ -580,6 +580,15 @@ public function updateAssignProvider(Request $request, $id)
         ], 400);
     }
 
+    if ($validatedData['inputWklyHoursAssignProvider'] == 0) {
+        return response()->json(['error' => 'Weekly hours must be greater than zero.'], 400);
+    }
+    
+    if ($validatedData['inputYearlyHoursAssignProvider'] == 0) {
+     
+        return response()->json(['error' => 'Yearly hours must be greater than zero.'], 400);
+    }
+
 
 
     try {

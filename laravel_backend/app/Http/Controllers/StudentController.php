@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Students;
 use App\Models\Parents;
@@ -9,14 +8,13 @@ use App\Models\StudentServices;
 use App\Models\AssignProviderModel;
 use App\Models\Users;
 use Carbon\Carbon;
-
 // use App\Models\Student;
+
 class StudentController extends Controller
 {
     public function index(){
     return Student::all();
     }
-
 
     public function fetchStudentData()
 {
@@ -32,9 +30,6 @@ class StudentController extends Controller
 }
 
 
-// In StudentController.php
-
-// In StudentController.php
 
 public function fetchStudentDataCalendar($id, $userRollName)
 {
@@ -172,14 +167,6 @@ public function addstudent(Request $request)
         return response()->json(['message' => 'Student data saved/updated successfully!'], 200);
 
     } catch (\Illuminate\Database\QueryException $e) {
-        // // Handle unique constraint violation
-        // if ($e->getCode() == 23000) {  // SQLSTATE[23000] is for integrity constraint violation
-        //     return response()->json([
-        //         'error' => 'The parent email has already been taken.'
-        //     ], 400);
-        // }
-    
-        // General error handling
         return response()->json([
             'error' => 'Internal Server Error',
             'message' => $e->getMessage(),
@@ -312,11 +299,8 @@ public function DeleteStudent($id)
                 'services.*.weeklyMandate' => 'nullable|numeric',  // change to numeric
                 'services.*.yearlyMandate' => 'nullable|numeric',  // change to numeric
             ]);
-    
-            // Find the existing student or return an error if not found
             $student = Students::findOrFail($id);
-    
-            // Update the parent record where student_id matches parent_id
+
             $parent = Parents::where('id', $student->parent_id)->first();
             if ($parent) {
                 $parent->update([
@@ -352,27 +336,45 @@ public function DeleteStudent($id)
                 'status' => $validatedData['status'],
                 'parent_id' => $parent->id,  // Update with the correct parent_id
             ]);
-    
-            // Loop through services to validate weekly and yearly mandate
+  
             $totalWeeklyHours = 0;
             $totalYearlyHours = 0;
     
             foreach ($validatedData['services'] as $service) {
                 $weeklyMandate = $service['weeklyMandate'];
                 $yearlyMandate = $service['yearlyMandate'];
+                $startDate = $service['startDate']; // Define startDate
+                $endDate = $service['endDate'];  
     
-              
-    
-                // Validate that weekly mandate does not exceed yearly mandate (if yearlyMandate is provided)
                 if (!empty($weeklyMandate) && !empty($yearlyMandate) && $weeklyMandate > $yearlyMandate) {
                     return response()->json(['error' => 'Weekly Mandate cannot exceed Yearly Mandate'], 400);
                 }
     
             }
 
+    $existingService = StudentServices::where('id', $service['id'])->first();
+    if ($existingService) {
 
-    
-                // Update or create services for the student
+        $startDateFormatted = Carbon::parse($startDate);
+        $endDateFormatted = Carbon::parse($endDate);
+        $existingStartDate = Carbon::parse($existingService->start_date);
+        $existingEndDate = Carbon::parse($existingService->end_date);
+
+        if ($weeklyMandate < $existingService->weekly_mandate) {
+            return response()->json(['error' => 'Weekly Mandate cannot be decreased'], 400);
+        }
+
+        if ($startDateFormatted->gt($existingStartDate)) {  // gt() = greater than
+            return response()->json(['error' => 'Start Date cannot be decreased'], 400);
+        }
+
+  
+        if ($endDateFormatted->lt($existingEndDate)) {  // lt() = less than
+            return response()->json(['error' => 'End Date cannot be decreased'], 400);
+        }
+    }
+
+
                 StudentServices::updateOrCreate(
                     ['id' => $service['id']],  // Match by service id
                     [
@@ -384,9 +386,7 @@ public function DeleteStudent($id)
                         'student_id' => $student->id,
                     ]
                 );
-            
-    
-            // Return response with the total hours
+
             return response()->json([
                 'message' => 'Student data updated successfully!',
                 'totalWeeklyHours' => $totalWeeklyHours,

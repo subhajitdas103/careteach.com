@@ -51,9 +51,9 @@ const { id } = useParams();
     try {
       const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${id}`);
       const data = await response.json();
-      // console.log("API Response:", data); 
+      console.log("API Response:", data); 
 
-      if (data.studentDetails) setStudentDetails(data.studentDetails);
+      if (data.student) setStudentDetails(data.student);
       if (data.Parents) setParentsDetails(data.Parents);
       if (data.StudentServices) setStudentServices(data.StudentServices);
     } catch (error) {
@@ -64,7 +64,14 @@ const { id } = useParams();
   useEffect(() => {
     fetchStudentDetails();
   }, [id]);
+
+  // useEffect(() => {
+  //   console.log("Updated studentDetails:", studentDetails);
+  // }, [studentDetails]); // Runs when `studentDetails` updates
+  
+
 // ===========================================
+console.log("studentDetails",studentDetails);
 
 const [Student_start_end_date, setStudentStartEndDate] = useState(null);
 const [editingServiceId, setEditingServiceId] = useState(null);
@@ -128,8 +135,7 @@ const selectedService = Array.isArray(Student_start_end_date)
 if (selectedService && validServices.includes(selectedAssignProviderService)) {
     MAX_WEEKLY_HOURS = Number(selectedService.weekly_mandate) || 0;
     MAX_YEARLY_HOURS = Number(selectedService.yearly_mandate) || 0;
-
-    console.log("Max Weekly Hours:", MAX_WEEKLY_HOURS);
+  
     console.log("Max Yearly Hours:", MAX_YEARLY_HOURS);
 
     const formatDate = (date) => {
@@ -765,9 +771,9 @@ const openModalAssignProvider = (id, name) => {
   useEffect(() => {
   }, [assignProviderStartDate]);
 // ================================================
-useEffect(() => {
-  setInputYearlyHoursAssignProvider(""); // Reset Yearly Hours when service type changes
-}, [selectedAssignProviderService]);
+// useEffect(() => {
+//   setInputYearlyHoursAssignProvider(""); // Reset Yearly Hours when service type changes
+// }, [selectedAssignProviderService]);
 
 
   return (
@@ -776,12 +782,24 @@ useEffect(() => {
     <div className="dashbord-container">
       <div className="row dashbord-list">
         <div className="heading-text">
-          <h3>Services and Provider</h3>
+          
+        <h3>Services and Provider for - {studentDetails?.first_name} {studentDetails?.last_name}</h3>
+
             <div onClick={backToStudent}>
                 <i className="fa fa-backward fc-back-icon" aria-hidden="true" id="back_student_click"></i>
             </div>
+
+
         </div>
+        <table className="table bdr table-add-provider" border="1">
+          <thead className="bg-red">
+          </thead>
+        </table>
       </div>
+
+    
+
+
       <div className="add-student-btn" onClick={() => openModalAssignProvider(id)}>
         <i className="fa fa-user-plus add-student-icon"></i> Assign a Provider
       </div>
@@ -1151,7 +1169,7 @@ useEffect(() => {
                 <div className="col-6" style={{ paddingRight: "5px" }}>
                 <TextField
                   id="weekly-input"
-                  label="WeeklyHours"
+                  label={`Weekly Hours Total - ${MAX_WEEKLY_HOURS} `}
                   variant="outlined"
                   fullWidth
                   value={inputWklyHoursAssignProvider}
@@ -1165,11 +1183,11 @@ useEffect(() => {
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
                 <TextField
                   id="yearly-input"
-                  label="Yearly Hours"
+                  label={`Yearly Hours Total - ${MAX_YEARLY_HOURS} `}
                   variant="outlined"
                   fullWidth
-                  value={inputYearlyHoursAssignProvider}
-                  // onChange={(e) => setInputYearlyHoursAssignProvider(e.target.value)}
+                  // value={inputYearlyHoursAssignProvider}
+                  value={inputYearlyHoursAssignProvider || "0"}
                   onChange={(e) => handleHoursChange('yearly', e)}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Yearly Hours"

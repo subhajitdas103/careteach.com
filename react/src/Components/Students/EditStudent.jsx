@@ -91,6 +91,16 @@ const fetchAssignedProviderDetails = async () => {
       return;
     }
 
+  //   if (field === "weeklyMandate") {
+  //     const currentValue = (updatedFormDataList[index].weeklyMandate);
+  //     const newValue = value === "" ? null : (value); // Allow clearing
+
+  //     if ( currentValue>newValue) {
+  //         toast.error("Weekly Mandate cannot be decreased!");
+  //         return;
+  //     }
+  // }
+
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
 
