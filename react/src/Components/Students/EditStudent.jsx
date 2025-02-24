@@ -108,6 +108,16 @@ const fetchAssignedProviderDetails = async () => {
 
  console.log("assignedProviders",assignedProviders);
   const handleServiceTypeChange = (index, type) => {
+
+    const isTypeAlreadySelected = formDataList.some((service, i) => 
+      service.service_type === type && i !== index
+    );
+    
+    if (isTypeAlreadySelected) {
+      toast.error(`${type} has already been selected. You cannot select it again.`);
+      return;
+    }
+
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index] = {
       ...updatedFormDataList[index],
@@ -119,7 +129,7 @@ const fetchAssignedProviderDetails = async () => {
   const addService = () => {
     setFormDataList([
       ...formDataList,
-      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' }
+      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true}
     ]);
   };
 
@@ -1097,7 +1107,7 @@ useEffect(() => {
                         id="dropdownMenuButton"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
-                        disabled={!!formData.service_type}
+                        disabled={!formDataList[index]?.isCloned}
                         >
                         {formData.service_type || "Choose Service Type"}
                       </button>
