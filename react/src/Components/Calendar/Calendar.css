@@ -176,6 +176,36 @@ form > p {
 	box-shadow: 3px 4px 6px 0px #33709a;
 }
 
+/* Responsive for mobile */
+@media (max-width: 768px) {
+	.user-loginarea {
+		width: 100% !important;
+		padding: 40px 20px; /* Adjust padding for smaller screens */
+	}
+
+    .text-under {
+        font-size: 30px;
+        font-weight: 600;
+        text-align: end;
+        margin-right: 125px;
+        margin-top: -23px;
+        color: #007ec5;
+        text-transform: uppercase;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1059px) {
+	.user-loginarea {
+		width: 50% !important;
+	}
+  
+}
+
+
+
+
+
+
 .input-box {
 	height: 2rem !important;
 	padding: 1px 1px 4px 10px;
