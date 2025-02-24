@@ -1090,12 +1090,14 @@ useEffect(() => {
                   <div className="col-md-6 student-profile-field widthcss">
                     <label>Service Type:</label>
                     <div className="dropdown">
+                      
                       <button
                         className="btn btn-secondary dropdown-toggle stu-pro-input-field"
                         type="button"
                         id="dropdownMenuButton"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false"  
+                        aria-expanded="false"
+                        disabled={!!formData.service_type}
                         >
                         {formData.service_type || "Choose Service Type"}
                       </button>

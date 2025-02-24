@@ -152,6 +152,18 @@ public function addstudent(Request $request)
             'roll_id' => $validatedData['userRollID'],
         ]);
 
+
+        foreach ($validatedData['services'] as $service) {
+            $weeklyMandate = $service['weeklyMandate'];
+            $yearlyMandate = $service['yearlyMandate'];
+            $startDate = $service['startDate']; // Define startDate
+            $endDate = $service['endDate'];  
+
+            if (!empty($weeklyMandate) && !empty($yearlyMandate) && $weeklyMandate > $yearlyMandate) {
+                return response()->json(['error' => 'Weekly Mandate cannot exceed Yearly Mandate'], 400);
+            }
+        }
+
         // Insert the student services
         foreach ($validatedData['services'] as $service) {
             StudentServices::create([
@@ -266,10 +278,11 @@ public function DeleteStudent($id)
 
 
     // ============================
+ 
+
     public function editstudent(Request $request, $id)
     {
         try {
-            // Validate the request data
             $validatedData = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'nullable|string|max:255',
@@ -290,34 +303,28 @@ public function DeleteStudent($id)
                 'parent_phnumber' => 'nullable|string|max:255',
                 'parent_type' => 'nullable|string|max:255',
     
-                // ........Service .......
+                // Service validation
                 'services' => 'required|array',
                 'services.*.id' => 'nullable|integer',
                 'services.*.service_type' => 'nullable|string|max:255',
                 'services.*.startDate' => 'required|string|max:255',
                 'services.*.endDate' => 'required|string|max:255',
-                'services.*.weeklyMandate' => 'nullable|numeric',  // change to numeric
-                'services.*.yearlyMandate' => 'nullable|numeric',  // change to numeric
+                'services.*.weeklyMandate' => 'nullable|numeric',
+                'services.*.yearlyMandate' => 'nullable|numeric',
             ]);
+    
             $student = Students::findOrFail($id);
-
-            $parent = Parents::where('id', $student->parent_id)->first();
-            if ($parent) {
-                $parent->update([
+    
+            // Update or create parent record
+            $parent = Parents::updateOrCreate(
+                ['id' => $student->parent_id],
+                [
                     'parent_name' => $validatedData['parent_name'],
                     'ph_no' => $validatedData['parent_phnumber'],
                     'parent_type' => $validatedData['parent_type'],
                     'parent_email' => $validatedData['parent_email'],
-                ]);
-            } else {
-                // Handle case where the parent does not exist (optional)
-                $parent = Parents::create([
-                    'parent_name' => $validatedData['parent_name'],
-                    'ph_no' => $validatedData['parent_phnumber'],
-                    'parent_type' => $validatedData['parent_type'],
-                    'parent_email' => $validatedData['parent_email'],
-                ]);
-            }
+                ]
+            );
     
             // Update student data
             $student->update([
@@ -334,70 +341,72 @@ public function DeleteStudent($id)
                 'case' => $validatedData['case_v'],
                 'resulation_invoice' => $validatedData['resolutionInvoice'],
                 'status' => $validatedData['status'],
-                'parent_id' => $parent->id,  // Update with the correct parent_id
+                'parent_id' => $parent->id,
             ]);
-  
+    
             $totalWeeklyHours = 0;
             $totalYearlyHours = 0;
     
             foreach ($validatedData['services'] as $service) {
-                $weeklyMandate = $service['weeklyMandate'];
-                $yearlyMandate = $service['yearlyMandate'];
-                $startDate = $service['startDate']; // Define startDate
-                $endDate = $service['endDate'];  
+                \Log::info("Processing Service ID: " . ($service['id'] ?? 'NEW'));
     
-                if (!empty($weeklyMandate) && !empty($yearlyMandate) && $weeklyMandate > $yearlyMandate) {
+                // Validate weekly and yearly mandates
+                if (!empty($service['weeklyMandate']) && !empty($service['yearlyMandate']) && $service['weeklyMandate'] > $service['yearlyMandate']) {
                     return response()->json(['error' => 'Weekly Mandate cannot exceed Yearly Mandate'], 400);
                 }
     
-            }
-
-    $existingService = StudentServices::where('id', $service['id'])->first();
-    if ($existingService) {
-
-        $startDateFormatted = Carbon::parse($startDate);
-        $endDateFormatted = Carbon::parse($endDate);
-        $existingStartDate = Carbon::parse($existingService->start_date);
-        $existingEndDate = Carbon::parse($existingService->end_date);
-
-        if ($weeklyMandate < $existingService->weekly_mandate) {
-            return response()->json(['error' => 'Weekly Mandate cannot be decreased'], 400);
-        }
-
-        if ($startDateFormatted->gt($existingStartDate)) {  // gt() = greater than
-            return response()->json(['error' => 'Start Date cannot be decreased'], 400);
-        }
-
-  
-        if ($endDateFormatted->lt($existingEndDate)) {  // lt() = less than
-            return response()->json(['error' => 'End Date cannot be decreased'], 400);
-        }
-    }
-
-
-                StudentServices::updateOrCreate(
-                    ['id' => $service['id']],  // Match by service id
+                $existingService = StudentServices::find($service['id']);
+    
+                if ($existingService) {
+                    $startDateFormatted = Carbon::parse($service['startDate']);
+                    $endDateFormatted = Carbon::parse($service['endDate']);
+                    $existingStartDate = Carbon::parse($existingService->start_date);
+                    $existingEndDate = Carbon::parse($existingService->end_date);
+    
+                    if ($service['weeklyMandate'] < $existingService->weekly_mandate) {
+                        return response()->json(['error' => 'Weekly Mandate cannot be decreased'], 400);
+                    }
+    
+                    if ($startDateFormatted->gt($existingStartDate)) {
+                        return response()->json(['error' => 'Start Date cannot be increased'], 400);
+                    }
+    
+                    if ($endDateFormatted->lt($existingEndDate)) {
+                        return response()->json(['error' => 'End Date cannot be decreased'], 400);
+                    }
+                }
+    
+                // Update or create service
+                $updatedService = StudentServices::updateOrCreate(
+                    ['id' => $service['id']],
                     [
                         'service_type' => $service['service_type'],
                         'start_date' => $service['startDate'],
                         'end_date' => $service['endDate'],
-                        'weekly_mandate' => $weeklyMandate,
-                        'yearly_mandate' => $yearlyMandate,
+                        'weekly_mandate' => $service['weeklyMandate'],
+                        'yearly_mandate' => $service['yearlyMandate'],
                         'student_id' => $student->id,
                     ]
                 );
-
+    
+                \Log::info("Successfully Updated/Created Service ID: " . ($updatedService->id ?? 'NEW'), $updatedService->toArray());
+    
+                // Accumulate hours
+                $totalWeeklyHours += $service['weeklyMandate'] ?? 0;
+                $totalYearlyHours += $service['yearlyMandate'] ?? 0;
+            }
+    
             return response()->json([
                 'message' => 'Student data updated successfully!',
                 'totalWeeklyHours' => $totalWeeklyHours,
                 'totalYearlyHours' => $totalYearlyHours,
             ], 200);
-    
         } catch (\Exception $e) {
             \Log::error('Error updating student data: ' . $e->getMessage());
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
+    
     
 
 
