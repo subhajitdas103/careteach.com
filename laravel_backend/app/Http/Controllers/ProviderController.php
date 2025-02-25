@@ -112,33 +112,33 @@ class ProviderController extends Controller
        
         // $totalWeeks = $startDate->diffInWeeks($endDate) + 1;
 
-        $totalWeeks = ceil($newStartDate->diffInWeeks($newEndDate) + 1);
-        $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
+        // $totalWeeks = ceil($newStartDate->diffInWeeks($newEndDate) + 1);
+        // $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
     
-        Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
+        // Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
     
         // Requested hours from user input
         $requestedWeeklyHours = $validatedData['inputWklyHoursAssignProvider'];
-        $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
+        // $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
     
-        Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedWeeklyHours");
+        // Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedWeeklyHours");
     
         // Ensure the requested weekly hours do not exceed the max mandate
-        if ($requestedWeeklyHours > $allowedTotalHours) {
+        if ($requestedWeeklyHours > $maxWeeklyMandate) {
             // Log::error("Requested weekly hours ($requestedWeeklyHours) exceed max allowed ($allowedTotalHours)");
             return response()->json([
                 // 'error' => "Requested weekly hours $requestedWeeklyHours exceed the allowed limit $allowedTotalHours Hours."
-                 'error' => " The Weekly Hours Limit was $allowedTotalHours,in this Date Range"
+                 'error' => " The Weekly Hours Limit was $maxWeeklyMandate,in this Date Range"
             ], 400);
         }
     
         // Ensure the requested total hours do not exceed the allowed total hours
-        if ($requestedWeeklyHours > $allowedTotalHours) {
-            // Log::error("Requested total hours ($requestedWeeklyHours) exceed allowed ($allowedTotalHours)");
-            return response()->json([
-                'error' => "Requested total hours  $requestedWeeklyHours exceed the allowed total $allowedTotalHours Hours."
-            ], 400);
-        }
+        // if ($requestedWeeklyHours > $allowedTotalHours) {
+        //     // Log::error("Requested total hours ($requestedWeeklyHours) exceed allowed ($allowedTotalHours)");
+        //     return response()->json([
+        //         'error' => "Requested total hours  $requestedWeeklyHours exceed the allowed total $allowedTotalHours Hours."
+        //     ], 400);
+        // }
 
 
         $AssignProvider = AssignProviderModel::create([
@@ -644,13 +644,10 @@ public function updateAssignProvider(Request $request, $id)
         'student_id' => $validatedData['id'],
     ];
 
-    Log::info("Validated data: ", $validatedData);
-    Log::info("Laravel Timezone: " . config('app.timezone'));
-    Log::info("System Timezone: " . date_default_timezone_get());
 
-    // Fetch existing assigned services for this student and service type
     $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
         ->where('service_type', $validatedData['selectedAssignProviderService'])
+        // ->where ('id',$id)
         ->get();
 
     Log::info("Existing Assigned Services: ", $existingAssignServices->toArray());
@@ -673,31 +670,52 @@ public function updateAssignProvider(Request $request, $id)
     // Convert input dates
     $newStartDate = Carbon::parse($validatedData['assignProviderStartDate']);
     $newEndDate = Carbon::parse($validatedData['assignProviderEndDate']);
+// =========================================================================================
+    // Overlap check for same provider_id
+$hasOverlap = false;
 
-    // Overlap check
-    $hasOverlap = false;
+if ($existingAssignServices->isNotEmpty()) {
+    Log::info("Total existing services count: " . count($existingAssignServices));
+
+    $count = 0;
     foreach ($existingAssignServices as $service) {
-        if ($service->id == $id) {
-            continue; // Skip current record being updated
+        $count++;
+        Log::info("Loop iteration {$count}: Checking Service ID: " . (int) $service['id'] . " with Normal ID: " . (int) $id);
+
+        Log::info("Final Total loop iterations: " . $count);
+
+        // Skip self service comparison
+        if ((int) $service->id === (int) $id) {
+            Log::info("Skipping Service ID: {$service->id} (Same as Normal ID)");
+            continue; // Skip self
+        }
+
+        // Check for overlap only if the provider_id matches
+        if ((int) $service->provider_id !== (int) $validatedData['providerId']) {
+            Log::info("Skipping Service ID: {$service->id} (Different Provider)");
+            continue; // Skip services with different provider_id
         }
 
         $serviceStart = Carbon::parse($service->start_date);
         $serviceEnd = Carbon::parse($service->end_date);
 
-        Log::info("Checking overlap: New Start: {$newStartDate->toDateString()}, New End: {$newEndDate->toDateString()}, Existing Start: {$serviceStart->toDateString()}, Existing End: {$serviceEnd->toDateString()}");
+        Log::info("Checking Overlap: New Start: {$newStartDate->toDateString()}, New End: {$newEndDate->toDateString()}, Existing Start: {$serviceStart->toDateString()}, Existing End: {$serviceEnd->toDateString()}");
 
         if ($newStartDate->lte($serviceEnd) && $newEndDate->gte($serviceStart)) {
             $hasOverlap = true;
-            break;
+            Log::error("Overlap detected for Student ID: {$validatedData['id']} and Service: '{$validatedData['selectedAssignProviderService']}'");
+            break; // Break on first overlap detection
         }
     }
+}
 
-    if ($hasOverlap) {
-        Log::error("Overlap detected for Student ID: {$validatedData['id']} and Service: '{$validatedData['selectedAssignProviderService']}'");
-        return response()->json([
-            'error' => 'The selected service dates overlap with an existing assigned service. Please choose different dates.'
-        ], 400);
-    }
+if ($hasOverlap) {
+    return response()->json([
+        'error' => 'The selected service dates overlap with an existing assigned service. Please choose different dates.'
+    ], 400);
+}
+
+    
 
     if (!$existingService || !$existingService->weekly_mandate) {
         return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
@@ -706,21 +724,21 @@ public function updateAssignProvider(Request $request, $id)
     $maxWeeklyMandate = $existingService->weekly_mandate;
 
     // Calculate allowed weekly hours
-    $totalWeeks = ceil($newStartDate->diffInWeeks($newEndDate) + 1);
-    $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
+    // $totalWeeks = ceil($newStartDate->diffInWeeks($newEndDate) + 1);
+    // $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
 
-    Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
+    // Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
 
     // Requested weekly and total hours
     $requestedWeeklyHours = $validatedData['inputWklyHoursAssignProvider'];
-    $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
+    // $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
 
-    Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedTotalHours");
+    // Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedTotalHours");
 
     // Validate weekly and total hours
-    if ($requestedWeeklyHours > $allowedTotalHours) {
+    if ($requestedWeeklyHours > $maxWeeklyMandate) {
         return response()->json([
-            'error' => "The Weekly Hours Limit is $allowedTotalHours in this Date Range."
+            'error' => "The Weekly Hours Limit is $maxWeeklyMandate in this Date Range."
         ], 400);
     }
 
