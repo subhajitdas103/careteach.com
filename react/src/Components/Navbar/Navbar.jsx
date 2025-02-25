@@ -14,12 +14,12 @@ const Navbar = () => {
     setUserRollID(null);
     setUserRollName(null);
   
-    // Display toast notification instead of an alert
-    toast.success("You have been logged out successfully!", {
-      position: "top-right", 
-      autoClose:1100 ,
-      className: "toast_message_logout",
-    });
+    // // Display toast notification instead of an alert
+    // toast.success("You have been logged out successfully!", {
+    //   position: "top-right", 
+    //   autoClose:1100 ,
+    //   className: "toast_message_logout",
+    // });
   
     setTimeout(() => {
       window.location.href = '/';
