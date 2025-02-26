@@ -20,7 +20,7 @@ import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
-import { Uploader , Button } from 'rsuite';
+import { Uploader , Button  , Row, Col} from 'rsuite';
   const AddStudent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
  
@@ -191,11 +191,19 @@ const removeService = (index) => {
 
     // ----------------------------------------
     
-    const handleUploadError = (error) => {
-      console.error("Upload failed:", error);
-      toast.error("File upload failed.");
-    };
-
+    const handleUploadError = async (errorResponse) => {
+      try {
+          const response = await errorResponse.json(); // Parse JSON response
+          if (response.message) {
+              toast.error(response.message); // Show Laravel error message in toast
+          } else {
+              toast.error("File upload failed!"); // Default error message
+          }
+      } catch (err) {
+          toast.error("An unexpected error occurred!");
+      }
+  };
+  
     const handleParentname = (event) => {
       setParent(event.target.value);
     };
@@ -605,20 +613,25 @@ console.log(schools);
           <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
             <label>Choose IEP*</label>
-            <div className="dropdown">
-                <Uploader
-                ref={uploaderRef}
-                action={`${backendUrl}/api/upload_iep_doc`}
-                autoUpload={true}
-                name="iep_doc" // Ensure the field name matches Laravel's expectation
-                onSuccess={handleUploadSuccess}
-                onError={handleUploadError}
-                multiple={false} 
-                fileList={fileList}// Ensure only one file can be uploaded
-                onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
-                >
-                <Button>Select IEP Document</Button>
-                </Uploader>
+            <div className="dropdown" style={{ padding: '20px' }}>
+               <Row>
+                  {/* Responsive layout */}
+                  <Col xs={24} sm={12} md={8}>
+                  <Uploader
+                  ref={uploaderRef}
+                  action={`${backendUrl}/api/upload_iep_doc`}
+                  autoUpload={true}
+                  name="iep_doc" // Ensure the field name matches Laravel's expectation
+                  onSuccess={handleUploadSuccess}
+                  onError={handleUploadError}
+                  multiple={false} 
+                  fileList={fileList}// Ensure only one file can be uploaded
+                  onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                  >
+                  <Button>Select IEP Document</Button>
+                  </Uploader>
+                  </Col>
+                </Row>
               </div>
             </div>
     

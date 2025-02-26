@@ -811,41 +811,33 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="stu-pro-field-div">
-          <div className="col-md-6 student-profile-field widthcss">
-      <label>Choose IEP*</label>
-      <div className="dropdown">
-       
-
-
-                       <Uploader
-                        ref={uploaderRef}
-                        action={`${backendUrl}/api/upload_iep_doc`}
-                        autoUpload={true}
-                        name="iep_doc" // Ensure the field name matches Laravel's expectation
-                        onSuccess={handleUploadSuccess}
-                        onError={handleUploadError}
-                        multiple={false} 
-                        fileList={fileList}// Ensure only one file can be uploaded
-                        onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
-                        >
-                        <Button>Select IEP Document</Button>
-                        </Uploader>
-
-        {/* Show the file name and download link */}
-        {fileName && fileUrl && (
-          <div style={{ marginTop: "10px" }}>
-            <strong>Uploaded File: </strong> {fileName} &nbsp;
-            <a href={fileUrl} download={fileName} target="_blank" rel="noopener noreferrer">
-              Download
-            </a>
-          </div>
-        )}
-      </div>
-    </div>
-
-        
-
+              <div className="stu-pro-field-div">
+                  <div className="col-md-6 student-profile-field widthcss">
+                    <label>Choose IEP*</label>
+                    <div className="dropdown">
+                    <Uploader
+                    ref={uploaderRef}
+                    action={`${backendUrl}/api/upload_iep_doc`}
+                    autoUpload={true}
+                    name="iep_doc" // Ensure the field name matches Laravel's expectation
+                    onSuccess={handleUploadSuccess}
+                    onError={handleUploadError}
+                    multiple={false} 
+                    fileList={fileList}// Ensure only one file can be uploaded
+                    onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                    >
+                    <Button>Select IEP Document</Button>
+                    </Uploader>
+                    {fileName && fileUrl && (
+                      <div style={{ marginTop: "10px" }}>
+                        <strong>Uploaded File: </strong> {fileName} &nbsp;
+                        <a href={fileUrl} download={fileName} target="_blank" rel="noopener noreferrer">
+                          Download
+                      </a>
+                      </div>
+                      )}
+                  </div>
+               </div>
     
             <div className="col-md-6 student-profile-field widthcss">
                 <label>Classification Disability*</label>

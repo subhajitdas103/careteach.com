@@ -413,35 +413,29 @@ public function DeleteStudent($id)
    
         public function uploadIEP(Request $request)
         {
-           
-                // $request->validate([
-                //     'iep_doc' => 'required|file|mimes:pdf,doc,docx|max:2048', // 2MB max
-                // ]);
-        
+          
+                $request->validate([
+                    'iep_doc' => 'required|file|mimes:pdf,doc,docx|max:102400', // 100MB max
+                ], [
+                    'iep_doc.max' => 'File size exceeds the maximum limit of 100MB.'
+                ]);
+            
                 if ($request->hasFile('iep_doc')) {
                     $file = $request->file('iep_doc');
-
-                    $fileSize = $file->getSize(); // Get file size in bytes
-                    $maxSize = 100 * 1024 * 1024; 
-
                     $fileName = time() . '_' . $file->getClientOriginalName();
                     $filePath = $file->storeAs('uploads/iep_docs', $fileName, 'public');
-        
-                    // Validate file size
-                    if ($fileSize > $maxSize) {
-                        return response()->json([
-                            'message' => 'File size exceeds the maximum limit of 100MB.'
-                        ], 400);
-                    }
-
+            
                     return response()->json([
                         'message' => 'File uploaded successfully!',
                         'fileName' => $fileName,
                         'fileUrl' => asset("storage/$filePath"),
-                        'fileSize' => $fileSize
+                        'fileSize' => $file->getSize()
                     ], 200);
                 }
-        }
+            
+                return response()->json(['message' => 'No file uploaded.'], 400);
+            }
+            
 
                 public function deleteIEP($filename)
                 {
