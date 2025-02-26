@@ -291,6 +291,8 @@ public function DeleteStudent($id)
                 'home_address' => 'nullable|string|max:255',
                 'doe_rate' => 'nullable|string|max:255',
                 'iep_doc' => 'nullable|string|max:255',
+                // 'iep_doc' => 'nullable|file|mimes:pdf,doc,docx|max:10048', // 2MB max
+
                 'disability' => 'nullable|string|max:255',
                 'nyc_id' => 'nullable|string|max:255',
                 'notesPerHour' => 'nullable|numeric',
@@ -408,8 +410,77 @@ public function DeleteStudent($id)
     }
     
     
+   
+        public function uploadIEP(Request $request)
+        {
+           
+                // $request->validate([
+                //     'iep_doc' => 'required|file|mimes:pdf,doc,docx|max:2048', // 2MB max
+                // ]);
+        
+                if ($request->hasFile('iep_doc')) {
+                    $file = $request->file('iep_doc');
 
+                    $fileSize = $file->getSize(); // Get file size in bytes
+                    $maxSize = 100 * 1024 * 1024; 
 
+                    $fileName = time() . '_' . $file->getClientOriginalName();
+                    $filePath = $file->storeAs('uploads/iep_docs', $fileName, 'public');
+        
+                    // Validate file size
+                    if ($fileSize > $maxSize) {
+                        return response()->json([
+                            'message' => 'File size exceeds the maximum limit of 100MB.'
+                        ], 400);
+                    }
 
+                    return response()->json([
+                        'message' => 'File uploaded successfully!',
+                        'fileName' => $fileName,
+                        'fileUrl' => asset("storage/$filePath"),
+                        'fileSize' => $fileSize
+                    ], 200);
+                }
+        }
+
+                public function deleteIEP($filename)
+                {
+                    $filePath = storage_path("app/public/uploads/iep_docs/" . $filename);
+                
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                        return response()->json(['message' => 'File deleted successfully'], 200);
+                    }
+                
+                    return response()->json(['message' => 'File not found'], 404);
+                }
+        
+        
     
+        public function getUploadedIEP($id)
+        {
+            $student = Students::where('id', $id)->first();
+        
+            // Check if student exists and has an IEP document
+            if (!$student || !$student->iep_doc) {
+                return response()->json(['message' => 'No file found'], 404);
+            }
+        
+            // Ensure file exists in storage
+            $filePath = storage_path("app/public/uploads/iep_docs/" . $student->iep_doc);
+        
+            if (!file_exists($filePath)) {
+                return response()->json(['message' => 'File not found on server'], 404);
+            }
+        
+            return response()->json([
+                'file_name' => $student->iep_doc,
+                'file_url' => asset('storage/uploads/iep_docs/' . $student->iep_doc),
+                'file_type' => $student->file_type
+            ]);
+        }
+        
+
+       
+        
 }

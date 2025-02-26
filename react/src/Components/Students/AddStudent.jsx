@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState , useEffect ,useRef } from 'react';
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
@@ -12,6 +12,7 @@ import { IconButton, Tooltip } from '@mui/material';
 import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
 import { Modal as FlowbitModal } from 'flowbite-react';
+import 'rsuite/Uploader/styles/index.css';
 // import { useForm } from 'react-hook-form'; // Import useForm
 // import { useForm } from "react-hook-form";
 // import Dropdown from "react-bootstrap/Dropdown";
@@ -19,7 +20,7 @@ import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
-
+import { Uploader , Button } from 'rsuite';
   const AddStudent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
  
@@ -64,10 +65,10 @@ import axios from "axios";
           // Ensure that the weekly mandate multiplied by 52 (weeks in a year) is not greater than the yearly mandate
           const calculatedYearlyHours = weeklyHours * 52;
       
-          if (calculatedYearlyHours > yearlyHours) {
-              toast.error("Weekly Mandate exceeds the Yearly Mandate!");
-              return;
-          }
+          // if (calculatedYearlyHours > yearlyHours) {
+          //     toast.error("Weekly Mandate exceeds the Yearly Mandate!");
+          //     return;
+          // }
       }
       
     updatedFormDataList[index][field] = value;
@@ -150,7 +151,50 @@ const removeService = (index) => {
     const [parent_phnumber, setParentPH] = useState('');
   // ---------------------Parent END------------------------
 
+     
+    // Handle Upload Success
+    const uploaderRef = useRef(null);
+    const [fileList, setFileList] = useState([]);
+    const handleUploadSuccess = async (response) => {
+      console.log("Upload success:", response);
+    
+      if (response.fileName) {
+        if (iep_doc) {
+          await deletePreviousFile(iep_doc);
+        }
+        setIEP(response.fileName); // Store uploaded file path in state
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.error("File upload failed!");
+      }
+    };
+    
 
+    const deletePreviousFile = async (fileName) => {
+      try {
+      
+        const response = await fetch(`${backendUrl}/api/delete_iep_upload_file/${fileName}`, {
+          method: "DELETE",
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          console.log("Previous file deleted:", data.message);
+        } else {
+          console.error("Error deleting file:", data.message);
+        }
+      } catch (error) {
+        console.error("Error in delete request:", error);
+      }
+    };
+
+    // ----------------------------------------
+    
+    const handleUploadError = (error) => {
+      console.error("Upload failed:", error);
+      toast.error("File upload failed.");
+    };
 
     const handleParentname = (event) => {
       setParent(event.target.value);
@@ -226,11 +270,6 @@ const removeService = (index) => {
       
     };
 
-    const handelIEP = (selectedIEP) => {
-      setIEP(selectedIEP);
-
-    };
-  
 
 //  ========================Fetch school Data==========================
   const [schools, setSchools] = useState([]);
@@ -279,7 +318,7 @@ console.log(schools);
         !validateField(grade, 'Please Choose Grade!') ||
         !validateField(home_address, 'Please fill Home address!') ||
         !validateField(doe_rate, 'Please Enter DOE Rate!') ||
-        !validateField(iep_doc, 'Please Choose IEP!') ||
+        // !validateField(iep_doc, 'Please Choose IEP!') ||
         !validateField(disability, 'Please Choose Disability!') ||
         !validateField(nyc_id, 'Please Enter NYC ID!') ||
         !validateField(parent_name, 'Please Enter Parent Name!') ||
@@ -301,7 +340,9 @@ console.log(schools);
         toast.error('Phone number must be 10 digits!');
         return;
       }
-      
+ 
+    
+
       const formData = {
         first_name,
         last_name,
@@ -323,7 +364,6 @@ console.log(schools);
         services: formDataList,
         userRollID,
       };
-      console.log('Form data:', formData);
       try {
         const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
           headers: {
@@ -363,6 +403,8 @@ console.log(schools);
 }
     };
     
+// ==============================
+
 
   
     return (
@@ -561,40 +603,22 @@ console.log(schools);
           </div>
 
           <div className="stu-pro-field-div">
-            <div className="col-md-6 student-profile-field widthcss">
-                <label>Choose IEP*</label>
-              <div className="dropdown">
-                    <button
-                      className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-                      type="button"
-                      id="dropdownMenuButton"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      {iep_doc || "IEP Document"}
-                    </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("A")}>
-                      A
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AA")}>
-                      AA
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AB")}>
-                      AB
-                    </button>
-                  </li>
-                </ul>
+          <div className="col-md-6 student-profile-field widthcss">
+            <label>Choose IEP*</label>
+            <div className="dropdown">
+                <Uploader
+                ref={uploaderRef}
+                action={`${backendUrl}/api/upload_iep_doc`}
+                autoUpload={true}
+                name="iep_doc" // Ensure the field name matches Laravel's expectation
+                onSuccess={handleUploadSuccess}
+                onError={handleUploadError}
+                multiple={false} 
+                fileList={fileList}// Ensure only one file can be uploaded
+                onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                >
+                <Button>Select IEP Document</Button>
+                </Uploader>
               </div>
             </div>
     

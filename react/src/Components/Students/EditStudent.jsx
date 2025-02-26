@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState , useEffect , useRef } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
 import "./Students.css";
@@ -15,7 +15,7 @@ import axios from "axios";
 import "react-loading-skeleton/dist/skeleton.css";
 import Skeleton from "react-loading-skeleton";
 // import React, { useState } from 'react';
-
+import { Uploader , Button } from 'rsuite';
   const AddStudent = () => {
     const [loading, setLoading] = useState(true);
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -291,18 +291,8 @@ useEffect(() => {
     };
 
     // ================IEP Doc=============
-    useEffect(() => {
-      if (student && student.iep_doc) {
-        setIEP(student.iep_doc); 
-      }
-    }, [student]); 
-
     
-  // Handle grade change
-  const handelIEP = (selectedIEP) => {
-    setIEP(selectedIEP);
-
-  };
+   
 
   // ============Clasification of Disability ============
   useEffect(() => {
@@ -316,6 +306,68 @@ useEffect(() => {
     setLastNameError('');
   };
 
+  // --------------------IEP doc upload-------------------------------
+  const [fileName, setFileName] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
+  const uploaderRef = useRef(null);
+  const [fileList, setFileList] = useState([]);
+
+  useEffect(() => {
+  console.log("Updated IEP:", iep_doc);
+  }, [iep_doc]);  // Logs whenever `iep_doc` updates
+  
+
+  const handleUploadError = (error) => {
+    console.error("Upload failed:", error);
+  }
+
+ const handleUploadSuccess = async (response) => {
+      console.log("Upload success:", response);
+    
+      if (response.fileName) {
+        if (iep_doc) {
+          await deletePreviousFile(iep_doc);
+        }
+        setIEP(response.fileName); // Store uploaded file path in state
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.error("File upload failed!");
+      }
+    };
+
+    const deletePreviousFile = async (fileName) => {
+      try {
+      
+        const response = await fetch(`${backendUrl}/api/delete_iep_upload_file/${fileName}`, {
+          method: "DELETE",
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          console.log("Previous file deleted:", data.message);
+        } else {
+          console.error("Error deleting file:", data.message);
+        }
+      } catch (error) {
+        console.error("Error in delete request:", error);
+      }
+    };
+
+
+   // Fetch file from database
+   useEffect(() => {
+    axios.get(`${backendUrl}/api/get_iep/${id}`)
+      .then((response) => {
+        setFileName(response.data.file_name);
+        setFileUrl(response.data.file_url);
+        console.log("response",response);
+        // setFileType(response.data.file_type);
+      })
+      .catch(() => {
+        console.log("No file found for this student.");
+      });
+  }, [backendUrl, id]);
     // ===============DOE Rate==================
 
         useEffect(() => {
@@ -404,9 +456,7 @@ useEffect(() => {
     }else if (!doe_rate) {
         toast.error('Please Enter DOE Rate!');
         return;
-    }else if (!iep_doc) {
-      toast.error('Please Choose IEP!');
-      return;
+    
     }else if (!disability) {
       toast.error('Please Choose Disability!');
       return;
@@ -762,42 +812,37 @@ useEffect(() => {
           </div>
 
           <div className="stu-pro-field-div">
-            <div className="col-md-6 student-profile-field widthcss">
-                <label>Choose IEP*</label>
-              <div className="dropdown">
-                    <button
-                      className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-                      type="button"
-                      id="dropdownMenuButton"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      {iep_doc || "Choose IEP Document"}
-                    </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("A")}>
-                      A
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AA")}>
-                      AA
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AB")}>
-                      AB
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
+          <div className="col-md-6 student-profile-field widthcss">
+      <label>Choose IEP*</label>
+      <div className="dropdown">
+       
+
+
+                       <Uploader
+                        ref={uploaderRef}
+                        action={`${backendUrl}/api/upload_iep_doc`}
+                        autoUpload={true}
+                        name="iep_doc" // Ensure the field name matches Laravel's expectation
+                        onSuccess={handleUploadSuccess}
+                        onError={handleUploadError}
+                        multiple={false} 
+                        fileList={fileList}// Ensure only one file can be uploaded
+                        onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                        >
+                        <Button>Select IEP Document</Button>
+                        </Uploader>
+
+        {/* Show the file name and download link */}
+        {fileName && fileUrl && (
+          <div style={{ marginTop: "10px" }}>
+            <strong>Uploaded File: </strong> {fileName} &nbsp;
+            <a href={fileUrl} download={fileName} target="_blank" rel="noopener noreferrer">
+              Download
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
 
         
 
