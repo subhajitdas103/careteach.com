@@ -30,7 +30,7 @@ const { id } = useParams();
   const [assignProviderStartDate, setAssignProviderStartDate] = useState(null);
   const [assignProviderEndDate, setAssignProviderEndDate] = useState(null);
   const [AssignproviderAutoID, SetAssignproviderAutoID] = useState(null);
-console.log("AssignproviderAutoID",AssignproviderAutoID);
+  console.log("AssignproviderAutoID",AssignproviderAutoID);
   const resetFormData = () => {
     setSelectedAssignProvider(''); // Reset the selected provider
     setInputRateAssignProvider(''); // Reset the rate
@@ -161,50 +161,85 @@ const [providerSelectedID, full_name] = selectedAssignProvider.split("|");
 console.log("providerSelectedID",providerSelectedID);
 
 
-const getTotalYearlyHours = () => {
+const get_yearlyHouresafterAssign = () => {
 
-
-  
-  // Filter providers by service type
   const filteredProviders = assignedProvidersArray.filter(
     provider => provider.service_type === selectedAssignProviderService 
     &&
     provider.provider_id == providerSelectedID // Ensure correct type comparison
   );
-
   console.log("Filtered Providers:", filteredProviders);
 
-  // // Calculate total yearly hours
- // Calculate total yearly hours
  const totalYearlyHours = filteredProviders.reduce(
   (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
   0
 );
-
 console.log("Total yearly hours for provider", totalYearlyHours);
-
   return totalYearlyHours;
 };
+// ============================================================
+const getRemainingYearlyHoursinEdit = () => {
+  // Filter providers with the same service type but exclude the current provider
+  const filteredProviders = assignedProvidersArray.filter(
+    provider => provider.service_type === selectedAssignProviderService &&
+                provider.id !== AssignproviderAutoID // Exclude the current provider
+  );
+  console.log("Filtered Providers:", filteredProviders);
+  if (filteredProviders.length === 0) {
+    console.log("No matching provider found.");
+    return MAX_YEARLY_HOURS; // Return 0 if no provider is found
+  }
+console.log("filteredProvidersfilteredProviders",filteredProviders);
+  console.log("MAX_YEARLY_HOURSMAX_YEARLY_HOURS",MAX_YEARLY_HOURS);
 
-// ==================================================================================================================
+  const totalYearlyHours = filteredProviders.reduce((sum, provider) => sum + (provider.yearly_hours || 0), 0);
+  console.log("totalYearlyHourstotalYearlyHours",totalYearlyHours);
+
+  const remainingYearlyHours = MAX_YEARLY_HOURS - totalYearlyHours;
+
+  console.log("Total Yearly Hours (excluding current provider):", remainingYearlyHours);
+  return remainingYearlyHours;
+};
+
+
+
+
+
+// ==============================================================================================================
+const getRemainingYearlyHoursinAdd = () => {
+  const filteredProviders = assignedProvidersArray.filter(
+    provider => provider.service_type === selectedAssignProviderService &&
+                provider.id === AssignproviderAutoID
+  );
+
+  console.log("Filtered Providers:", filteredProviders);
+
+  if (filteredProviders.length === 0) {
+    console.log("No matching provider found.");
+    return 0; // Return 0 if no provider is found
+  }
+
+  const totalYearlyHours = filteredProviders.reduce((sum, provider) => sum + (provider.yearly_hours || 0), 0);
+  console.log("totalYearlyHours:", totalYearlyHours);
+  
+  const remainingHourswhenAssign = MAX_YEARLY_HOURS - totalYearlyHours;
+  console.log("Total yearly hours for provider:", remainingHourswhenAssign);
+  return remainingHourswhenAssign;
+};
+
+console.log("Remaining Yearly Hours:", getRemainingYearlyHoursinAdd());
+//===========================================
 
 const handleHoursChange = (type, e) => {
   let value = Number(e.target.value);
-  const totalYearlyHours = getTotalYearlyHours(); // Get already assigned yearly hours
+  const totalYearlyHours = get_yearlyHouresafterAssign(); // Get already assigned yearly hours
 console.log("totalYearlyHours",totalYearlyHours);
   let maxLimit = 0;
 
-  // Apply limit only for 'yearly' type
   if (type === 'yearly') {
     maxLimit = MAX_YEARLY_HOURS;
   }
 
-  // let remainingHours = totalYearlyHours;
-  // remainingHours = Math.max(remainingHours, 0); // Ensure non-negative values
-
-
-
-  // For 'yearly', ensure value is within range
   if (type === 'yearly') {
     setInputYearlyHoursAssignProvider(value.toString());
   }
@@ -215,10 +250,11 @@ console.log("totalYearlyHours",totalYearlyHours);
   }
 };
 
-const remainingHours = getTotalYearlyHours();
+const remainingHours = getRemainingYearlyHoursinEdit();
 console.log("remainingHours",remainingHours);
 
-
+const remainingHoursWhenAssign =   getRemainingYearlyHoursinAdd();
+console.log("remainingHoursWhenAssign",remainingHoursWhenAssign);
 
 const FormatassignPStartDate = assignProviderStartDate 
 ? new Date(assignProviderStartDate).toLocaleDateString('en-CA') 
@@ -993,7 +1029,7 @@ const openModalAssignProvider = (id, name) => {
                     placeholder="Enter Yearly Hours"
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end">/ {remainingHours}</InputAdornment>
+                        <InputAdornment position="end">/ {remainingHoursWhenAssign}</InputAdornment>
                       ),
                     }}
                   />
