@@ -157,23 +157,28 @@ const assignedProvidersArray = Array.isArray(assignedProviders)
   : Object.values(assignedProviders || {}); // Avoid errors if null/undefined
 
 console.log("Converted assignedProvidersArray:", assignedProvidersArray);
-
+const [providerSelectedID, full_name] = selectedAssignProvider.split("|");
+console.log("providerSelectedID",providerSelectedID);
 const getTotalYearlyHours = () => {
   // Filter providers by service type
   const filteredProviders = assignedProvidersArray.filter(
-    provider => provider.service_type === selectedAssignProviderService
+    provider => provider.service_type === selectedAssignProviderService 
+    &&
+    provider.provider_id == providerSelectedID // Ensure correct type comparison
   );
 
   console.log("Filtered Providers:", filteredProviders);
 
-  // Calculate total yearly hours
-  const totalHours = filteredProviders.reduce(
-    (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
-    0
-  );
+  // // Calculate total yearly hours
+ // Calculate total yearly hours
+ const totalYearlyHours = filteredProviders.reduce(
+  (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
+  0
+);
 
-  console.log(`Total yearly hours for service type ${selectedAssignProviderService}:`, totalHours);
-  return totalHours;
+console.log("Total yearly hours for provider", totalYearlyHours);
+
+  return totalYearlyHours;
 };
 
 // ==================================================================================================================
@@ -181,7 +186,7 @@ const getTotalYearlyHours = () => {
 const handleHoursChange = (type, e) => {
   let value = Number(e.target.value);
   const totalYearlyHours = getTotalYearlyHours(); // Get already assigned yearly hours
-
+console.log("totalYearlyHours",totalYearlyHours);
   let maxLimit = 0;
 
   // Apply limit only for 'yearly' type
@@ -189,23 +194,13 @@ const handleHoursChange = (type, e) => {
     maxLimit = MAX_YEARLY_HOURS;
   }
 
-  let remainingHours = maxLimit - totalYearlyHours;
-  remainingHours = Math.max(remainingHours, 0); // Ensure non-negative values
+  let remainingHours = totalYearlyHours;
+  // remainingHours = Math.max(remainingHours, 0); // Ensure non-negative values
 
-  console.log(`Max allowed ${type} hours: ${maxLimit}`);
-  console.log(`Total assigned ${type} hours: ${totalYearlyHours}`);
-  console.log(`Remaining ${type} hours before limit: ${remainingHours}`);
 
-  if (type === 'yearly' && value > remainingHours) {
-    toast.error(`You can only assign up to ${remainingHours} more ${type} hours.`, {
-      position: "top-right",
-      autoClose: 5000,
-    });
-    return;
-  }
 
   // For 'yearly', ensure value is within range
-  if (type === 'yearly' && value >= 0 && value <= remainingHours) {
+  if (type === 'yearly') {
     setInputYearlyHoursAssignProvider(value.toString());
   }
 
