@@ -29,8 +29,8 @@ const { id } = useParams();
   const [inputYearlyHoursAssignProvider, setInputYearlyHoursAssignProvider] = useState("");
   const [assignProviderStartDate, setAssignProviderStartDate] = useState(null);
   const [assignProviderEndDate, setAssignProviderEndDate] = useState(null);
-
-
+  const [AssignproviderAutoID, SetAssignproviderAutoID] = useState(null);
+console.log("AssignproviderAutoID",AssignproviderAutoID);
   const resetFormData = () => {
     setSelectedAssignProvider(''); // Reset the selected provider
     setInputRateAssignProvider(''); // Reset the rate
@@ -159,7 +159,12 @@ const assignedProvidersArray = Array.isArray(assignedProviders)
 console.log("Converted assignedProvidersArray:", assignedProvidersArray);
 const [providerSelectedID, full_name] = selectedAssignProvider.split("|");
 console.log("providerSelectedID",providerSelectedID);
+
+
 const getTotalYearlyHours = () => {
+
+
+  
   // Filter providers by service type
   const filteredProviders = assignedProvidersArray.filter(
     provider => provider.service_type === selectedAssignProviderService 
@@ -194,7 +199,7 @@ console.log("totalYearlyHours",totalYearlyHours);
     maxLimit = MAX_YEARLY_HOURS;
   }
 
-  let remainingHours = totalYearlyHours;
+  // let remainingHours = totalYearlyHours;
   // remainingHours = Math.max(remainingHours, 0); // Ensure non-negative values
 
 
@@ -210,7 +215,7 @@ console.log("totalYearlyHours",totalYearlyHours);
   }
 };
 
-const remainingHours = MAX_YEARLY_HOURS - getTotalYearlyHours();
+const remainingHours = getTotalYearlyHours();
 console.log("remainingHours",remainingHours);
 
 
@@ -735,6 +740,7 @@ const closeModal = () => {
       resetFormData();
     };
     const AssignedProviderEdit = (id) => {
+      SetAssignproviderAutoID(id);
       setEditingServiceId(id);
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
     // console.log("uegf",providerDetails.service_type);

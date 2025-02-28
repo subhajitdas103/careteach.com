@@ -613,24 +613,96 @@ public function searchProvider(Request $request)
 //     }
 // }
 
+public function fetch_start_end_date_of_student($studentId)
+{
+    $mandates = StudentServices::where('student_id', $studentId)
+        ->select('weekly_mandate', 'yearly_mandate', 'start_date', 'end_date', 'service_type')
+        ->get(); // Fetch all records instead of just one
 
+    if ($mandates->isEmpty()) { // Check if no records are found
+        return response()->json(['message' => 'No data found'], 404);
+    }
+
+    return response()->json($mandates);
+}
 
 public function updateAssignProvider(Request $request, $id)
 {
-    // Validate the incoming request
+    // Validate request
     $validatedData = $request->validate([
         'providerId' => 'required',
         'full_name' => 'required|string|max:255',
         'inputRateAssignProvider' => 'required|numeric',
         'selectedAssignProviderLocation' => 'required|string',
         'selectedAssignProviderService' => 'required|string',
-        'inputWklyHoursAssignProvider' => 'required|numeric',
-        'inputYearlyHoursAssignProvider' => 'required|numeric',
+        'inputWklyHoursAssignProvider' => 'required|numeric|min:1',
+        'inputYearlyHoursAssignProvider' => 'required|numeric|min:1',
         'assignProviderStartDate' => 'required|date',
         'assignProviderEndDate' => 'required|date',
         'id' => 'required|integer',
     ]);
 
+    // Fetch existing service details once
+    $existingService = StudentServices::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->first();
+
+    if (!$existingService) {
+        return response()->json(['error' => 'No existing service found for this student.'], 400);
+    }
+
+    $yearlyMandate = (int) $existingService->yearly_mandate;
+
+    // Fetch assigned services & calculate assigned hours
+    $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->get();
+
+    $totalAssignedHours = $existingAssignServices->sum('yearly_hours');
+    $providerYearlyHours = AssignProviderModel::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->where('id', $id)
+        ->sum('yearly_hours');
+
+    $remainingHours = max($yearlyMandate - $totalAssignedHours, 0);
+    $newYearlyHours = (int) $validatedData['inputYearlyHoursAssignProvider'];
+
+    if (($remainingHours + $providerYearlyHours) < $newYearlyHours) {
+        return response()->json(['error' => 'Total yearly hours exceed allowed limit.'], 422);
+    }
+    if ($remainingHours < $newYearlyHours) {
+        return response()->json([
+            'error' => "You cannot assign more than the remaining hours. Available: $remainingHours, Requested: $newYearlyHours."
+        ], 422);
+    }
+    
+    // Check for overlapping service dates using optimized query
+    $newStartDate = Carbon::parse($validatedData['assignProviderStartDate']);
+    $newEndDate = Carbon::parse($validatedData['assignProviderEndDate']);
+
+    $hasOverlap = AssignProviderModel::where('student_id', $validatedData['id'])
+        ->where('service_type', $validatedData['selectedAssignProviderService'])
+        ->where('provider_id', $validatedData['providerId'])
+        ->where('id', '!=', $id)
+        ->where(function ($query) use ($newStartDate, $newEndDate) {
+            $query->whereBetween('start_date', [$newStartDate, $newEndDate])
+                  ->orWhereBetween('end_date', [$newStartDate, $newEndDate])
+                  ->orWhere(function ($q) use ($newStartDate, $newEndDate) {
+                      $q->where('start_date', '<=', $newStartDate)
+                        ->where('end_date', '>=', $newEndDate);
+                  });
+        })->exists();
+
+    if ($hasOverlap) {
+        return response()->json(['error' => 'The selected service dates overlap with an existing assigned service.'], 400);
+    }
+
+    // Check Weekly Mandate
+    if ($validatedData['inputWklyHoursAssignProvider'] > $existingService->weekly_mandate) {
+        return response()->json(['error' => "The Weekly Hours Limit is {$existingService->weekly_mandate} in this Date Range."], 400);
+    }
+
+    // Prepare Update Data
     $updateData = [
         'provider_id' => $validatedData['providerId'],
         'provider_name' => $validatedData['full_name'],
@@ -644,119 +716,9 @@ public function updateAssignProvider(Request $request, $id)
         'student_id' => $validatedData['id'],
     ];
 
-
-    $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
-        ->where('service_type', $validatedData['selectedAssignProviderService'])
-        // ->where ('id',$id)
-        ->get();
-
-    Log::info("Existing Assigned Services: ", $existingAssignServices->toArray());
-
-    $AssignstartDates = $existingAssignServices->pluck('start_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
-    $AssignendDates = $existingAssignServices->pluck('end_date')->map(fn($date) => Carbon::parse($date)->toDateString())->toArray();
-
-    Log::info('Assigned Service Dates:', ['start_dates' => $AssignstartDates, 'end_dates' => $AssignendDates]);
-
-    $existingService = StudentServices::where('student_id', $validatedData['id'])
-        ->where('service_type', $validatedData['selectedAssignProviderService'])
-        ->first();
-
-    if ($existingService) {
-        Log::info("Found Student Service - Start: {$existingService->start_date}, End: {$existingService->end_date}");
-    } else {
-        Log::info("No existing service found.");
-    }
-
-    // Convert input dates
-    $newStartDate = Carbon::parse($validatedData['assignProviderStartDate']);
-    $newEndDate = Carbon::parse($validatedData['assignProviderEndDate']);
-// =========================================================================================
-    // Overlap check for same provider_id
-$hasOverlap = false;
-
-if ($existingAssignServices->isNotEmpty()) {
-    Log::info("Total existing services count: " . count($existingAssignServices));
-
-    $count = 0;
-    foreach ($existingAssignServices as $service) {
-        $count++;
-        Log::info("Loop iteration {$count}: Checking Service ID: " . (int) $service['id'] . " with Normal ID: " . (int) $id);
-
-        Log::info("Final Total loop iterations: " . $count);
-
-        // Skip self service comparison
-        if ((int) $service->id === (int) $id) {
-            Log::info("Skipping Service ID: {$service->id} (Same as Normal ID)");
-            continue; // Skip self
-        }
-
-        // Check for overlap only if the provider_id matches
-        if ((int) $service->provider_id !== (int) $validatedData['providerId']) {
-            Log::info("Skipping Service ID: {$service->id} (Different Provider)");
-            continue; // Skip services with different provider_id
-        }
-
-        $serviceStart = Carbon::parse($service->start_date);
-        $serviceEnd = Carbon::parse($service->end_date);
-
-        Log::info("Checking Overlap: New Start: {$newStartDate->toDateString()}, New End: {$newEndDate->toDateString()}, Existing Start: {$serviceStart->toDateString()}, Existing End: {$serviceEnd->toDateString()}");
-
-        if ($newStartDate->lte($serviceEnd) && $newEndDate->gte($serviceStart)) {
-            $hasOverlap = true;
-            Log::error("Overlap detected for Student ID: {$validatedData['id']} and Service: '{$validatedData['selectedAssignProviderService']}'");
-            break; // Break on first overlap detection
-        }
-    }
-}
-
-if ($hasOverlap) {
-    return response()->json([
-        'error' => 'The selected service dates overlap with an existing assigned service. Please choose different dates.'
-    ], 400);
-}
-
-    
-
-    if (!$existingService || !$existingService->weekly_mandate) {
-        return response()->json(['error' => 'No existing service or weekly mandate found for the student.'], 400);
-    }
-
-    $maxWeeklyMandate = $existingService->weekly_mandate;
-
-    // Calculate allowed weekly hours
-    // $totalWeeks = ceil($newStartDate->diffInWeeks($newEndDate) + 1);
-    // $allowedTotalHours = $totalWeeks * $maxWeeklyMandate;
-
-    // Log::info("Total weeks: $totalWeeks, Allowed total hours: $allowedTotalHours");
-
-    // Requested weekly and total hours
-    $requestedWeeklyHours = $validatedData['inputWklyHoursAssignProvider'];
-    // $requestedTotalHours = $totalWeeks * $requestedWeeklyHours;
-
-    // Log::info("Requested weekly hours: $requestedWeeklyHours, Requested total hours: $requestedTotalHours");
-
-    // Validate weekly and total hours
-    if ($requestedWeeklyHours > $maxWeeklyMandate) {
-        return response()->json([
-            'error' => "The Weekly Hours Limit is $maxWeeklyMandate in this Date Range."
-        ], 400);
-    }
-
-    if ($validatedData['inputWklyHoursAssignProvider'] == 0) {
-        return response()->json(['error' => 'Weekly hours must be greater than zero.'], 400);
-    }
-
-    if ($validatedData['inputYearlyHoursAssignProvider'] == 0) {
-        return response()->json(['error' => 'Yearly hours must be greater than zero.'], 400);
-    }
-
     try {
-        Log::info('Updating Assign Provider Data:', $updateData);
-
         $provider = AssignProviderModel::findOrFail($id);
         $isUpdated = $provider->update($updateData);
-
-        Log::info('Update Status:', [$isUpdated]);
 
         if (!$isUpdated) {
             return response()->json(['error' => 'Failed to update the provider.'], 500);
@@ -764,24 +726,8 @@ if ($hasOverlap) {
 
         return response()->json(['message' => 'Assign Provider updated successfully.'], 200);
     } catch (Exception $e) {
-        Log::error('Error updating provider:', ['error' => $e->getMessage()]);
-        return response()->json(['error' => 'An error occurred while updating the provider.', 'details' => $e->getMessage()], 500);
+        return response()->json(['error' => 'An error occurred while updating.', 'details' => $e->getMessage()], 500);
     }
-}
-
-
-
-public function fetch_start_end_date_of_student($studentId)
-{
-    $mandates = StudentServices::where('student_id', $studentId)
-        ->select('weekly_mandate', 'yearly_mandate', 'start_date', 'end_date', 'service_type')
-        ->get(); // Fetch all records instead of just one
-
-    if ($mandates->isEmpty()) { // Check if no records are found
-        return response()->json(['message' => 'No data found'], 404);
-    }
-
-    return response()->json($mandates);
 }
 
 
