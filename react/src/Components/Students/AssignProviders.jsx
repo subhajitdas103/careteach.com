@@ -146,7 +146,15 @@ if (selectedService && validServices.includes(selectedAssignProviderService)) {
 
     AssignProviderLimitEndDate = formatDate(selectedService.end_date);
     AssignProviderLimitStartDate = formatDate(selectedService.start_date);
+
+
+    // ========================================
+
+    
 }
+
+
+
 
 console.log("End AssignProviderLimitEndDate:", AssignProviderLimitEndDate);
 console.log("Start AssignProviderLimitStartDate:", AssignProviderLimitStartDate);
@@ -161,22 +169,22 @@ const [providerSelectedID, full_name] = selectedAssignProvider.split("|");
 console.log("providerSelectedID",providerSelectedID);
 
 
-const get_yearlyHouresafterAssign = () => {
+// const get_yearlyHouresafterAssign = () => {
 
-  const filteredProviders = assignedProvidersArray.filter(
-    provider => provider.service_type === selectedAssignProviderService 
-    &&
-    provider.provider_id == providerSelectedID // Ensure correct type comparison
-  );
-  console.log("Filtered Providers:", filteredProviders);
+//   const filteredProviders = assignedProvidersArray.filter(
+//     provider => provider.service_type === selectedAssignProviderService 
+//     &&
+//     provider.provider_id == providerSelectedID // Ensure correct type comparison
+//   );
+//   console.log("Filtered Providers:", filteredProviders);
 
- const totalYearlyHours = filteredProviders.reduce(
-  (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
-  0
-);
-console.log("Total yearly hours for provider", totalYearlyHours);
-  return totalYearlyHours;
-};
+//  const totalYearlyHours = filteredProviders.reduce(
+//   (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
+//   0
+// );
+// console.log("Total yearly hours for provider", totalYearlyHours);
+//   return totalYearlyHours;
+// };
 // ============================================================
 const getRemainingYearlyHoursinEdit = () => {
   // Filter providers with the same service type but exclude the current provider
@@ -202,30 +210,34 @@ console.log("filteredProvidersfilteredProviders",filteredProviders);
 };
 
 
+console.log("assignedProviders333333",assignedProviders);
 
-
-
+console.log("assignedProvidersfffff",assignedProviders);
 // ==============================================================================================================
 const getRemainingYearlyHoursinAdd = () => {
-  const filteredProviders = assignedProvidersArray.filter(
-    provider => provider.service_type === selectedAssignProviderService &&
-                provider.id === AssignproviderAutoID
+  const filteredProviders = assignedProviders.filter(
+    provider => provider.service_type === selectedAssignProviderService 
+                // provider.id === AssignproviderAutoID
   );
 
-  console.log("Filtered Providers:", filteredProviders);
+  console.log("Filtered Providers111111111:", filteredProviders);
 
   if (filteredProviders.length === 0) {
     console.log("No matching provider found.");
-    return 0; // Return 0 if no provider is found
+    return MAX_YEARLY_HOURS; // Return 0 if no provider is found
   }
 
-  const totalYearlyHours = filteredProviders.reduce((sum, provider) => sum + (provider.yearly_hours || 0), 0);
-  console.log("totalYearlyHours:", totalYearlyHours);
+  const totalYearlyHours = filteredProviders.reduce(
+    (sum, provider) => sum + Number(provider.yearly_hours || 0), 0
+  );
+  
+  console.log("xxxxxxxxxxx:", totalYearlyHours);
   
   const remainingHourswhenAssign = MAX_YEARLY_HOURS - totalYearlyHours;
   console.log("Total yearly hours for provider:", remainingHourswhenAssign);
   return remainingHourswhenAssign;
 };
+
 
 console.log("Remaining Yearly Hours:", getRemainingYearlyHoursinAdd());
 //===========================================
@@ -560,7 +572,7 @@ const handelAssignProviderData = async () => {
     }
   }
 };
-console.log("assignedProviders",assignedProviders);
+
 
 // ====================================
 const AssignProviderEditID = selectedAssignProvider.split("|")[0];
