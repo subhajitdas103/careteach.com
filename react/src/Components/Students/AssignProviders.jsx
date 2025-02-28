@@ -169,22 +169,22 @@ const [providerSelectedID, full_name] = selectedAssignProvider.split("|");
 console.log("providerSelectedID",providerSelectedID);
 
 
-// const get_yearlyHouresafterAssign = () => {
+const get_yearlyHouresafterAssign = () => {
 
-//   const filteredProviders = assignedProvidersArray.filter(
-//     provider => provider.service_type === selectedAssignProviderService 
-//     &&
-//     provider.provider_id == providerSelectedID // Ensure correct type comparison
-//   );
-//   console.log("Filtered Providers:", filteredProviders);
+  const filteredProviders = assignedProvidersArray.filter(
+    provider => provider.service_type === selectedAssignProviderService 
+    &&
+    provider.provider_id == providerSelectedID // Ensure correct type comparison
+  );
+  console.log("Filtered Providers:", filteredProviders);
 
-//  const totalYearlyHours = filteredProviders.reduce(
-//   (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
-//   0
-// );
-// console.log("Total yearly hours for provider", totalYearlyHours);
-//   return totalYearlyHours;
-// };
+ const totalYearlyHours = filteredProviders.reduce(
+  (sum, provider) => sum + (parseInt(provider.yearly_hours, 10) || 0), 
+  0
+);
+console.log("Total yearly hours for provider", totalYearlyHours);
+  return totalYearlyHours;
+};
 // ============================================================
 const getRemainingYearlyHoursinEdit = () => {
   // Filter providers with the same service type but exclude the current provider
@@ -520,7 +520,12 @@ const handelAssignProviderData = async () => {
 
   console.log("Final validation passed, proceeding to API call...");
   console.log("FormData:", formData);
-
+// Check yearly hours before submission
+const remainingYearlyHours = getRemainingYearlyHoursinAdd();
+if (inputYearlyHoursAssignProvider > remainingYearlyHours) {
+  toast.error(`Cannot assign more than ${remainingYearlyHours} yearly hours.`, { position: "top-right", autoClose: 5000 });
+  return; // Stop execution
+}
   try {
     const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
       headers: { 'Content-Type': 'application/json' },
@@ -656,6 +661,12 @@ const handleAssignProviderDataEdit = async () => {
   };
 
   console.log("Form data of assign Provider Modal:", formData);
+
+  const remainingYearlyHours = getRemainingYearlyHoursinEdit();
+  if (inputYearlyHoursAssignProvider > remainingYearlyHours) {
+    toast.error(`Cannot assign more than ${remainingYearlyHours} yearly hours.`, { position: "top-right", autoClose: 5000 });
+    return; // Stop execution
+  }
 
   try {
     const response = await axios.post(
@@ -824,7 +835,7 @@ const openModalAssignProvider = (id, name) => {
 //   setInputYearlyHoursAssignProvider(""); // Reset Yearly Hours when service type changes
 // }, [selectedAssignProviderService]);
 
-
+console.log("cccccccccccccccc",assignedProviders);
   return (
 <div>
     <ToastContainer />
