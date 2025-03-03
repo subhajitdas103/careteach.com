@@ -197,10 +197,8 @@ const getRemainingYearlyHoursinEdit = () => {
     console.log("No matching provider found.");
     return MAX_YEARLY_HOURS; // Return 0 if no provider is found
   }
-console.log("filteredProvidersfilteredProviders",filteredProviders);
-  console.log("MAX_YEARLY_HOURSMAX_YEARLY_HOURS",MAX_YEARLY_HOURS);
 
-  const totalYearlyHours = filteredProviders.reduce((sum, provider) => sum + (provider.yearly_hours || 0), 0);
+  const totalYearlyHours = filteredProviders.reduce((sum, provider) => sum + parseFloat(provider.yearly_hours || 0), 0);
   console.log("totalYearlyHourstotalYearlyHours",totalYearlyHours);
 
   const remainingYearlyHours = MAX_YEARLY_HOURS - totalYearlyHours;
@@ -209,32 +207,34 @@ console.log("filteredProvidersfilteredProviders",filteredProviders);
   return remainingYearlyHours;
 };
 
-
 console.log("assignedProviders333333",assignedProviders);
 
 console.log("assignedProvidersfffff",assignedProviders);
 // ==============================================================================================================
 const getRemainingYearlyHoursinAdd = () => {
   const filteredProviders = assignedProviders.filter(
-    provider => provider.service_type === selectedAssignProviderService 
-                // provider.id === AssignproviderAutoID
+    provider => provider.service_type === selectedAssignProviderService
   );
 
-  console.log("Filtered Providers111111111:", filteredProviders);
+  console.log("Filtered Providers:", filteredProviders.length, filteredProviders);
 
   if (filteredProviders.length === 0) {
     console.log("No matching provider found.");
-    return MAX_YEARLY_HOURS; // Return 0 if no provider is found
+    return MAX_YEARLY_HOURS;
   }
 
+  console.log("MAX_YEARLY_HOURS:", MAX_YEARLY_HOURS);
+
   const totalYearlyHours = filteredProviders.reduce(
-    (sum, provider) => sum + Number(provider.yearly_hours || 0), 0
+    (sum, provider) => sum + (Number(provider.yearly_hours) || 0), 0
   );
-  
-  console.log("xxxxxxxxxxx:", totalYearlyHours);
-  
+
+  console.log("Summing yearly hours:", filteredProviders.map(p => p.yearly_hours));
+  console.log("Total calculated yearly hours:", totalYearlyHours);
+
   const remainingHourswhenAssign = MAX_YEARLY_HOURS - totalYearlyHours;
-  console.log("Total yearly hours for provider:", remainingHourswhenAssign);
+  console.log("Remaining yearly hours:", remainingHourswhenAssign);
+
   return remainingHourswhenAssign;
 };
 
