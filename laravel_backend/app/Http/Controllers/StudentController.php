@@ -346,6 +346,9 @@ public function DeleteStudent($id)
                 'parent_id' => $parent->id,
             ]);
     
+
+
+            
             $totalWeeklyHours = 0;
             $totalYearlyHours = 0;
     

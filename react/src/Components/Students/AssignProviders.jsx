@@ -212,7 +212,10 @@ console.log("assignedProviders333333",assignedProviders);
 console.log("assignedProvidersfffff",assignedProviders);
 // ==============================================================================================================
 const getRemainingYearlyHoursinAdd = () => {
-  const filteredProviders = assignedProviders.filter(
+  // Ensure assignedProviders is an array
+  const safeAssignedProviders = Array.isArray(assignedProviders) ? assignedProviders : [];
+
+  const filteredProviders = safeAssignedProviders.filter(
     provider => provider.service_type === selectedAssignProviderService
   );
 
