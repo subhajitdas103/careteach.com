@@ -133,12 +133,54 @@ const fetchAssignedProviderDetails = async () => {
     ]);
   };
 
-const removeService = (index) => {
-  if (formDataList.length > 1) {
-  const updatedFormDataList = formDataList.filter((_, i) => i !== index);
-  setFormDataList(updatedFormDataList);
-  }
+  const removeService = (id) => {
+    console.log("Attempting to delete service with ID:", id);
+
+    axios.delete(`${backendUrl}/api/DeleteStudentService/${id}`)
+        .then((response) => {
+            console.log('Service deleted successfully:', response.data);
+
+            // Remove deleted service from state
+            setFormDataList((prevFormDataList) =>
+                prevFormDataList.filter((service) => service.id !== id)
+            );
+            setStudentServices((prevServices) =>
+                prevServices.filter((service) => service.id !== id)
+            );
+
+            // Show success toast
+            toast.success("Service successfully deleted!", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+        })
+        .catch((error) => {
+            if (error.response) {
+                console.error('Error deleting service (response):', error.response);
+
+                // Show API error message in toast
+                toast.error(error.response.data.message || "Failed to delete service.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+
+            } else if (error.request) {
+                console.error('Error deleting service (request):', error.request);
+                toast.error("No response from server. Please try again.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+
+            } else {
+                console.error('Error deleting service (message):', error.message);
+                toast.error("An unexpected error occurred.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+        });
 };
+
   // ===================================================================
 
   const [resolutionInvoice, setResolutionInvoice] = useState(false);
@@ -813,7 +855,7 @@ useEffect(() => {
 
               <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Choose IEP*</label>
+                    <label>Upload IEP Document*</label>
                     <div className="dropdown">
                     <Uploader
                     ref={uploaderRef}
@@ -825,15 +867,16 @@ useEffect(() => {
                     multiple={false} 
                     fileList={fileList}// Ensure only one file can be uploaded
                     onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                    disabled={true}
                     >
                     <Button>Select IEP Document</Button>
                     </Uploader>
                     {fileName && fileUrl && (
                       <div style={{ marginTop: "10px" }}>
                         <strong>Uploaded File: </strong> {fileName} &nbsp;
-                        <a href={fileUrl} download={fileName} target="_blank" rel="noopener noreferrer">
+                        {/* <a href={fileUrl} download={fileName} target="_blank" rel="noopener noreferrer">
                           Download
-                      </a>
+                      </a> */}
                       </div>
                       )}
                   </div>
@@ -1120,7 +1163,7 @@ useEffect(() => {
                 <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-1rem', marginTop: '-7rem' }}>
                   <Tooltip title= "Remove Service"  arrow>
                     <IconButton
-                      onClick={() => removeService(index)}
+                      onClick={() => removeService(formData.id)}
                       style={{
                         background: 'none',
                         padding: '0',
@@ -1221,7 +1264,8 @@ useEffect(() => {
                       <label>Start Date:</label>
                       <DatePicker
                         className=""
-                        value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
+                        value={formData.startDate ? new Date(formData.startDate) : null} 
+                         // Convert string to Date object
                         placeholder="Enter Start Date"
                         onChange={(value) => {
                             const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;

@@ -612,7 +612,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
-            <label>Choose IEP*</label>
+            <label>Upload IEP Document*</label>
             <div className="dropdown" style={{ padding: '20px' }}>
                <Row>
                   {/* Responsive layout */}
@@ -627,6 +627,7 @@ console.log(schools);
                   multiple={false} 
                   fileList={fileList}// Ensure only one file can be uploaded
                   onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                  disabled={true}
                   >
                   <Button>Select IEP Document</Button>
                   </Uploader>
@@ -997,6 +998,7 @@ console.log(schools);
                       className=""
                       // value={formData.startDate}
                       value={formData.startDate ? new Date(formData.startDate) : null} // Ensure the value is a Date object
+                      dateFormat="MM/dd/yyyy" 
                       placeholder="Enter Start Date"
                       onChange={(value) => {
                         const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;
@@ -1013,6 +1015,7 @@ console.log(schools);
                       className=""
                       value={formData.endDate ? new Date(formData.endDate) : null} 
                       // value={formData.endDate}
+                       dateFormat="MM/dd/yyyy"
                       placeholder="Enter End Date"
                       onChange={(value) => {
                         const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;

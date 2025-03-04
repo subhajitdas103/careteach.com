@@ -72,3 +72,6 @@ Route::get('/FetchConfirmSession',[CalendarController::class,'FetchConfirmession
 Route::post('/upload_iep_doc', [StudentController::class, 'uploadIEP']);
 Route::get('/get_iep/{id}', [StudentController::class, 'getUploadedIEP']);
 Route::delete('/delete_iep_upload_file/{filename}', [StudentController::class, 'deleteIEP']);
+
+Route::delete('/DeleteStudentService/{id}', [StudentController::class, 'DeleteStudentService']);
+

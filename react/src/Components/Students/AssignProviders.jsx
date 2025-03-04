@@ -887,8 +887,8 @@ console.log("cccccccccccccccc",assignedProviders);
                         <td>{provider.service_type}</td>
                         <td>{provider.wkly_hours}</td>
                         <td>{provider.yearly_hours}</td>
-                        <td>{provider.start_date}</td>
-                        <td>{provider.end_date}</td>
+                        <td>{new Date(provider.start_date).toLocaleDateString("en-US")}</td>
+                        <td>{new Date(provider.end_date).toLocaleDateString("en-US")}</td>
                         <td>{provider.location}</td>
                         <td>{provider.provider_rate}</td>
                         <td>
@@ -1269,7 +1269,7 @@ console.log("cccccccccccccccc",assignedProviders);
                             // console.log("Selected Date:", date);
                             setAssignProviderStartDate(format(date, "yyyy-MM-dd"));
                           }}
-                          dateFormat="dd/MM/yyyy" 
+                          dateFormat="MM/dd/yyyy" 
                           className="datepicker_Date_of_assignProvider"
                           filterDate={disableInvalidDates}
                           onKeyDown={(e) => e.preventDefault()} 
@@ -1283,6 +1283,7 @@ console.log("cccccccccccccccc",assignedProviders);
                           <DatePicker
                             selected={assignProviderEndDate}
                             onChange={(date) => setAssignProviderEndDate(date)}
+
                             placeholdertext="Select an end date"
                             className="datepicker_Date_of_assignProvider" 
                             filterDate={disableInvalidDates}

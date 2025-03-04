@@ -475,6 +475,38 @@ public function DeleteStudent($id)
         }
         
 
-       
+        public function DeleteStudentService($id)
+        {
+         try {
+        $service = StudentServices::find($id);
+
+        \Log::info('Service data: ', ['service' => $service]);
+
+        if (!$service) {
+            return response()->json(['message' => 'Service not found'], 404);
+        }
+        // Check if the student has only one service
+        $serviceCount = StudentServices::where('student_id', $service->student_id)->count();
+        if ($serviceCount == 1) {
+            return response()->json(['message' => 'Cannot delete the only remaining service'], 400);
+        }
+        $exists = AssignProviderModel::where('student_id', $service->student_id)
+                                     ->where('service_type', $service->service_type)
+                                     ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'Cannot delete service, as it is assigned to a provider'], 400);
+        }
+
+        $service->delete();
+
+        return response()->json(['message' => 'Service deleted successfully'], 200);
+    } catch (\Exception $e) {
+        Log::error('Error deleting service: ' . $e->getMessage());
+
+        return response()->json(['message' => 'Error deleting service'], 500);
+    }
+}
+
         
 }
