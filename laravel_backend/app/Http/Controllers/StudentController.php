@@ -347,7 +347,8 @@ public function DeleteStudent($id)
             ]);
     
 ///////////////////------------------------------------------------
-          
+
+
             //--------------------------------------------
            
             $totalWeeklyHours = 0;
@@ -375,9 +376,7 @@ public function DeleteStudent($id)
                         return response()->json(['error' => 'It can not be empty'], 400);
                     }
 
-                    if ($service['weeklyMandate'] < $existingService->weekly_mandate) {
-                        return response()->json(['error' => 'Weekly Mandate cannot be decreased'], 400);
-                    }
+                   
     
             // Check if the service type is assigned to the student in AssignProviderModel
                 $assignedService = AssignProviderModel::where('student_id', $existingService->student_id)
@@ -396,7 +395,20 @@ public function DeleteStudent($id)
                         if  ($endDateFormatted->lt($assignedEndDate)) {
                             return response()->json(['error' => 'End Date cannot be decreased as it conflicts with the assigned service dates'], 400);
                         }
+
                     }
+
+
+                    $testSum = AssignProviderModel::where('student_id', $existingService->student_id)
+                    ->where('service_type', $existingService->service_type)
+                    ->sum('yearly_hours');
+                
+                \Log::info("Yearly Hours Value:", [$testSum]);
+                
+                if ($service['yearlyMandate'] < $testSum) {
+                    return response()->json(['error' => 'Yearly Hours Can not be decreased'], 400);
+                }
+                
                 }
     
                 // Update or create service

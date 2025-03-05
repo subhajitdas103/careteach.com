@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 // import moment from 'moment';
 import moment from 'moment-timezone';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
 import { Modal, Button } from 'react-bootstrap'; // Importing Bootstrap Modal
 import { TimePicker ,DatePicker , Form , Dropdown ,Input  } from 'rsuite';
@@ -1237,11 +1239,14 @@ const handleNavigateWeek = (action) => {
                     format="hh:mm a"
                     showMeridian 
                   />
+          
                 </Form.Group>
-                
+             
               </div>
               
+
               )}
+
                {/* ===================For Bulk ====================== */}
                {selectedValueRadio === "bulk" && (
                <div className="stu-pro-field-div">
@@ -1268,9 +1273,12 @@ const handleNavigateWeek = (action) => {
                 </Form.Group>
               </div>
                )}
+
                
             </Modal.Body>
-
+            <button type="button" className="add-button" style={{backgroundColor:"white",marginLeft:"1rem",width:"6rem",marginTop:"-9px"}}>
+           <FontAwesomeIcon icon={faPlus} /> Add Another
+            </button>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
               {selectedValueRadio === "bulk" && (
