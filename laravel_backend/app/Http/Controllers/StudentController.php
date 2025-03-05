@@ -306,11 +306,11 @@ public function DeleteStudent($id)
                 'parent_type' => 'nullable|string|max:255',
     
                 // Service validation
-                'services' => 'required|array',
+                'services' => 'nullable|array',
                 'services.*.id' => 'nullable|integer',
                 'services.*.service_type' => 'nullable|string|max:255',
-                'services.*.startDate' => 'required|string|max:255',
-                'services.*.endDate' => 'required|string|max:255',
+                'services.*.startDate' => 'nullable|string|max:255',
+                'services.*.endDate' => 'nullable|string|max:255',
                 'services.*.weeklyMandate' => 'nullable|numeric',
                 'services.*.yearlyMandate' => 'nullable|numeric',
             ]);
@@ -346,9 +346,10 @@ public function DeleteStudent($id)
                 'parent_id' => $parent->id,
             ]);
     
-
-
-            
+///////////////////------------------------------------------------
+          
+            //--------------------------------------------
+           
             $totalWeeklyHours = 0;
             $totalYearlyHours = 0;
     
@@ -368,16 +369,33 @@ public function DeleteStudent($id)
                     $existingStartDate = Carbon::parse($existingService->start_date);
                     $existingEndDate = Carbon::parse($existingService->end_date);
     
+
+
+                    if ($service['weeklyMandate'] == "" ){
+                        return response()->json(['error' => 'It can not be empty'], 400);
+                    }
+
                     if ($service['weeklyMandate'] < $existingService->weekly_mandate) {
                         return response()->json(['error' => 'Weekly Mandate cannot be decreased'], 400);
                     }
     
-                    if ($startDateFormatted->gt($existingStartDate)) {
-                        return response()->json(['error' => 'Start Date cannot be increased'], 400);
-                    }
-    
-                    if ($endDateFormatted->lt($existingEndDate)) {
-                        return response()->json(['error' => 'End Date cannot be decreased'], 400);
+            // Check if the service type is assigned to the student in AssignProviderModel
+                $assignedService = AssignProviderModel::where('student_id', $existingService->student_id)
+                ->where('service_type', $existingService->service_type)
+                ->first();
+
+                    if ($assignedService) {
+                        $assignedStartDate = Carbon::parse($assignedService->start_date);
+                        $assignedEndDate = Carbon::parse($assignedService->end_date);
+
+                        // Check if user tries to decrease the start or end date (i.e., moving within the range)
+                        if ($startDateFormatted->gt($assignedStartDate)) {
+                            return response()->json(['error' => 'Start Date cannot be decreased as it conflicts with the assigned service dates'], 400);
+                        }
+
+                        if  ($endDateFormatted->lt($assignedEndDate)) {
+                            return response()->json(['error' => 'End Date cannot be decreased as it conflicts with the assigned service dates'], 400);
+                        }
                     }
                 }
     

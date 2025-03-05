@@ -135,7 +135,15 @@ const fetchAssignedProviderDetails = async () => {
 
   const removeService = (id) => {
     console.log("Attempting to delete service with ID:", id);
+    if (!id) {
+      console.warn("No ID provided. Removing service from state only.");
 
+      // Remove service from state without API call
+      setFormDataList((prevFormDataList) => prevFormDataList.slice(0, -1));
+      setStudentServices((prevServices) => prevServices.slice(0, -1));
+
+      return;
+  }
     axios.delete(`${backendUrl}/api/DeleteStudentService/${id}`)
         .then((response) => {
             console.log('Service deleted successfully:', response.data);
@@ -557,30 +565,52 @@ useEffect(() => {
 
         console.log('Data sent successfully:', response.data);  
       } catch (error) {
-        // Check if the error is a validation or custom error (like the weekly mandate issue)
-        if (error.response && error.response.data.error) {
-            // Show custom error (e.g., Weekly Mandate cannot exceed Yearly Mandate)
-            toast.error(error.response.data.error, {
-                position: "top-right",
-                autoClose: 5000,
-            });
-        } else if (error.response && error.response.status === 422) {
-            const errors = error.response.data.errors;
-            for (const [key, value] of Object.entries(errors)) {
-                toast.error(value[0], {
+        console.error("Full error object:", error);
+    
+        if (error.response) {
+            console.error("Error response:", error.response);
+    
+            // Check for Laravel validation errors (422)
+            if (error.response.status === 422 && error.response.data.errors) {
+                const errors = error.response.data.errors;
+                for (const [key, value] of Object.entries(errors)) {
+                    toast.error(value[0], {
+                        position: "top-right",
+                        autoClose: 5000,
+                    });
+                }
+            }
+            // Check for a custom Laravel error
+            else if (error.response.status === 500) {
+                toast.error("Please , fill the all feild ", {
                     position: "top-right",
                     autoClose: 5000,
                 });
             }
-        } else {
-            // Handle other types of errors (network, server, etc.)
-            toast.error("An error occurred. Please try again.", {
+            else if (error.response.data.error) {
+                toast.error(error.response.data.error, {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+            else {
+                toast.error("An unexpected error occurred. Please try again.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+        } 
+        else {
+            toast.error("Network error. Please check your connection.", {
                 position: "top-right",
                 autoClose: 5000,
             });
-            console.error('There was an error sending data:', error.response?.data || error.message);
+            console.error("Network or other error:", error.message);
         }
     }
+    
+    
+    
   }
     
     
