@@ -41,9 +41,6 @@ class CalendarController extends Controller
             ];
         }
     
-
-
-
         try {
            
             CalendarModel::insert($sessions);
@@ -95,7 +92,23 @@ class CalendarController extends Controller
         'endDate'         => 'required|date|after_or_equal:startDate',
         'sessions'  => 'required|array',
         'sessionDates'   => 'required|array',
+    ], [
+        'selected_student.required' => 'The selected student field is required.',
+        'sessionType.required' => 'Session type is required.',
+        'dayofweek.required' => 'At least one day of the week is required.',
+        'startDate.required' => 'Start date is required.',
+        'endDate.required' => 'End date is required and must be after or equal to start date.',
+        'sessions.required' => 'At least one session time slot is required.',
+        'sessionDates.required' => 'Session dates are required.',
+        'sessions.*.startTime.required' => 'Start time is required for each session.',
+        'sessions.*.endTime.required' => 'End time is required for each session.',
     ]);
+
+    // Filter out 'id' validation errors before returning
+    //if ($validator->fails()) {
+    //$errors = collect($validator->errors()->messages())->except('id'); // Remove 'id' errors
+    //return response()->json(['errors' => $errors], 422);
+    //}
 
     $validatedData['dayofweek'] = is_array($validatedData['dayofweek'])
         ? implode(',', $validatedData['dayofweek'])
