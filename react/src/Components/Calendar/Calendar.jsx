@@ -461,15 +461,23 @@ console.log("SingleSession Date",SingleSessionChooseDate);
       return;  // Stop execution if conflict is found
   }
   
-    
+  const formatTimeToLocal = (date) => {
+    if (!date) return null;
+    const localDate = new Date(date);
+    return localDate.toLocaleTimeString("en-GB", { hour12: false }); // "09:00:00"
+  };
 
     const sessionData = {
         id: slectedStudentID,
         selected_student: SelectedStudentName,
         sessionType: selectedValueRadio,
         date: sessionDate,
-        startTime: sessionStartTime,
-        endTime: sessionEndTime,
+        // startTime: sessionStartTime,
+        // endTime: sessionEndTime,
+        timeSlots: divs.map(div => ({
+          startTime: formatTimeToLocal(div.startTime),
+          endTime: formatTimeToLocal(div.endTime),
+        })),
     };
 
     console.log("Session Data:", sessionData);
@@ -968,9 +976,31 @@ const handleNavigateWeek = (action) => {
 
   setCurrentDate(newDate); // Update the current date to trigger a re-render
 };
-// ==================================
+// ================Start and end time clone in single session==================
 
+const [divs, setDivs] = useState([{ startTime: null, endTime: null }]); // Now starts with one div
+// Stores all cloned divs
+  
 
+  // Function to add a new time picker div
+  const addNewDiv = () => {
+    setDivs([...divs, { startTime: null, endTime: null }]);
+  };
+
+  // Handle start time change
+  const handleStartTimeChange = (value, index) => {
+    const newDivs = [...divs];
+    newDivs[index].startTime = value;
+    setDivs(newDivs);
+  };
+
+  // Handle end time change
+  const handleEndTimeChange = (value, index) => {
+    const newDivs = [...divs];
+    newDivs[index].endTime = value;
+    setDivs(newDivs);
+  };
+// ===END========Start and end time clone in single session===================
 
   return (
     
@@ -1219,34 +1249,52 @@ const handleNavigateWeek = (action) => {
 
               {/* ===================For Single ====================== */}
               {selectedValueRadio === "single" && (
-              <div className="stu-pro-field-div">
-                <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time S</Form.ControlLabel>
-                  <TimePicker
-                    value={StartTimeValue.time}
-                    onChange={handleStartimeChange}
-                    format="hh:mm a " 
-                    showMeridian 
-                  />
-                </Form.Group>
-               
-                <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time S</Form.ControlLabel>
-                 
-                  <TimePicker
-                    value={EndTimeValue.time}
-                    onChange={handleEndtimeChange}
-                    format="hh:mm a"
-                    showMeridian 
-                  />
-          
-                </Form.Group>
-             
-              </div>
-              
+        <>
+          {/* Render cloned divs with independent time values */}
+          {divs.map((div, index) => (
+            <div key={index} className="stu-pro-field-div" style={{ marginTop: "10px" }}>
+              <Form.Group controlId={`start-time-${index}`}>
+                <Form.ControlLabel className="fontsizeofaddsessionmodal">
+                  Start Time {index + 1}
+                </Form.ControlLabel>
+                <TimePicker
+                  value={div.startTime}
+                  onChange={(value) => handleStartTimeChange(value, index)}
+                  format="hh:mm a"
+                  showMeridian
+                />
+              </Form.Group>
 
-              )}
-
+              <Form.Group controlId={`end-time-${index}`}>
+                <Form.ControlLabel className="fontsizeofaddsessionmodal">
+                  End Time {index + 1}
+                </Form.ControlLabel>
+                <TimePicker
+                  value={div.endTime}
+                  onChange={(value) => handleEndTimeChange(value, index)}
+                  format="hh:mm a"
+                  showMeridian
+                />
+              </Form.Group>
+            </div>
+          ))}
+              {/* Add Another Button */}
+                  <button
+                      type="button"
+                      className="add-button"
+                      style={{
+                        backgroundColor: "white",
+                        marginLeft: "-11px",
+                        width: "8rem",
+                        marginTop: "0px",
+                        fontSize: "14px",
+                      }}
+                      onClick={addNewDiv}
+                    >
+                      <FontAwesomeIcon icon={faPlus} /> Add Another
+                    </button>
+          </>
+                )}
                {/* ===================For Bulk ====================== */}
                {selectedValueRadio === "bulk" && (
                <div className="stu-pro-field-div">
@@ -1276,9 +1324,7 @@ const handleNavigateWeek = (action) => {
 
                
             </Modal.Body>
-            <button type="button" className="add-button" style={{backgroundColor:"white",marginLeft:"1rem",width:"6rem",marginTop:"-9px"}}>
-           <FontAwesomeIcon icon={faPlus} /> Add Another
-            </button>
+           
             <Modal.Footer>
               <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
               {selectedValueRadio === "bulk" && (

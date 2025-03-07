@@ -16,24 +16,35 @@ class CalendarController extends Controller
             'sessionType' => 'required|string',
             'date' => 'required|date',
             'selected_student'   => 'required|string',
-            'startTime' => 'required|date_format:H:i:s',
-            'endTime' => 'required|date_format:H:i:s',
+            'timeSlots' => 'required|array',
         ]);
-    
+        $sessions = [];
         // Prepare the data to insert
-        $dataToAdd = [
-            'student_id' => $validatedData['id'],
-            'student_name' => $validatedData['selected_student'],
-            'session_name' => $validatedData['sessionType'],
-            'date' => $validatedData['date'],
-            'start_time' => $validatedData['startTime'],
-            'end_time' => $validatedData['endTime'],
+        // $dataToAdd = [
+        //     'student_id' => $validatedData['id'],
+        //     'student_name' => $validatedData['selected_student'],
+        //     'session_name' => $validatedData['sessionType'],
+        //     'date' => $validatedData['date'],
+        //     'start_time' => $validatedData['startTime'],
+        //     'end_time' => $validatedData['endTime'],
             
-        ];
+        // ];
+        foreach ($validatedData['timeSlots'] as $slot) {
+            $sessions[] = [
+                'student_id' => $validatedData['id'],
+                'student_name' => $validatedData['selected_student'],
+                'session_name' => $validatedData['sessionType'],
+                'date' => $validatedData['date'],
+                'start_time' => $slot['startTime'],
+                'end_time' => $slot['endTime'],
+             
+            ];
+        }
     
         try {
             // Insert the data into the database
-            CalendarModel::create($dataToAdd);
+            //CalendarModel::create($dataToAdd);
+            CalendarModel::insert($sessions);
             return response()->json(['message' => 'Session created '], 201);
         } catch (\Exception $e) {
             // Log the error and return a response
