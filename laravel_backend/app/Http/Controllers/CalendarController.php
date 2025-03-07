@@ -15,20 +15,20 @@ class CalendarController extends Controller
             'id'  => 'required|integer',
             'sessionType' => 'required|string',
             'date' => 'required|date',
-            'selected_student'   => 'required|string',
+            'selected_student' => 'required|string',
             'timeSlots' => 'required|array',
+            'timeSlots.*.startTime' => 'required|string',
+            'timeSlots.*.endTime' => 'required|string',
+
+        ], [
+           
+            'selected_student.required' => 'The selected student field is required.',
+            'selected_student.required' => 'The selected student field is required.',
+        'timeSlots.*.startTime.required' => 'Start time is required for each session.',
+        'timeSlots.*.endTime.required' => 'End time is required for each session.',
         ]);
         $sessions = [];
-        // Prepare the data to insert
-        // $dataToAdd = [
-        //     'student_id' => $validatedData['id'],
-        //     'student_name' => $validatedData['selected_student'],
-        //     'session_name' => $validatedData['sessionType'],
-        //     'date' => $validatedData['date'],
-        //     'start_time' => $validatedData['startTime'],
-        //     'end_time' => $validatedData['endTime'],
-            
-        // ];
+    
         foreach ($validatedData['timeSlots'] as $slot) {
             $sessions[] = [
                 'student_id' => $validatedData['id'],
@@ -41,9 +41,11 @@ class CalendarController extends Controller
             ];
         }
     
+
+
+
         try {
-            // Insert the data into the database
-            //CalendarModel::create($dataToAdd);
+           
             CalendarModel::insert($sessions);
             return response()->json(['message' => 'Session created '], 201);
         } catch (\Exception $e) {
@@ -52,7 +54,7 @@ class CalendarController extends Controller
             return response()->json(['message' => 'Error creating '], 500);
         }
     
-
+    
     }
 
 

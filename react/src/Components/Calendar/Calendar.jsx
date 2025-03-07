@@ -495,12 +495,24 @@ console.log("SingleSession Date",SingleSessionChooseDate);
         } else {
             throw new Error('Failed to create session');
         }
-    } catch (error) {
-        console.error('Error:', error);
-        toast.error("There was an error creating the session.", {
-            position: "top-right",
-            autoClose: 5000,
-        });
+      } catch (error) {
+        console.error("Error:", error);
+    
+        if (error.response?.status === 422) {
+            const errors = error.response.data.errors;
+    
+            Object.entries(errors).forEach(([field, messages]) => {
+                if (field !== "id") { // Ignore 'id' validation errors
+                    messages.forEach((message) => {
+                        toast.error(message, { position: "top-right", autoClose: 3000 });
+                    });
+                }
+            });
+        } else if (error.response?.status === 500) {
+            toast.error("Internal server error. Please contact support.", { position: "top-right", autoClose: 5000 });
+        } else {
+            toast.error("Something went wrong. Please try again.", { position: "top-right", autoClose: 5000 });
+        }
     }
 };
 
