@@ -91,8 +91,7 @@ class CalendarController extends Controller
         'dayofweek'  => 'required|array',
         'startDate' => 'required|date',
         'endDate'         => 'required|date|after_or_equal:startDate',
-        'startTime'       => 'required|date_format:H:i:s',
-        'endTime'         => 'required|date_format:H:i:s|after:startTime',
+        'sessions'  => 'required|array',
         'sessionDates'   => 'required|array',
     ]);
 
@@ -103,25 +102,26 @@ class CalendarController extends Controller
         $validatedData['sessionDates'] = is_array($validatedData['sessionDates'])
         ? implode(',', $validatedData['sessionDates'])
         : $validatedData['sessionDates']; 
-
+        
+        $sessions = $validatedData['sessions']; // Array of session start & end times
       
 
-    // Prepare the data to insert, encode dayofweek array to JSON
-    $dataToAdd = [
-        'student_id' => $validatedData['id'],
-        'student_name' => $validatedData['selected_student'],
-        'session_name' => $validatedData['sessionType'],
-        'dayofweek' => $validatedData['dayofweek'], // Encode to JSON
-        'start_date' => $validatedData['startDate'],
-        'end_date' => $validatedData['endDate'],
-        'start_time' => $validatedData['startTime'],
-        'end_time' => $validatedData['endTime'],
-        'session_dates' => $validatedData['sessionDates'],
-    ];
 
-    try {
-        // Insert the data into the database
-        BulkSessionModel::create($dataToAdd);
+
+        try {
+            foreach ($sessions as $session) {
+                BulkSessionModel::create([
+                    'student_id'   => $validatedData['id'],
+                    'student_name' => $validatedData['selected_student'],
+                    'session_name' => $validatedData['sessionType'],
+                    'dayofweek'    => $validatedData['dayofweek'],
+                    'start_date'   => $validatedData['startDate'],
+                    'end_date'     => $validatedData['endDate'],
+                    'start_time'   => $session['startTime'], // Save each session time
+                    'end_time'     => $session['endTime'],
+                    'session_dates' => $validatedData['sessionDates'],
+                ]);
+            }
         return response()->json(['message' => 'Session created successfully!'], 201);
     } catch (\Exception $e) {
         // Log the error and return a response

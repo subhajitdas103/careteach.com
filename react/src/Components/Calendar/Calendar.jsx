@@ -3,7 +3,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 // import moment from 'moment';
 import moment from 'moment-timezone';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus,faMinusCircle  } from "@fortawesome/free-solid-svg-icons";
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
@@ -650,6 +650,11 @@ const filteredSessionDates = formattedSessionDates.filter(day => {
 console.log("Filtered session dates:", filteredSessionDates);
 
 
+const formatTimeToLocal = (date) => {
+  if (!date) return null;
+  const localDate = new Date(date);
+  return localDate.toLocaleTimeString("en-GB", { hour12: false }); // "09:00:00"
+};
 
 
 const sessionData = {
@@ -659,8 +664,12 @@ const sessionData = {
   dayofweek: wdays,  // This stores the array of selected days of the week
   startDate: selecteStartDateBulk,
   endDate: selecteEndDateBulk,
-  startTime: BulkSessionStartTime,
-  endTime: BulkSessionEndTime,
+  // startTime: BulkSessionStartTime,
+  // endTime: BulkSessionEndTime,
+  sessions: bulkDivs.map((div) => ({
+    startTime: formatTimeToLocal(div.startTime),
+    endTime: formatTimeToLocal(div.endTime),
+  })),
   sessionDates: filteredSessionDates, // Add the session dates here
 };
   console.log("SessionData",sessionData);
@@ -1000,7 +1009,42 @@ const [divs, setDivs] = useState([{ startTime: null, endTime: null }]); // Now s
     newDivs[index].endTime = value;
     setDivs(newDivs);
   };
+
+ 
+  const removeDiv = (index) => {
+    if (divs.length > 1) {
+      setDivs(divs.filter((_, i) => i !== index));
+    }
+  };
+  
 // ===END========Start and end time clone in single session===================
+
+
+
+// =========Clone of Add another button of start and end time in bulk=====
+const [bulkDivs, setBulkDivs] = useState([
+  { startTime: null, endTime: null },
+]);
+
+const addNewBulkDiv = () => {
+  setBulkDivs([...bulkDivs, { startTime: null, endTime: null }]);
+};
+
+const removeBulkDiv = (index) => {
+  setBulkDivs(bulkDivs.filter((_, i) => i !== index));
+};
+
+const handleStartTimeChangeBulk = (value, index) => {
+  const newBulkDivs = [...bulkDivs];
+  newBulkDivs[index].startTime = value;
+  setBulkDivs(newBulkDivs);
+};
+
+const handleEndTimeChangeBulk = (value, index) => {
+  const newBulkDivs = [...bulkDivs];
+  newBulkDivs[index].endTime = value;
+  setBulkDivs(newBulkDivs);
+};
 
   return (
     
@@ -1237,7 +1281,7 @@ const [divs, setDivs] = useState([{ startTime: null, endTime: null }]); // Now s
                 />
               </Form.Group>
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Date c</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Date</Form.ControlLabel>
                 <DatePicker
                   
                   onChange={handleEndDateChangeBulk}
@@ -1249,36 +1293,55 @@ const [divs, setDivs] = useState([{ startTime: null, endTime: null }]); // Now s
 
               {/* ===================For Single ====================== */}
               {selectedValueRadio === "single" && (
-        <>
-          {/* Render cloned divs with independent time values */}
-          {divs.map((div, index) => (
-            <div key={index} className="stu-pro-field-div" style={{ marginTop: "10px" }}>
-              <Form.Group controlId={`start-time-${index}`}>
-                <Form.ControlLabel className="fontsizeofaddsessionmodal">
-                  Start Time {index + 1}
-                </Form.ControlLabel>
-                <TimePicker
-                  value={div.startTime}
-                  onChange={(value) => handleStartTimeChange(value, index)}
-                  format="hh:mm a"
-                  showMeridian
-                />
-              </Form.Group>
+               <>
+                 {/* Render cloned divs with independent time values */}
+                 {divs.map((div, index) => (
+                  <div key={index} className="stu-pro-field-div" style={{ marginTop: "10px" }}>
+                    <Form.Group controlId={`start-time-${index}`}>
+                      <Form.ControlLabel className="fontsizeofaddsessionmodal">
+                        Start Time 
+                      </Form.ControlLabel>
+                      <TimePicker
+                        value={div.startTime}
+                        onChange={(value) => handleStartTimeChange(value, index)}
+                        format="hh:mm a"
+                        showMeridian
+                      />
+                    </Form.Group>
 
-              <Form.Group controlId={`end-time-${index}`}>
-                <Form.ControlLabel className="fontsizeofaddsessionmodal">
-                  End Time {index + 1}
-                </Form.ControlLabel>
-                <TimePicker
-                  value={div.endTime}
-                  onChange={(value) => handleEndTimeChange(value, index)}
-                  format="hh:mm a"
-                  showMeridian
-                />
-              </Form.Group>
-            </div>
-          ))}
-              {/* Add Another Button */}
+                    <Form.Group controlId={`end-time-${index}`}>
+                      <Form.ControlLabel className="fontsizeofaddsessionmodal">
+                        End Time 
+                      </Form.ControlLabel>
+                      <TimePicker
+                        value={div.endTime}
+                        onChange={(value) => handleEndTimeChange(value, index)}
+                        format="hh:mm a"
+                        showMeridian
+                      />
+                    </Form.Group>
+                    {index > 0 && (
+                    <button
+                        type="button"
+                        className="remove-button"
+                        style={{
+                          backgroundColor: "white",
+                        
+                          border: "none",
+                          borderRadius: "5px",
+                          padding: "-1px 5px",
+                          cursor: "pointer",
+                          marginTop: "41px",
+                          height: "21px",
+                        }}
+                        onClick={() => removeDiv(index)}
+                     >
+                      <FontAwesomeIcon icon={faMinusCircle } /> 
+                    </button>
+                 )}
+                  </div>
+                 ))}
+                  {/* Add Another Button */}
                   <button
                       type="button"
                       className="add-button"
@@ -1293,34 +1356,64 @@ const [divs, setDivs] = useState([{ startTime: null, endTime: null }]); // Now s
                     >
                       <FontAwesomeIcon icon={faPlus} /> Add Another
                     </button>
-          </>
+                </>
                 )}
                {/* ===================For Bulk ====================== */}
-               {selectedValueRadio === "bulk" && (
-               <div className="stu-pro-field-div">
-                <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time B</Form.ControlLabel>
+          {selectedValueRadio === "bulk" && (
+            <>
+            {bulkDivs.map((div, index) => (
+              <div
+                key={index}
+                className="stu-pro-field-div"
+                style={{ marginTop: "10px", display: "flex", alignItems: "center" }}
+              >
+                <Form.Group controlId={`bulk-start-time-${index}`} style={{ marginRight: "10px" }}>
+                  <Form.ControlLabel className="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
                   <TimePicker
-                    value={StartTimeValueBulk.time}
-                    onChange={handleStartimeChangeBulk}
-                    format="hh:mm a " 
-                    showMeridian 
-                  />
-                </Form.Group>
-               
-                <Form.Group controlId="time">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time B</Form.ControlLabel>
-                 
-                  <TimePicker
-                    value={EndTimeValueBulk.time}
-                    onChange={handleEndtimeChangeBulk}
+                    value={div.startTime}
+                    onChange={(value) => handleStartTimeChangeBulk(value, index)}
                     format="hh:mm a"
-                  
-                    showMeridian 
+                    showMeridian
                   />
                 </Form.Group>
+
+                <Form.Group controlId={`bulk-end-time-${index}`} style={{ marginRight: "10px" }}>
+                  <Form.ControlLabel className="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
+                  <TimePicker
+                    value={div.endTime}
+                    onChange={(value) => handleEndTimeChangeBulk(value, index)}
+                    format="hh:mm a"
+                    showMeridian
+                  />
+                </Form.Group>
+
+                {/* Show Remove button only for second div onwards */}
+                {index > 0 && (
+                  <button type="button" onClick={() => removeBulkDiv(index)} className="remove-button">
+                    <FontAwesomeIcon icon={faMinusCircle} />
+                  </button>
+                )}
               </div>
-               )}
+            ))}
+
+            {/* Add Another Button */}
+            <button
+              type="button"
+              className="add-button"
+              style={{
+                backgroundColor: "white",
+                marginLeft: "-11px",
+                width: "8rem",
+                marginTop: "10px",
+                fontSize: "14px",
+              }}
+              onClick={addNewBulkDiv}
+            >
+              <FontAwesomeIcon icon={faPlus} /> Add Another
+            </button>
+            </>
+          )}
+
 
                
             </Modal.Body>
