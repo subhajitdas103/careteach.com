@@ -408,6 +408,14 @@ public function DeleteStudent($id)
                 if ($service['yearlyMandate'] < $testSum) {
                     return response()->json(['error' => 'Yearly Hours Can not be decreased'], 400);
                 }
+
+                $testSumweekly = AssignProviderModel::where('student_id', $existingService->student_id)
+                ->where('service_type', $existingService->service_type)
+                ->min('wkly_hours');
+
+                if ($service['weeklyMandate'] < $testSumweekly) {
+                    return response()->json(['error' => 'Weekly Hours Can not be decreased'], 400);
+                }
                 
                 }
     
