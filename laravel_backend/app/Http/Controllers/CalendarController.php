@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\CalendarModel;
 use App\Models\BulkSessionModel;
 use App\Models\ConfirmSession;
+use App\Models\AssignProviderModel;
 use Illuminate\Support\Facades\Log;
 class CalendarController extends Controller
 {
@@ -19,16 +20,40 @@ class CalendarController extends Controller
             'timeSlots' => 'required|array',
             'timeSlots.*.startTime' => 'required|string',
             'timeSlots.*.endTime' => 'required|string',
-
+            'userRollID' => 'required|integer', 
         ], [
            
             'selected_student.required' => 'The selected student field is required.',
             'selected_student.required' => 'The selected student field is required.',
-        'timeSlots.*.startTime.required' => 'Start time is required for each session.',
-        'timeSlots.*.endTime.required' => 'End time is required for each session.',
+            'timeSlots.*.startTime.required' => 'Start time is required for each session.',
+            'timeSlots.*.endTime.required' => 'End time is required for each session.',
         ]);
-        $sessions = [];
+      
     
+
+        $existingAssignProvider = AssignProviderModel::where('provider_id', $validatedData['userRollID'])
+        ->where('student_id', $validatedData['id']) 
+        ->orderBy('start_date', 'asc') // Sort by earliest start date
+        ->orderBy('end_date', 'desc') // Sort by latest end date
+        ->get();
+        
+        $minStartDate = $existingAssignProvider->first()?->start_date; // Get the lowest start_date
+        $maxEndDate = $existingAssignProvider->max('end_date'); // Get the highest end_date
+    
+        Log::info("Earliest Start Date: " . $minStartDate);
+        Log::info("Latest End Date: " . $maxEndDate);
+ 
+       // Check if the date is out of range
+if ($minStartDate && $maxEndDate) {
+    if ($validatedData['date'] < $minStartDate || $validatedData['date'] > $maxEndDate) {
+        return response()->json([
+            'errors' => ['date' => ['Session cannot be created outside the allowed date range']]
+        ], 422);
+    }
+}
+
+
+    $sessions = [];
         foreach ($validatedData['timeSlots'] as $slot) {
             $sessions[] = [
                 'student_id' => $validatedData['id'],
