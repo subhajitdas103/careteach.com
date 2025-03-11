@@ -1085,12 +1085,15 @@ const handleEndTimeChangeBulk = (value, index) => {
       startAccessor="start"
       endAccessor="end"
       style={{ height: 500 }}
-    onShowMore={(events, date) => {
-  const SingleSessionDate = moment(date).format('YYYY-MM-DD'); // Format date
-  console.log('Redirecting to:', SingleSessionDate); // Debugging log
-alert("fg");
-  navigate(`/calendar?date=${SingleSessionDate}`); // Redirect to selected date
-}}
+      onShowMore={(events, date) => {
+        const SingleSessionDate = moment(date).format('YYYY-MM-DD');
+        console.log('Redirecting to:', SingleSessionDate);
+        
+        setView('day'); // Change to the day view
+        setCurrentDate(new Date(SingleSessionDate)); // Update calendar to selected date
+      }}
+      
+      
 
       view={view} // Controlled view based on state
       date={currentDate} // Set the current date for navigation
