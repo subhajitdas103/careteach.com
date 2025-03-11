@@ -4,7 +4,7 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment-timezone';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus,faMinusCircle  } from "@fortawesome/free-solid-svg-icons";
-
+import { useNavigate } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -32,7 +32,7 @@ const localizer = momentLocalizer(moment);
 
 const CalendarComponent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
+  const navigate = useNavigate();
 // ============Getting Roll Name from Session=========
   const { userRollID, userRollName } = useAuth(); 
   console.log("Updated Roll Name:", userRollName);
@@ -1085,6 +1085,13 @@ const handleEndTimeChangeBulk = (value, index) => {
       startAccessor="start"
       endAccessor="end"
       style={{ height: 500 }}
+    onShowMore={(events, date) => {
+  const SingleSessionDate = moment(date).format('YYYY-MM-DD'); // Format date
+  console.log('Redirecting to:', SingleSessionDate); // Debugging log
+alert("fg");
+  navigate(`/calendar?date=${SingleSessionDate}`); // Redirect to selected date
+}}
+
       view={view} // Controlled view based on state
       date={currentDate} // Set the current date for navigation
       onView={handleViewChange} // View change handler
@@ -1171,6 +1178,8 @@ const handleEndTimeChangeBulk = (value, index) => {
             color: isCurrentMonth ? 'inherit' : '#a0a0a0', // Greyed-out text color for non-current month dates
           }}
         >
+
+        
           {children}
           <button
             type="button"
@@ -1180,6 +1189,8 @@ const handleEndTimeChangeBulk = (value, index) => {
               marginLeft: '4px',
               top: '0px',
               zIndex: 10,
+
+              
             }}
             onClick={() => handlePlusClick(value)}
           >
