@@ -293,25 +293,25 @@ useEffect(() => {
 
   
 
-  const handleEndtimeChangeBulk = (value) => {
-    const startHour = StartTimeValueBulk?.time ? StartTimeValueBulk.time.getHours() : 8; // Default to 8 AM
-    const endHour = value.getHours();
+  // const handleEndtimeChangeBulk = (value) => {
+  //   const startHour = StartTimeValueBulk?.time ? StartTimeValueBulk.time.getHours() : 8; // Default to 8 AM
+  //   const endHour = value.getHours();
   
-    // Check if the selected end time is outside the valid range (8 AM to 10 PM)
-    if (endHour < 8 || endHour > 21) {
-      alert('End time must be between 10:00 PM.');
-      return;
-    }
+  //   // Check if the selected end time is outside the valid range (8 AM to 10 PM)
+  //   if (endHour < 8 || endHour > 21) {
+  //     alert('End time must be between 10:00 PM.');
+  //     return;
+  //   }
   
-    // Check if the end time is earlier than or equal to the start time
-    if (StartTimeValueBulk?.time && value <= StartTimeValueBulk.time) {
-      alert('End time must be later than the start time.');
-      return;
-    }
+  //   // Check if the end time is earlier than or equal to the start time
+  //   if (StartTimeValueBulk?.time && value <= StartTimeValueBulk.time) {
+  //     alert('End time must be later than the start time.');
+  //     return;
+  //   }
   
-    // If valid, update the end time value
-    setEndTimeValueBulk({ time: value });
-  };
+  //   // If valid, update the end time value
+  //   setEndTimeValueBulk({ time: value });
+  // };
   
   const handleDateChange = (date) => {
     const formattedDate = new Date(date).toISOString().split('T')[0]; // format as yyyy-MM-dd
@@ -411,8 +411,8 @@ console.log("SingleSession Date",SingleSessionChooseDate);
   // =======================================
   const addSingleSession = async () => {
     const sessionDate = SingleSessionChooseDate; // Selected date for the session (e.g., "2025-01-09")
-    const sessionStartTime = SingleSessionStartTime; // e.g., "10:00:00"
-    const sessionEndTime = SingleSessionEndTime;
+    // const sessionStartTime = SingleSessionStartTime; // e.g., "10:00:00"
+    // const sessionEndTime = SingleSessionEndTime;
 
     const eventsOnSameDate = events.filter(event => {
         const eventStart = new Date(event.start);
@@ -423,50 +423,50 @@ console.log("SingleSession Date",SingleSessionChooseDate);
     console.log("eventsOnSameDate", eventsOnSameDate);
 
     // Check if any events have the same time as the new session
-    for (let event of eventsOnSameDate) {
-        const eventStartTime = new Date(event.start);
-        const eventEndTime = new Date(event.end);
+    // for (let event of eventsOnSameDate) {
+    //     const eventStartTime = new Date(event.start);
+    //     const eventEndTime = new Date(event.end);
         
-        if (eventStartTime.getTime() === new Date(`${sessionDate}T${sessionStartTime}`).getTime() &&
-            eventEndTime.getTime() === new Date(`${sessionDate}T${sessionEndTime}`).getTime()) {
-            toast.error("A session already exists at this time. Please choose a different time.", {
-                position: "top-right",
-                autoClose: 5000,
-            });
-            return;  // Exit the function as there is a conflict
-        }
-    }
+    //     if (eventStartTime.getTime() === new Date(`${sessionDate}T${sessionStartTime}`).getTime() &&
+    //         eventEndTime.getTime() === new Date(`${sessionDate}T${sessionEndTime}`).getTime()) {
+    //         toast.error("A session already exists at this time. Please choose a different time.", {
+    //             position: "top-right",
+    //             autoClose: 5000,
+    //         });
+    //         return;  // Exit the function as there is a conflict
+    //     }
+    // }
     // Check for conflicts in `all_event_bulk`
 
-    const conflict = Bulkevents.some(event => {
-      // Extract time part (HH:mm:ss) from the event start and end times
-      const eventStartTime = new Date(event.start).toLocaleTimeString('en-GB', { hour12: false });
-      const eventEndTime = new Date(event.end).toLocaleTimeString('en-GB', { hour12: false });
+  //   const conflict = Bulkevents.some(event => {
+  //     // Extract time part (HH:mm:ss) from the event start and end times
+  //     const eventStartTime = new Date(event.start).toLocaleTimeString('en-GB', { hour12: false });
+  //     const eventEndTime = new Date(event.end).toLocaleTimeString('en-GB', { hour12: false });
   
   
-      console.log("eventStartTime:", eventStartTime);
-      console.log("sessionStartTime:", sessionStartTime);
-      console.log("eventEndTime:", eventEndTime);
-      console.log("sessionEndTime:", sessionEndTime);
+  //     console.log("eventStartTime:", eventStartTime);
+  //     console.log("sessionStartTime:", sessionStartTime);
+  //     console.log("eventEndTime:", eventEndTime);
+  //     console.log("sessionEndTime:", sessionEndTime);
   
-      // Compare the start and end times
-      return eventStartTime === sessionStartTime && eventEndTime === sessionEndTime;
-  });
+  //     // Compare the start and end times
+  //     return eventStartTime === sessionStartTime && eventEndTime === sessionEndTime;
+  // });
   
-  if (conflict) {
-      toast.error("A session already exists at this time. Please choose a different time.", {
-          position: "top-right",
-          autoClose: 5000,
-      });
-      return;  // Stop execution if conflict is found
-  }
+  // if (conflict) {
+  //     toast.error("A session already exists at this time. Please choose a different time.", {
+  //         position: "top-right",
+  //         autoClose: 5000,
+  //     });
+  //     return;  // Stop execution if conflict is found
+  // }
   
   const formatTimeToLocal = (date) => {
     if (!date) return null;
     const localDate = new Date(date);
     return localDate.toLocaleTimeString("en-GB", { hour12: false }); // "09:00:00"
   };
-  userRollID
+ 
     const sessionData = {
         userRollID: userRollID, 
         id: slectedStudentID,
@@ -532,17 +532,10 @@ const BulkSessionEndTime = EndTimeValueBulk.time
 ? moment(EndTimeValueBulk.time).local().format("HH:mm:ss")
 : null;
 
-
-
-console.log("all_event",events);
-console.log("all_event_bulk",Bulkevents);
-
-
 const [shouldFetch, setShouldFetch] = useState(false);
 const addBulkSession = async () => {
 
-  const wdays = dayofweek;
-console.log("xx", wdays);
+const wdays = dayofweek; // Array of selected days of the week
 
 const daysOfWeekMap = {
   'Sunday': 0,
@@ -557,6 +550,14 @@ const daysOfWeekMap = {
 const startDate = new Date(selecteStartDateBulk);  // Start date
 const endDate = new Date(selecteEndDateBulk);    // End date
 console.log("Bulk Start date",selecteStartDateBulk);
+
+if (!selecteStartDateBulk || !selecteEndDateBulk) {
+  toast.error("Start date and End date are required.", {
+    position: "top-right",
+    autoClose: 5000,
+  });
+  return; // Stop execution
+}
 // Function to generate dates for a specific day of the week
 const generateDates = (startDate, endDate, dayOfWeek) => {
   let dates = [];
@@ -607,42 +608,42 @@ const getDateRange = (startDate, endDate) => {
   return dates;
 };
 
-const eventsOnSameDateBulk = Bulkevents.filter(event => {
-  const eventStart = new Date(event.start);
-  const eventEnd = new Date(event.end);
+// const eventsOnSameDateBulk = Bulkevents.filter(event => {
+//   const eventStart = new Date(event.start);
+//   const eventEnd = new Date(event.end);
   
-  // Get all dates in the event's range
-  const eventDates = getDateRange(eventStart, eventEnd);
+//   // Get all dates in the event's range
+//   const eventDates = getDateRange(eventStart, eventEnd);
 
-  const eventDayOfWeek = eventStart.getDay(); // Get day index (0-6)
-  const eventDayName = fullDayNames[eventDayOfWeek]; // Get the full event day name (e.g., 'Sunday')
+//   const eventDayOfWeek = eventStart.getDay(); // Get day index (0-6)
+//   const eventDayName = fullDayNames[eventDayOfWeek]; // Get the full event day name (e.g., 'Sunday')
 
-  // Filter out the event dates that already have an event
-  const isEventDateAvailable = eventDates.every(date => !existingEventDates.has(date));
+//   // Filter out the event dates that already have an event
+//   const isEventDateAvailable = eventDates.every(date => !existingEventDates.has(date));
 
-  // If all event dates are free, add the dates to the set
-  if (isEventDateAvailable && wdays.includes(eventDayName)) {
-    eventDates.forEach(date => {
-      existingEventDates.add(date);  // Add all event dates to the existing set
-    });
-    console.log(`Event added on ${eventDates.join(', ')} (${eventDayName})`);
-    return true; // Keep this event
-  } else {
-    console.log(`Skipping event on ${eventDates.join(', ')}: already has an event.`);
-    return false; // Skip this event
-  }
-});
+//   // If all event dates are free, add the dates to the set
+//   if (isEventDateAvailable && wdays.includes(eventDayName)) {
+//     eventDates.forEach(date => {
+//       existingEventDates.add(date);  // Add all event dates to the existing set
+//     });
+//     console.log(`Event added on ${eventDates.join(', ')} (${eventDayName})`);
+//     return true; // Keep this event
+//   } else {
+//     console.log(`Skipping event on ${eventDates.join(', ')}: already has an event.`);
+//     return false; // Skip this event
+//   }
+// });
 
-if (eventsOnSameDateBulk.length > 0) {
-  toast.error("Session already exists on the selected date(s). Please choose another date.", {
-    position: "top-right",
-    autoClose: 5000,
-  });
-  return; // Stop execution before making the API call
-}
+// if (eventsOnSameDateBulk.length > 0) {
+//   toast.error("Session already exists on the selected date(s). Please choose another date.", {
+//     position: "top-right",
+//     autoClose: 5000,
+//   });
+//   return; // Stop execution before making the API call
+// }
 
-console.log("Events on the same date:", existingEventDates); // Set of existing event dates
-console.log("All session dates:", allSessionDates); // Array of session dates (day numbers)
+// console.log("Events on the same date:", existingEventDates); // Set of existing event dates
+// console.log("All session dates:", allSessionDates); // Array of session dates (day numbers)
 
 const formattedSessionDates = allSessionDates.map(day => {
   const baseDate = new Date(selecteStartDateBulk); // Start date
@@ -654,13 +655,13 @@ const formattedSessionDates = allSessionDates.map(day => {
   return baseDate.getDate(); // Only return the day of the month (e.g., 6, 13, 20, 27)
 });
 
-// Filter the session dates to exclude those already in the existingEventDates set
+// // Filter the session dates to exclude those already in the existingEventDates set
 const filteredSessionDates = formattedSessionDates.filter(day => {
   // Check if the day is already in the existingEventDates set
   return !Array.from(existingEventDates).some(existingDate => new Date(existingDate).getDate() === day);
 });
 
-console.log("Filtered session dates:", filteredSessionDates);
+// console.log("Filtered session dates:", filteredSessionDates);
 
 
 const formatTimeToLocal = (date) => {
@@ -671,12 +672,14 @@ const formatTimeToLocal = (date) => {
 
 
 const sessionData = {
+  userRollID: userRollID, 
   id: slectedStudentID,
   selected_student: SelectedStudentName,
   sessionType: selectedValueRadio,
   dayofweek: wdays,  // This stores the array of selected days of the week
   startDate: selecteStartDateBulk,
   endDate: selecteEndDateBulk,
+
   // startTime: BulkSessionStartTime,
   // endTime: BulkSessionEndTime,
   sessions: bulkDivs.map((div) => ({
@@ -708,7 +711,7 @@ const sessionData = {
           const errors = error.response.data.errors;
   
           Object.entries(errors).forEach(([field, messages]) => {
-              if (field !== "id") { // Ignore 'id' validation errors
+              if (field !== "id" && field !== "sessionDates") { // Ignore 'id' validation errors
                   messages.forEach((message) => {
                       toast.error(message, { position: "top-right", autoClose: 3000 });
                   });
