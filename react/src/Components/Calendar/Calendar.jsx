@@ -53,7 +53,10 @@ const CalendarComponent = () => {
   const [view, setView] = useState('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
-  const [showModalofSession, setShowModalSession] = useState(false); 
+  const [showModalofSession, setShowModalConfirmSession] = useState(false); 
+  const [showModalofSessionSingle, setShowModalSessionUpdateSingle] = useState(false);
+  const [showModalofSessionBulk, setShowModalConfirmSessionBulk] = useState(false);  
+  
   const handleViewChange = (viewType) => {
     
     setView(viewType);
@@ -815,16 +818,49 @@ useEffect(() => {
 const validDate = formValue.date ? new Date(formValue.date) : null;
 const selectedDate = validDate && !isNaN(validDate.getTime()) ? validDate : null;
 
- // Handle when an event is clicked
- const handleSessionClick = (event) => {
-  setShowModalSession(true);
-  console.log('Event clicked:', event);
-  setSelectedEvent(event);
 
-};
+
+// const handleSessionClick = (event) => {
+//   const eventDate = new Date(event.start);
+//   const today = new Date();
+
+//   // Reset time for accurate date comparison
+//   eventDate.setHours(0, 0, 0, 0);
+//   today.setHours(0, 0, 0, 0);
+
+//   // Reset all modal states first
+//   setShowModalConfirmSession(false);
+//   setShowModalSessionUpdateSingle(false);
+//   setShowModalConfirmSessionBulk(false);
+
+//   setTimeout(() => {
+//     if (eventDate < today) {
+//       console.log("Past event clicked:", event);
+//       setShowModalConfirmSession(true);
+//     } else if (eventDate > today) {
+//       console.log("Future event clicked:", event);
+//       selectedSession_type == "single"
+//         ? setShowModalSessionUpdateSingle(true)
+//         : setShowModalConfirmSessionBulk(true);
+//     } else {
+//       console.log("Today's event clicked:", event);
+//       selectedSession_type == "single"
+//         ? setShowModalSessionUpdateSingle(true)
+//         : setShowModalConfirmSessionBulk(true);
+//     }
+//   }, 10); // Small delay ensures correct modal state update
+
+//   setSelectedEvent(event);
+// };
+
+
+
+
 
 const handleCloseModalSession = () => {
-  setShowModalSession(false); // Hide the modal
+  setShowModalConfirmSession(false); // Hide the modal
+  setShowModalSessionUpdateSingle(false); // Hide the modal);
+  setShowModalConfirmSessionBulk(false);
 };
 
 // ====================Confirm Session================================
@@ -922,7 +958,7 @@ const onclickConfirmSession = () => {
     })
     .then((response) => {
       // Handle success
-      setShowModalSession(false); // Close the modal
+      setShowModalConfirmSession(false); // Close the modal
       toast.success("Session successfully confirmed!", {
         position: "top-right",
         autoClose: 5000,
@@ -973,7 +1009,7 @@ const onclickConfirmSession = () => {
          
 
 
-         setShowModalSession(false); 
+         setShowModalConfirmSession(false); 
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
@@ -1073,6 +1109,40 @@ const handleEndTimeChangeBulk = (value, index) => {
   newBulkDivs[index].endTime = value;
   setBulkDivs(newBulkDivs);
 };
+// ====================When click on Session in calender , then show as per session type=================
+const handleSessionClick = (event) => {
+  setSelectedEvent(null); // Force re-run of useEffect by clearing first
+  setTimeout(() => setSelectedEvent(event), 0); // Delay ensures state update
+};
+
+useEffect(() => {
+  if (!selectedEvent) return;
+
+  const eventDate = new Date(selectedEvent.start);
+  const today = new Date();
+
+  eventDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  console.log("Latest selectedSession_type:", selectedSession_type);
+
+  // Reset modal states before opening the correct one
+  setShowModalConfirmSession(false);
+  setShowModalSessionUpdateSingle(false);
+  setShowModalConfirmSessionBulk(false);
+
+  setTimeout(() => {
+    if (eventDate < today) {
+      setShowModalConfirmSession(true);
+    } else if (selectedSession_type === "single") {
+      setShowModalSessionUpdateSingle(true);
+    } else if (selectedSession_type === "bulk") {
+      setShowModalConfirmSessionBulk(true);
+    }
+  }, 0); // Small delay ensures re-render
+}, [selectedEvent, selectedSession_type]);
+
+// ====================================================
 
   return (
     
@@ -1554,7 +1624,168 @@ const handleEndTimeChangeBulk = (value, index) => {
         </div>
       )}
 
-      
+      {/* ================================== */}
+      {showModalofSessionSingle && (
+        <div className="modal show" style={{ display: 'block' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton onClick={handleCloseModalSession}>
+              <Modal.Title>Update Session Single</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Update Session</Form.ControlLabel>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center space-x-2">
+                      <Radio
+                        checked={selectedValueRadioConfirmSession === "yes"}
+                        onChange={handleChangeConfirmSession}
+                        value="yes"
+                        name="radio-buttons"
+                        inputProps={{ "aria-label": "yes" }}
+                        className="text-blue-600"
+                      />
+                      <span>Yes</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2">
+                      <Radio
+                        checked={selectedValueRadioConfirmSession === "no"}
+                        onChange={handleChangeConfirmSession}
+                        value="no"
+                        name="radio-buttons"
+                        inputProps={{ "aria-label": "no" }}
+                        className="text-blue-600"
+                      />
+                      <span>No</span>
+                    </label>
+                    <p style={{ marginTop: '=4px' , fontSize:"11px" }}>*If you select No, the session will be rejected.</p>
+
+                  </div>
+              </Form.Group>
+              
+              </div>
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                <DatePicker
+                  format="yyyy-MM-dd"
+                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
+
+                />
+              </Form.Group>
+
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
+                 <Input className="rs_input_custom"  placeholder="Default Input"
+                  value={startTimeConfirmSession  || "" } disabled
+                />
+              </Form.Group>
+              <br/>
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
+                
+                <Input className="rs_input_custom" placeholder="Default Input"
+                  value={endTimeConfirmSession  || ""} disabled 
+                />
+              </Form.Group>
+            </div>
+          </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
+
+              {selectedValueRadioConfirmSession === "no" ? (
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
+            ) : (
+              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
+            )}
+            </Modal.Footer>
+          </Modal.Dialog>
+        </div>
+      )}
+{/* ==================== */}
+{/* ================================== */}
+{showModalofSessionBulk && (
+        <div className="modal show" style={{ display: 'block' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton onClick={handleCloseModalSession}>
+              <Modal.Title>Update Session Buk</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Update Session</Form.ControlLabel>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center space-x-2">
+                      <Radio
+                        checked={selectedValueRadioConfirmSession === "yes"}
+                        onChange={handleChangeConfirmSession}
+                        value="yes"
+                        name="radio-buttons"
+                        inputProps={{ "aria-label": "yes" }}
+                        className="text-blue-600"
+                      />
+                      <span>Yes</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2">
+                      <Radio
+                        checked={selectedValueRadioConfirmSession === "no"}
+                        onChange={handleChangeConfirmSession}
+                        value="no"
+                        name="radio-buttons"
+                        inputProps={{ "aria-label": "no" }}
+                        className="text-blue-600"
+                      />
+                      <span>No</span>
+                    </label>
+                    <p style={{ marginTop: '=4px' , fontSize:"11px" }}>*If you select No,</p>
+
+                  </div>
+              </Form.Group>
+              
+              </div>
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                <DatePicker
+                  format="yyyy-MM-dd"
+                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
+
+                />
+              </Form.Group>
+
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
+                 <Input className="rs_input_custom"  placeholder="Default Input"
+                  value={startTimeConfirmSession  || "" } disabled
+                />
+              </Form.Group>
+              <br/>
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
+                
+                <Input className="rs_input_custom" placeholder="Default Input"
+                  value={endTimeConfirmSession  || ""} disabled 
+                />
+              </Form.Group>
+            </div>
+          </Modal.Body>
+
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
+
+              {selectedValueRadioConfirmSession === "no" ? (
+              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
+            ) : (
+              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
+            )}
+            </Modal.Footer>
+          </Modal.Dialog>
+        </div>
+      )}
+
     </div>
   );
 };
