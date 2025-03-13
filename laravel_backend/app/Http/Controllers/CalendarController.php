@@ -9,6 +9,7 @@ use App\Models\ConfirmSession;
 use App\Models\AssignProviderModel;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 class CalendarController extends Controller
 {
     public function AddSingleSessions(Request $request){
@@ -379,6 +380,59 @@ public function FetchConfirmessionDetails()
             return response()->json(['error' => 'Error fetching '], 500);
         }
     }
+    
+
+
+
+    public function UpdateSingleSession(Request $request)
+    {
+        try {
+            // Log the incoming request data for debugging
+            Log::info('Request Data:', $request->all());
+    
+            $validatedData = $request->validate([
+                'student_id' => 'required|integer|exists:single_session,student_id', 
+                'selectedDateConfirmSession' => 'required|date_format:Y-m-d', 
+                'startTimeConfirmSession' => 'required|date_format:h:i A',
+                'endTimeConfirmSession' => 'required|date_format:h:i A',
+                'singlesessionAutoID' => 'required|integer|exists:single_session,id',
+            ]);
+    
+            $startTime = Carbon::createFromFormat('h:i A', $validatedData['startTimeConfirmSession'])->format('H:i:s');
+            $endTime = Carbon::createFromFormat('h:i A', $validatedData['endTimeConfirmSession'])->format('H:i:s');
+    
+            \DB::enableQueryLog();
+    
+            // Update only the session with the matching ID
+            $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])
+                // ->where('student_id', $validatedData['student_id'])
+                ->update([
+                    'date' => $validatedData['selectedDateConfirmSession'],
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                ]);
+    
+            if ($updated) {
+                Log::info('Executed Query:', \DB::getQueryLog());
+                return response()->json(['message' => 'Session updated successfully'], 200);
+            } else {
+                return response()->json(['error' => 'Session not found or already updated'], 404);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation Error:', $e->errors());
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            Log::error('Session Update Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong.'], 500);
+        }
+    }
+    
+
+    
+    
+    
+
+    
 }
 
 

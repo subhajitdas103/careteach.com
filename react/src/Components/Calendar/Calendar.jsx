@@ -38,7 +38,7 @@ const CalendarComponent = () => {
   console.log("Updated Roll Name:", userRollName);
   console.log("Updated Roll ID:", userRollID); 
   // ==========End of getting RollName================
-
+  const [startTimeUpdateConfirmSession, setStartTimeUpdateConfirmSession] = useState(null);
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   // console.log("Selected student",selectedStudent);
@@ -55,7 +55,9 @@ const CalendarComponent = () => {
   const [showModal, setShowModal] = useState(false); // State to control modal visibility
   const [showModalofSession, setShowModalConfirmSession] = useState(false); 
   const [showModalofSessionSingle, setShowModalSessionUpdateSingle] = useState(false);
-  const [showModalofSessionBulk, setShowModalConfirmSessionBulk] = useState(false);  
+  const [showModalofSessionBulk, setShowModalConfirmSessionBulk] = useState(false); 
+  
+  const [SelectedDateConfirmSession, setSelectedDateConfirmSession] = useState(false);
   
   const handleViewChange = (viewType) => {
     
@@ -135,6 +137,9 @@ useEffect(() => {
       
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
+
+       
+
         // if (!session) return null;
         const sessionStartTime = moment(`${session.date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
 
@@ -144,7 +149,7 @@ useEffect(() => {
           const formattedEndTime = moment(session.end_time, 'HH:mm:ss').format('h:mm A');
 
 
-          console.log('Checking for session:', session.date); 
+          console.log('Checking for session:', session); 
       
           console.log('Confirm Session Dates:', Array.isArray(confirmSession) ? confirmSession.map(cs => cs.date) : []);
         
@@ -179,6 +184,7 @@ useEffect(() => {
           student_id :session.student_id,
           session_name: session.session_name, 
           session_date :session.date, 
+          id:session.id,
           // eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
           style: eventStyle,
         };
@@ -323,6 +329,7 @@ useEffect(() => {
       date: formattedDate
     }));
   };
+ 
   
 
   // ============Bulk Session date Change=====================
@@ -887,6 +894,7 @@ console.log("selected_session_type",selectedEvent);
       const selected_session_studentID = selectedEvent.student_id;
       const single_session_date = selectedEvent.session_date;
       const bulk_session_id = selectedEvent.bulk_session_id;
+      const single_seesion_autoID = selectedEvent.id;
       // Format the start time to 'hh:mm AM/PM'
       const eventStartTime = eventStartDate.toLocaleTimeString([], {
         hour: '2-digit',
@@ -912,7 +920,7 @@ console.log("selected_session_type",selectedEvent);
       setStartTimeConfirmSession(eventStartTime);
       setEndTimeConfirmSession(eventEndTime);
       set_bulk_session_id(bulk_session_id);
-      
+      setSingleSessionAutoID(single_seesion_autoID);
   
       // Log times for debugging
       console.log("Event Date:", eventDate);
@@ -1143,7 +1151,108 @@ useEffect(() => {
 }, [selectedEvent, selectedSession_type]);
 
 // ====================================================
+// ==============Single session modal update===============================
+const handleChangeSingleSessionUpdatestartTime = (time) => {
+  if (time instanceof Date && !isNaN(time)) {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    const modifier = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    const formattedMinutes = minutes.toString().padStart(2, "0");
 
+    const formattedTime = `${formattedHours}:${formattedMinutes} ${modifier}`;
+    console.log("Selected Time:", formattedTime);
+    setStartTimeConfirmSession(formattedTime);
+  }
+};
+
+const handleChangeSingleSessionUpdateEndTime = (time) => {
+  if (time instanceof Date && !isNaN(time)) {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    const modifier = hours >= 12 ? "PM" : "AM";
+    const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+
+    const formattedTime = `${formattedHours}:${formattedMinutes} ${modifier}`;
+    console.log("Selected Time:", formattedTime);
+    setEndTimeConfirmSession(formattedTime);
+  }
+};
+  const getDateFromString = (timeStr) => {
+    if (!timeStr || typeof timeStr !== "string") return new Date(); // Default to current date if invalid
+
+    const date = new Date();
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":");
+
+    if (modifier === "PM" && hours !== "12") {
+      hours = parseInt(hours, 10) + 12;
+    } else if (modifier === "AM" && hours === "12") {
+      hours = "00";
+    }
+
+    date.setHours(hours, minutes, 0);
+    return date;
+  };
+
+  const handleDateChangeInSingleSessionUpdate = (newDate) => {
+    if (newDate) {
+      const formattedDate = new Date(newDate).toISOString().split("T")[0]; // Ensure YYYY-MM-DD format
+      setConfirmSessionSelectedDate(formattedDate);
+    } else {
+      setConfirmSessionSelectedDate(null);
+    }
+  };
+
+  const [singlesessionAutoID, setSingleSessionAutoID] = useState(false);
+console.log("singlesessionAutoID",singlesessionAutoID);
+  const onclickUpdateSingleSession = () => {
+    const requestData = {
+      singlesessionAutoID: singlesessionAutoID,
+      userRollID: userRollID,
+      student_id: selectedSession_studentID,
+      selectedDateConfirmSession: selectedDateConfirmSession,
+      startTimeConfirmSession: startTimeConfirmSession,
+      endTimeConfirmSession: endTimeConfirmSession,
+    };
+  
+    console.log("Data being sent to the server:", requestData); // Log the data
+  
+    axios
+      .post(`${backendUrl}/api/UpdateSingleSession`, requestData, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then((response) => {
+        // Handle success
+        setShowModalSessionUpdateSingle(false); // Close the modal
+        toast.success("Session successfully confirmed!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        console.log("Session confirmed:", response.data);
+      })
+      .catch((error) => {
+        // Handle errors
+        if (error.response && error.response.data) {
+          // Display the exact message from the server
+          toast.error(error.response.data.message || "Session alreday Exists.", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+          console.error("Error response from server:", error.response.data);
+        } else {
+          // General error fallback
+          toast.error("Failed to confirm the session. Please try again.", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+          console.error("Unexpected error:", error);
+        }
+      });
+  };
+
+    // ============End of Single session modal update===========
   return (
     
     <div style={{ color: '#4979a0' }}>
@@ -1632,74 +1741,40 @@ useEffect(() => {
               <Modal.Title>Update Session Single</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <div className="stu-pro-field-div">
-              <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Update Session</Form.ControlLabel>
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center space-x-2">
-                      <Radio
-                        checked={selectedValueRadioConfirmSession === "yes"}
-                        onChange={handleChangeConfirmSession}
-                        value="yes"
-                        name="radio-buttons"
-                        inputProps={{ "aria-label": "yes" }}
-                        className="text-blue-600"
-                      />
-                      <span>Yes</span>
-                    </label>
-
-                    <label className="flex items-center space-x-2">
-                      <Radio
-                        checked={selectedValueRadioConfirmSession === "no"}
-                        onChange={handleChangeConfirmSession}
-                        value="no"
-                        name="radio-buttons"
-                        inputProps={{ "aria-label": "no" }}
-                        className="text-blue-600"
-                      />
-                      <span>No</span>
-                    </label>
-                    <p style={{ marginTop: '=4px' , fontSize:"11px" }}>*If you select No, the session will be rejected.</p>
-
-                  </div>
-              </Form.Group>
-              
-              </div>
+             
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
                   format="yyyy-MM-dd"
-                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
+                  value={selectedDateConfirmSession ? new Date(selectedDateConfirmSession) : null}
+                  onChange={handleDateChangeInSingleSessionUpdate}
 
                 />
               </Form.Group>
 
               <div className="stu-pro-field-div">
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
-                 <Input className="rs_input_custom"  placeholder="Default Input"
-                  value={startTimeConfirmSession  || "" } disabled
-                />
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
+                 
+              <TimePicker    value={getDateFromString(startTimeConfirmSession)}onChange={handleChangeSingleSessionUpdatestartTime}
+                format="hh:mm a"
+                showMeridian
+              />
               </Form.Group>
               <br/>
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
-                
-                <Input className="rs_input_custom" placeholder="Default Input"
-                  value={endTimeConfirmSession  || ""} disabled 
-                />
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
+                <TimePicker    value={getDateFromString(endTimeConfirmSession)}onChange={handleChangeSingleSessionUpdateEndTime}
+                format="hh:mm a"
+                showMeridian
+              />
               </Form.Group>
             </div>
           </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
-
-              {selectedValueRadioConfirmSession === "no" ? (
-              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
-            ) : (
-              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
-            )}
+              <Button variant="primary" onClick={() => onclickUpdateSingleSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Save Changes</Button>
+            
             </Modal.Footer>
           </Modal.Dialog>
         </div>

@@ -75,3 +75,4 @@ Route::delete('/delete_iep_upload_file/{filename}', [StudentController::class, '
 
 Route::delete('/DeleteStudentService/{id}', [StudentController::class, 'DeleteStudentService']);
 
+Route::post('/UpdateSingleSession', [CalendarController::class, 'UpdateSingleSession']);
