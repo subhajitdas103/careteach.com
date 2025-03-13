@@ -1234,14 +1234,29 @@ console.log("singlesessionAutoID",singlesessionAutoID);
         console.log("Session confirmed:", response.data);
       })
       .catch((error) => {
-        // Handle errors
         if (error.response && error.response.data) {
-          // Display the exact message from the server
-          toast.error(error.response.data.message || "Session alreday Exists.", {
-            position: "top-right",
-            autoClose: 5000,
-          });
-          console.error("Error response from server:", error.response.data);
+          const errorData = error.response.data;
+      
+          // Check if specific validation errors exist
+          if (errorData.errors && errorData.errors.selectedDateConfirmSession) {
+            toast.error(errorData.errors.selectedDateConfirmSession[0], {
+              position: "top-right",
+              autoClose: 5000,
+            });
+          } else if (errorData.message) {
+            // General error message
+            toast.error(errorData.message, {
+              position: "top-right",
+              autoClose: 5000,
+            });
+          } else {
+            toast.error("An unknown error occurred.", {
+              position: "top-right",
+              autoClose: 5000,
+            });
+          }
+      
+          console.error("Error response from server:", errorData);
         } else {
           // General error fallback
           toast.error("Failed to confirm the session. Please try again.", {
@@ -1251,6 +1266,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           console.error("Unexpected error:", error);
         }
       });
+      
   };
 
     // ============End of Single session modal update===========

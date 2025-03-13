@@ -396,12 +396,32 @@ public function FetchConfirmessionDetails()
                 'startTimeConfirmSession' => 'required|date_format:h:i A',
                 'endTimeConfirmSession' => 'required|date_format:h:i A',
                 'singlesessionAutoID' => 'required|integer|exists:single_session,id',
+                'userRollID' => 'required|integer', 
             ]);
     
             $startTime = Carbon::createFromFormat('h:i A', $validatedData['startTimeConfirmSession'])->format('H:i:s');
             $endTime = Carbon::createFromFormat('h:i A', $validatedData['endTimeConfirmSession'])->format('H:i:s');
     
-            \DB::enableQueryLog();
+            $existingAssignProvider = AssignProviderModel::where('provider_id', $validatedData['userRollID'])
+            ->where('student_id', $validatedData['student_id']) 
+            ->orderBy('start_date', 'asc') // Sort by earliest start date
+            ->orderBy('end_date', 'desc') // Sort by latest end date
+            ->get();
+            
+            $minStartDate = $existingAssignProvider->first()?->start_date; // Get the lowest start_date
+            $maxEndDate = $existingAssignProvider->max('end_date'); // Get the highest end_date
+        
+            Log::info("Earliest Start Date: " . $minStartDate);
+            Log::info("Latest End Date: " . $maxEndDate);
+     
+           // Check if the date is out of range
+            if ($minStartDate && $maxEndDate) {
+                if ($validatedData['selectedDateConfirmSession'] < $minStartDate || $validatedData['selectedDateConfirmSession'] > $maxEndDate) {
+                    return response()->json([
+                        'errors' => ['selectedDateConfirmSession' => ['Session cannot be created outside the allowed date range']]
+                    ], 422);
+                }
+            }
     
             // Update only the session with the matching ID
             $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])
@@ -413,7 +433,7 @@ public function FetchConfirmessionDetails()
                 ]);
     
             if ($updated) {
-                Log::info('Executed Query:', \DB::getQueryLog());
+               
                 return response()->json(['message' => 'Session updated successfully'], 200);
             } else {
                 return response()->json(['error' => 'Session not found or already updated'], 404);
