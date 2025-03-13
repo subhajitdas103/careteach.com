@@ -422,6 +422,66 @@ public function FetchConfirmessionDetails()
                     ], 422);
                 }
             }
+
+            
+    // -------------------Check Overlap----------------------------
+    // Fetch existing sessions for the student on the given date
+    $existingSessions = CalendarModel::where('student_id', $validatedData['student_id'])
+    ->where('date', $validatedData['selectedDateConfirmSession'])
+    ->get();
+
+    Log::info("Existing Sessions:", $existingSessions->toArray());
+
+    $existingBulkSessions = BulkSessionModel::where('student_id', $validatedData['student_id'])
+    ->where('start_date', '<=', $validatedData['selectedDateConfirmSession'])
+    ->where('end_date', '>=', $validatedData['selectedDateConfirmSession'])
+    ->whereRaw("FIND_IN_SET(DAYOFMONTH(?), session_dates)", [$validatedData['selectedDateConfirmSession']])
+    ->exists();
+
+   
+
+    if ($existingBulkSessions) {
+        return response()->json([
+            'errors' => ['selectedDateConfirmSession' => ['A session with this date already exists.']]
+        ], 422);
+    }
+    
+    // ----------END---------Check Overlap----------------------------
+    $existingSingleSessions = CalendarModel::where('student_id', $validatedData['student_id'])
+    ->where('date', $validatedData['selectedDateConfirmSession'])
+    ->when(isset($validatedData['singlesessionAutoID']), function ($query) use ($validatedData) {
+        return $query->where('id', '!=', $validatedData['singlesessionAutoID']); // Exclude current session if updating
+    })
+    ->exists();
+
+if ($existingSingleSessions) {
+    return response()->json([
+        'errors' => ['selectedDateConfirmSession' => ['A session on this date already exists.']]
+    ], 422);
+}
+
+
+    //============Check the same time or not when create session============
+    // Check for conflicts
+    // foreach ($validatedData['timeSlots'] as $slot) {
+    //     $newStartTime = Carbon::parse($slot['startTime']);
+    //     $newEndTime = Carbon::parse($slot['endTime']);
+    
+    //     foreach ($existingSessions as $session) {
+    //         $existingStartTime = Carbon::parse($session->start_time);
+    //         $existingEndTime = Carbon::parse($session->end_time);
+    
+    //         if (
+    //             ($newStartTime->between($existingStartTime, $existingEndTime) || 
+    //             $newEndTime->between($existingStartTime, $existingEndTime) ||  
+    //             ($newStartTime <= $existingStartTime && $newEndTime >= $existingEndTime))
+    //         ) {
+    //             return response()->json([
+    //                 'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
+    //             ], 422);
+    //         }
+    //     }
+    // }
     
             // Update only the session with the matching ID
             $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])

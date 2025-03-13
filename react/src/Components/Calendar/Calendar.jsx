@@ -41,6 +41,7 @@ const CalendarComponent = () => {
   const [startTimeUpdateConfirmSession, setStartTimeUpdateConfirmSession] = useState(null);
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedStudentDropdown, setSelectedStudentDropdown] = useState(null);
   // console.log("Selected student",selectedStudent);
   const [events, setEvents] = useState([]);
  
@@ -210,7 +211,8 @@ useEffect(() => {
 
   const handleStudentSelect = (student) => {
     // const name = `${student.first_name} ${student.last_name}`;
-    setSelectedStudent(student); // Update state with the full name
+    // setSelectedStudent(student);
+    setSelectedStudentDropdown(student); // Update state with the full name
   };
 
   const [clickedDate, setClickedDate] = useState(null);
@@ -389,8 +391,8 @@ useEffect(() => {
     );
   };
 
-const slectedStudentID = selectedStudent?.id || null;
-const SelectedStudentName = selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : null;
+const slectedStudentID = selectedStudentDropdown?.id || null;
+const SelectedStudentName = selectedStudentDropdown ? `${selectedStudentDropdown.first_name} ${selectedStudentDropdown.last_name}` : null;
 // console.log("student_id",slectedStudentID);
 // console.log("vvv",formValue.date);
 const SingleSessionChooseDate = formValue.date ? 
@@ -1227,11 +1229,13 @@ console.log("singlesessionAutoID",singlesessionAutoID);
       .then((response) => {
         // Handle success
         setShowModalSessionUpdateSingle(false); // Close the modal
-        toast.success("Session successfully confirmed!", {
+        toast.success("Session successfully updated.", {
           position: "top-right",
           autoClose: 5000,
         });
         console.log("Session confirmed:", response.data);
+        setShouldFetch(true);
+        setShouldFetchSingle(true);
       })
       .catch((error) => {
         if (error.response && error.response.data) {
@@ -1443,7 +1447,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           
               <div>
                 <p className ="fontsizeofaddsessionmodal">Student</p>
-                <Dropdown title={selectedStudent ? `${selectedStudent.first_name} ${selectedStudent.last_name}` : 'Select Student'}>
+                <Dropdown title={selectedStudentDropdown ? `${selectedStudentDropdown.first_name} ${selectedStudentDropdown.last_name}` : 'Select Student'}>
                   {studentData.map((student, index) => (
                     <Dropdown.Item key={index} onClick={() => handleStudentSelect(student)}>
                       {`${student.first_name} ${student.last_name}`}
