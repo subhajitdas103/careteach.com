@@ -793,6 +793,7 @@ useEffect(() => {
               student_id: session.student_id,
               session_name: session.session_name,
               bulk_session_id: session.id,
+
             };
           });
 
@@ -1785,64 +1786,43 @@ console.log("singlesessionAutoID",singlesessionAutoID);
         <div className="modal show" style={{ display: 'block' }}>
           <Modal.Dialog>
             <Modal.Header closeButton onClick={handleCloseModalSession}>
-              <Modal.Title>Update Session Buk</Modal.Title>
+              <Modal.Title>Update Session Bulk</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <div className="stu-pro-field-div">
-              <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Update Session</Form.ControlLabel>
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center space-x-2">
-                      <Radio
-                        checked={selectedValueRadioConfirmSession === "yes"}
-                        onChange={handleChangeConfirmSession}
-                        value="yes"
-                        name="radio-buttons"
-                        inputProps={{ "aria-label": "yes" }}
-                        className="text-blue-600"
-                      />
-                      <span>Yes</span>
-                    </label>
+                <Form.Group controlId="date">
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                  <DatePicker
+                    format="yyyy-MM-dd"
+                    value={selectedEvent.start ? new Date(selectedEvent.start) : null}
+                  />
 
-                    <label className="flex items-center space-x-2">
-                      <Radio
-                        checked={selectedValueRadioConfirmSession === "no"}
-                        onChange={handleChangeConfirmSession}
-                        value="no"
-                        name="radio-buttons"
-                        inputProps={{ "aria-label": "no" }}
-                        className="text-blue-600"
-                      />
-                      <span>No</span>
-                    </label>
-                    <p style={{ marginTop: '=4px' , fontSize:"11px" }}>*If you select No,</p>
+                  
+                </Form.Group>
+                <Form.Group controlId="date">
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                  <DatePicker
+                    format="yyyy-MM-dd"
+                    value={selectedEvent.start ? new Date(selectedEvent.start) : null}
 
-                  </div>
-              </Form.Group>
-              
+                  />
+                </Form.Group>
               </div>
-              <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
-                <DatePicker
-                  format="yyyy-MM-dd"
-                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
-
-                />
-              </Form.Group>
-
               <div className="stu-pro-field-div">
               <Form.Group controlId="time">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
                  <Input className="rs_input_custom"  placeholder="Default Input"
-                  value={startTimeConfirmSession  || "" } disabled
+                  value={startTimeConfirmSession  || "" }
                 />
+
+              
               </Form.Group>
               <br/>
               <Form.Group controlId="time">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
                 
                 <Input className="rs_input_custom" placeholder="Default Input"
-                  value={endTimeConfirmSession  || ""} disabled 
+                  value={endTimeConfirmSession  || ""}
                 />
               </Form.Group>
             </div>
