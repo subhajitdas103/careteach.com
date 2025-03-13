@@ -426,9 +426,17 @@ public function FetchConfirmessionDetails()
             
     // -------------------Check Overlap----------------------------
     // Fetch existing sessions for the student on the given date
+    // $existingSessions = CalendarModel::where('student_id', $validatedData['student_id'])
+    // ->where('date', $validatedData['selectedDateConfirmSession'])
+    // ->get();
+
     $existingSessions = CalendarModel::where('student_id', $validatedData['student_id'])
     ->where('date', $validatedData['selectedDateConfirmSession'])
+    ->when(isset($validatedData['session_id']), function ($query) use ($validatedData) {
+        return $query->where('id', '!=', $validatedData['singlesessionAutoID']);
+    })
     ->get();
+
 
     Log::info("Existing Sessions22:", $existingSessions->toArray());
 

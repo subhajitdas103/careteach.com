@@ -1,4 +1,14 @@
 /* ========================================login css================================ */
+.fc-back-icon_calendar{
+   
+    float: inline-end;
+    /* margin-top: -39px; */
+    font-size: 21px !important;
+    border: 1px solid;
+    border-radius: 17px;
+    padding: 3px 17px;
+    margin-right: 14px;
+}
 .rbc-event, .rbc-day-slot .rbc-background-event {
   border: none;
   box-sizing: border-box;

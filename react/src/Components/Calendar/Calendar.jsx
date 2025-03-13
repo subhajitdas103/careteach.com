@@ -7,6 +7,7 @@ import { faPlus,faMinusCircle  } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
+import PropagateLoader from "react-spinners/PropagateLoader";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
 import { Modal, Button } from 'react-bootstrap'; // Importing Bootstrap Modal
@@ -26,13 +27,14 @@ import 'primeicons/primeicons.css';
 import { Dropdown as PrimeReactDropdown } from 'primereact/dropdown';
 import useAuth from "../../hooks/useAuth";
 // import { Dropdown } from 'primereact/dropdown';
-
+import logo from "../../Assets/logo.png"; 
 // Configure the calendar to use moment.js
 const localizer = momentLocalizer(moment);
 
 const CalendarComponent = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+   const [loading, setLoading] = useState(true);
 // ============Getting Roll Name from Session=========
   const { userRollID, userRollName } = useAuth(); 
   console.log("Updated Roll Name:", userRollName);
@@ -64,7 +66,9 @@ const CalendarComponent = () => {
     
     setView(viewType);
   };
-
+  const backtodashboard = () => {
+    navigate('/dashboard');
+  };
   const handleNavigate = (action) => {
     const current = new Date(currentDate);
     if (action === 'PREV') {
@@ -1276,140 +1280,154 @@ console.log("singlesessionAutoID",singlesessionAutoID);
         }
     });
   };
-
-    // ============End of Single session modal update===========
-  return (
-    
-    <div style={{ color: '#4979a0' }}>
-      <ToastContainer />
-      <h2>Calendar</h2>
-      <Calendar
-      localizer={localizer}
-      events={[...events, ...Bulkevents]} 
-      startAccessor="start"
-      endAccessor="end"
-      style={{ height: 500 }}
-      onShowMore={(events, date) => {
-        const SingleSessionDate = moment(date).format('YYYY-MM-DD');
-        console.log('Redirecting to:', SingleSessionDate);
-        
-        setView('day'); // Change to the day view
-        setCurrentDate(new Date(SingleSessionDate)); // Update calendar to selected date
-      }}
-      
-      
-
-      view={view} // Controlled view based on state
-      date={currentDate} // Set the current date for navigation
-      onView={handleViewChange} // View change handler
-      onNavigate={handleNavigate}
-      onSelectEvent={handleSessionClick}
-      eventPropGetter={(event) => ({
-        style: event.style || {},
-      })}
-      components={{
-      toolbar: ({ label }) => (
-      <div
-        className="rbc-toolbar"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div className="rbc-btn-group">
-          <button onClick={() => setView('month')}>Month</button>
-          <button onClick={() => setView('week')}>Week</button>
-          <button onClick={() => setView('day')}>Day</button>
-          <button onClick={() => setView('agenda')}>Agenda</button>
-        </div>
-
-        
-      
-        <div
-          className="rbc-toolbar-label"
-          style={{
-            fontSize: '25px',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            flex: 1,
-            marginLeft: '23px'
-          }}
-        >
-          {label}
-        </div>
-        {view != 'week' && (
-        <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
-          <button onClick={() => handleNavigate('PREV')}>Prev</button>
-          <button onClick={() => handleNavigate('TODAY')}>Today</button>
-          <button onClick={() => handleNavigate('NEXT')}>Next</button>
-        </div>
-          )}
-
-
-        {view === 'week' && (
-        <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
-          <button onClick={() => handleNavigateWeek('PREV')}>Prev Week</button>
-         
-          <button onClick={() => handleNavigateWeek('NEXT')}>Next Week</button>
-        </div>
-           )}
-
-          <div className="card flex justify-content-center" style={{ width: '225px' , margin:'-2px 10px' }}>
-            <PrimeReactDropdown
-              value={selectedStudent}
-              onChange={(e) => setSelectedStudent(e.value)}
-              options={studentOptions}
-              optionLabel="label"  // `label` corresponds to the full name of the student
-              placeholder="Select a Student"
-              // className="w-full md:w-14rem"
-              // checkmark={true}
-              highlightOnSelect={false}
-            />
-          </div>
-      </div>
-
-    ),
-    
-    // ==============Start of Add Session===========
-    dateCellWrapper:userRollName === 'Provider' ? 
-    
-    ({ children, value }) => {
-      const isCurrentMonth = value.getMonth() === currentDate.getMonth();
-      return (
-        <div
-          className="rbc-day-bg"
-          role="cell"
-          style={{
-            backgroundColor: isCurrentMonth ? 'white' : '#f0f0f0', // Grey color for non-current month dates
-            color: isCurrentMonth ? 'inherit' : '#a0a0a0', // Greyed-out text color for non-current month dates
-          }}
-        >
-
-        
-          {children}
-          <button
-            type="button"
-            className="rbc-button-link"
-            style={{
-              position: 'relative',
-              marginLeft: '4px',
-              top: '0px',
-              zIndex: 10,
-
-              
-            }}
-            onClick={() => handlePlusClick(value)}
-          >
-            <FontAwesomeIcon icon={faPlusCircle} />
-          </button>
-        </div>
-      );
+  useEffect(() => {
+    setLoading(true); // Immediately show loading indicator
+  
+    if (userRollID && userRollName) {
+      setLoading(false); // Hide loader when data is available
     }
-    : undefined,
-    //  ==========End of Add Session Click=======
-  }}
-/>
+  }, [userRollID, userRollName]);
+  
+    // ============End of Single session modal update===========
+    return (
+      <div style={{ color: '#4979a0', backgroundColor: 'white' }}>
+        {loading ? (
+          <div className="loader-container">
+          <div className="loader-content">
+            <img src={logo} alt="Loading..." className="logo-loader" />
+            <PropagateLoader  color="#3498db" size={10} />
+          </div>
+        </div>
+        ) : (
+          <>
+            <ToastContainer />
+            <h2>Calendar</h2>
+    
+            <Calendar
+              localizer={localizer}
+              events={[...events, ...Bulkevents]}
+              startAccessor="start"
+              endAccessor="end"
+              style={{ height: 500 }}
+              onShowMore={(events, date) => {
+                const SingleSessionDate = moment(date).format('YYYY-MM-DD');
+                console.log('Redirecting to:', SingleSessionDate);
+    
+                setView('day'); // Change to the day view
+                setCurrentDate(new Date(SingleSessionDate)); // Update calendar to selected date
+              }}
+              view={view} // Controlled view based on state
+              date={currentDate} // Set the current date for navigation
+              onView={handleViewChange} // View change handler
+              onNavigate={handleNavigate}
+              onSelectEvent={handleSessionClick}
+              eventPropGetter={(event) => ({
+                style: event.style || {},
+              })}
+              components={{
+                toolbar: ({ label }) => (
+                  <div
+                    className="rbc-toolbar"
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div className="rbc-btn-group">
+                      <button onClick={() => setView('month')}>Month</button>
+                      <button onClick={() => setView('week')}>Week</button>
+                      <button onClick={() => setView('day')}>Day</button>
+                      <button onClick={() => setView('agenda')}>Agenda</button>
+                    </div>
+    
+                    <div
+                      className="rbc-toolbar-label"
+                      style={{
+                        fontSize: '25px',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        flex: 1,
+                        marginLeft: '23px',
+                      }}
+                    >
+                      {label}
+                    </div>
+                    <i
+                      className="fa fa-backward fc-back-icon_calendar"
+                      aria-hidden="true"
+                      id="back_provider_click"
+                      onClick={backtodashboard}
+                    ></i>
+    
+                    {view !== 'week' && (
+                      <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
+                        <button onClick={() => handleNavigate('PREV')}>Prev</button>
+                        <button onClick={() => handleNavigate('TODAY')}>Today</button>
+                        <button onClick={() => handleNavigate('NEXT')}>Next</button>
+                      </div>
+                    )}
+    
+                    {view === 'week' && (
+                      <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
+                        <button onClick={() => handleNavigateWeek('PREV')}>Prev Week</button>
+                        <button onClick={() => handleNavigateWeek('NEXT')}>Next Week</button>
+                      </div>
+                    )}
+    
+                    <div className="card flex justify-content-center" style={{ width: '225px', margin: '-2px 10px' }}>
+                      <PrimeReactDropdown
+                        value={selectedStudent}
+                        onChange={(e) => setSelectedStudent(e.value)}
+                        options={studentOptions}
+                        optionLabel="label" // `label` corresponds to the full name of the student
+                        placeholder="Select a Student"
+                        highlightOnSelect={false}
+                      />
+                    </div>
+                  </div>
+                ),
+    
+                // ==============Start of Add Session===========
+                dateCellWrapper:
+                  userRollName === 'Provider'
+                    ? ({ children, value }) => {
+                        const isCurrentMonth = value.getMonth() === currentDate.getMonth();
+                        return (
+                          <div
+                            className="rbc-day-bg"
+                            role="cell"
+                            style={{
+                              backgroundColor: isCurrentMonth ? 'white' : '#f0f0f0', // Grey color for non-current month dates
+                              color: isCurrentMonth ? 'inherit' : '#a0a0a0', // Greyed-out text color for non-current month dates
+                            }}
+                          >
+                            {children}
+                            <button
+                              type="button"
+                              className="rbc-button-link"
+                              style={{
+                                position: 'relative',
+                                marginLeft: '4px',
+                                top: '0px',
+                                zIndex: 10,
+                              }}
+                              onClick={() => handlePlusClick(value)}
+                            >
+                              <FontAwesomeIcon icon={faPlusCircle} />
+                            </button>
+                          </div>
+                        );
+                      }
+                    : undefined,
+              }}
+            />
+          </>
+        )}
+      
+    
+
+
 
   
       {/* Modal */}
@@ -1804,9 +1822,9 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           </Modal.Dialog>
         </div>
       )}
-{/* ==================== */}
-{/* ================================== */}
-{showModalofSessionBulk && (
+    {/* ==================== */}
+    {/* ================================== */}
+    {showModalofSessionBulk && (
         <div className="modal show" style={{ display: 'block' }}>
           <Modal.Dialog>
             <Modal.Header closeButton onClick={handleCloseModalSession}>
@@ -1864,7 +1882,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           </Modal.Dialog>
         </div>
       )}
-
+    
     </div>
   );
 };
