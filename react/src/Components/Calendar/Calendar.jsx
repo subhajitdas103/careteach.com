@@ -1239,38 +1239,42 @@ console.log("singlesessionAutoID",singlesessionAutoID);
       })
       .catch((error) => {
         if (error.response && error.response.data) {
-          const errorData = error.response.data;
-      
-          // Check if specific validation errors exist
-          if (errorData.errors && errorData.errors.selectedDateConfirmSession) {
-            toast.error(errorData.errors.selectedDateConfirmSession[0], {
-              position: "top-right",
-              autoClose: 5000,
-            });
-          } else if (errorData.message) {
-            // General error message
-            toast.error(errorData.message, {
-              position: "top-right",
-              autoClose: 5000,
-            });
-          } else {
-            toast.error("An unknown error occurred.", {
-              position: "top-right",
-              autoClose: 5000,
-            });
-          }
-      
-          console.error("Error response from server:", errorData);
+            const errorData = error.response.data;
+    
+            // ✅ Handle Validation Errors
+            if (errorData.errors) {
+                Object.keys(errorData.errors).forEach((key) => {
+                    toast.error(errorData.errors[key][0], {
+                        position: "top-right",
+                        autoClose: 5000,
+                    });
+                });
+            } 
+            // ✅ Handle General Error Messages
+            else if (errorData.message) {
+                toast.error(errorData.message, {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            } 
+            // ✅ Handle Unexpected Errors
+            else {
+                toast.error("An unknown error occurred.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+    
+            console.error("Error response from server:", errorData);
         } else {
-          // General error fallback
-          toast.error("Failed to confirm the session. Please try again.", {
-            position: "top-right",
-            autoClose: 5000,
-          });
-          console.error("Unexpected error:", error);
+            // Fallback for network errors
+            toast.error("Failed to confirm the session. Please try again.", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+            console.error("Unexpected error:", error);
         }
-      });
-      
+    });
   };
 
     // ============End of Single session modal update===========

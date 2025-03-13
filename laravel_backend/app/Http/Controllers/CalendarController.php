@@ -62,7 +62,7 @@ class CalendarController extends Controller
     ->where('date', $validatedData['date'])
     ->get();
 
-    Log::info("Existing Sessions:", $existingSessions->toArray());
+    Log::info("Existing Sessions1:", $existingSessions->toArray());
 
     $existingBulkSessions = BulkSessionModel::where('student_id', $validatedData['id'])
     ->where('start_date', '<=', $validatedData['date'])
@@ -393,12 +393,12 @@ public function FetchConfirmessionDetails()
             $validatedData = $request->validate([
                 'student_id' => 'required|integer|exists:single_session,student_id', 
                 'selectedDateConfirmSession' => 'required|date_format:Y-m-d', 
-                'startTimeConfirmSession' => 'required|date_format:h:i A',
-                'endTimeConfirmSession' => 'required|date_format:h:i A',
+                'startTimeConfirmSession' => 'required',
+                'endTimeConfirmSession' => 'required',
                 'singlesessionAutoID' => 'required|integer|exists:single_session,id',
                 'userRollID' => 'required|integer', 
             ]);
-    
+            $singlesessionAutoID = $validatedData['singlesessionAutoID']; 
             $startTime = Carbon::createFromFormat('h:i A', $validatedData['startTimeConfirmSession'])->format('H:i:s');
             $endTime = Carbon::createFromFormat('h:i A', $validatedData['endTimeConfirmSession'])->format('H:i:s');
     
@@ -430,7 +430,7 @@ public function FetchConfirmessionDetails()
     ->where('date', $validatedData['selectedDateConfirmSession'])
     ->get();
 
-    Log::info("Existing Sessions:", $existingSessions->toArray());
+    Log::info("Existing Sessions22:", $existingSessions->toArray());
 
     $existingBulkSessions = BulkSessionModel::where('student_id', $validatedData['student_id'])
     ->where('start_date', '<=', $validatedData['selectedDateConfirmSession'])
@@ -447,41 +447,65 @@ public function FetchConfirmessionDetails()
     }
     
     // ----------END---------Check Overlap----------------------------
-    $existingSingleSessions = CalendarModel::where('student_id', $validatedData['student_id'])
-    ->where('date', $validatedData['selectedDateConfirmSession'])
-    ->when(isset($validatedData['singlesessionAutoID']), function ($query) use ($validatedData) {
-        return $query->where('id', '!=', $validatedData['singlesessionAutoID']); // Exclude current session if updating
-    })
-    ->exists();
+//     $existingSingleSessions = CalendarModel::where('student_id', $validatedData['student_id'])
+//     ->where('date', $validatedData['selectedDateConfirmSession'])
+//     ->when(isset($validatedData['singlesessionAutoID']), function ($query) use ($validatedData) {
+//         return $query->where('id', '!=', $validatedData['singlesessionAutoID']); // Exclude current session if updating
+//     })
+//     ->exists();
 
-if ($existingSingleSessions) {
+// if ($existingSingleSessions) {
+//     return response()->json([
+//         'errors' => ['selectedDateConfirmSession' => ['A session on this date already exists.']]
+//     ], 422);
+// }
+
+
+
+$start = Carbon::parse($validatedData['startTimeConfirmSession']); // Auto-detects AM/PM
+$end = Carbon::parse($validatedData['endTimeConfirmSession']);
+
+Log::info("Parsed Start Time: " . $start->toTimeString());
+Log::info("Parsed End Time: " . $end->toTimeString());
+
+if ($start->greaterThanOrEqualTo($end)) {
     return response()->json([
-        'errors' => ['selectedDateConfirmSession' => ['A session on this date already exists.']]
+        'errors' => ['time' => ['Start time must be before end time.']]
     ], 422);
 }
 
 
     //============Check the same time or not when create session============
     // Check for conflicts
-    // foreach ($validatedData['timeSlots'] as $slot) {
-    //     $newStartTime = Carbon::parse($slot['startTime']);
-    //     $newEndTime = Carbon::parse($slot['endTime']);
     
-    //     foreach ($existingSessions as $session) {
-    //         $existingStartTime = Carbon::parse($session->start_time);
-    //         $existingEndTime = Carbon::parse($session->end_time);
+     
+   // Check for overlapping time slots
+   // Get new session start and end times
+$newStartTime = Carbon::parse($validatedData['startTimeConfirmSession']);
+$newEndTime = Carbon::parse($validatedData['endTimeConfirmSession']);
+
+foreach ($existingSessions as $session) {
+    // **Ensure we skip the session being updated**
+    if ($session->id == $singlesessionAutoID) {
+        continue;
+    }
+
+    $existingStartTime = Carbon::parse($session->start_time);
+    $existingEndTime = Carbon::parse($session->end_time);
+
+    if (
+        ($newStartTime->gt($existingStartTime) && $newStartTime->lt($existingEndTime)) ||  // Starts inside another session
+        ($newEndTime->gt($existingStartTime) && $newEndTime->lt($existingEndTime)) ||      // Ends inside another session
+        ($newStartTime->lte($existingStartTime) && $newEndTime->gte($existingEndTime))     // Completely overlaps another session
+    ) {
+        return response()->json([
+            'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
+        ], 422);
+    }
+}
+
     
-    //         if (
-    //             ($newStartTime->between($existingStartTime, $existingEndTime) || 
-    //             $newEndTime->between($existingStartTime, $existingEndTime) ||  
-    //             ($newStartTime <= $existingStartTime && $newEndTime >= $existingEndTime))
-    //         ) {
-    //             return response()->json([
-    //                 'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
-    //             ], 422);
-    //         }
-    //     }
-    // }
+    
     
             // Update only the session with the matching ID
             $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])
@@ -500,7 +524,11 @@ if ($existingSingleSessions) {
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation Error:', $e->errors());
-            return response()->json(['error' => $e->errors()], 422);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Session Update Error: ' . $e->getMessage());
             return response()->json(['error' => 'Something went wrong.'], 500);
