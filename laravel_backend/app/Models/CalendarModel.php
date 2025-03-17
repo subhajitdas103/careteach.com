@@ -16,4 +16,11 @@ class CalendarModel extends Model
         'end_time',
         
             ];
+
+
+ public function assignProvider()
+{
+    return $this->belongsTo(AssignProviderModel::class, 'provider_id', 'id');
+}
+
 }

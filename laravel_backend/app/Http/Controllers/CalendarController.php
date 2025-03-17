@@ -31,7 +31,7 @@ class CalendarController extends Controller
             'timeSlots.*.endTime.required' => 'End time is required for each session.',
         ]);
       
-    
+       
 
         $existingAssignProvider = AssignProviderModel::where('provider_id', $validatedData['userRollID'])
         ->where('student_id', $validatedData['id']) 
@@ -79,6 +79,53 @@ class CalendarController extends Controller
     }
     
     // ----------END---------Check Overlap----------------------------
+// Get total assigned yearly hours for the provider
+
+
+
+
+$totalAssignedHours = AssignProviderModel::where('provider_id', $validatedData['userRollID'])
+    ->sum('yearly_hours');
+
+// Get total used minutes from CalendarModel (single session)
+$totalUsedMinutesSingleSession = CalendarModel::where('student_id', $validatedData['id'])
+    ->selectRaw('SUM(TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60) as total_minutes')
+    ->value('total_minutes') ?? 0; // Default to 0 if null
+
+// Get total used minutes from BulkSessionModel (bulk sessions)
+$totalUsedMinutesBulkSession = BulkSessionModel::where('student_id', $validatedData['id'])
+    ->selectRaw("session_dates, TIME_TO_SEC(TIMEDIFF(end_time, start_time)) / 60 as session_duration")
+    ->get(); // Fetch all matching records
+
+$totalMinutes = 0;
+
+foreach ($totalUsedMinutesBulkSession as $session) {
+    // Split session_dates into an array
+    $sessionCount = count(explode(',', $session->session_dates ?? ''));
+    
+    // Multiply session duration by session count
+    $totalMinutes += ($session->session_duration ?? 0) * $sessionCount;
+}
+
+// Convert total used minutes to hours
+$totalUsedHoursSingleSession = $totalUsedMinutesSingleSession / 60;
+$totalUsedHoursBulkSession = $totalMinutes / 60; // Fixed this line
+
+// Calculate total used hours
+$totalUsedHours = $totalUsedHoursSingleSession + $totalUsedHoursBulkSession;
+
+// Logging for debugging
+\Log::info("Total Assigned Hours: $totalAssignedHours, Total Used Hours: $totalUsedHours");
+
+// Check if used hours exceed assigned hours
+if ($totalUsedHours > $totalAssignedHours) {
+    return response()->json([
+        'status'  => 'error',
+        'message' => 'You have exceeded your assigned hours.'
+    ], 400);
+}
+
+// Continue processing if within allowed hours...
 
     //============Check the same time or not when create session============
     // Check for conflicts
@@ -212,33 +259,82 @@ class CalendarController extends Controller
         $sessions = $validatedData['sessions']; // Array of session start & end times
     //   ---------------------------------------------------------------------
     // -------------------Check Overlap---------------------------------------
-    // Fetch existing session dates for the student within the given range
+  // Fetch existing bulk session dates (stored as "1,2,3,4")
 $existingBulkSessions = BulkSessionModel::where('student_id', $validatedData['id'])
 ->where('start_date', '<=', $validatedData['endDate'])
 ->where('end_date', '>=', $validatedData['startDate'])
-->pluck('session_dates') // Get only the session_dates column
+->pluck('session_dates')
 ->toArray();
 
-// Convert stored session dates (comma-separated) into an array
-$existingDates = [];
-foreach ($existingBulkSessions as $dates) {
-$existingDates = array_merge($existingDates, explode(',', $dates));
-}
-$existingDates = array_unique($existingDates); // Remove duplicates
+// Fetch existing single sessions with date & time
+$singleSessions = CalendarModel::whereBetween('date', [$validatedData['startDate'], $validatedData['endDate']])
+->where('student_id', $validatedData['id'])
+->select('date', 'start_time', 'end_time')
+->get();
 
-// Filter out session dates that already exist
+// Convert stored bulk session dates (comma-separated) into an array
+$existingBulkDates = [];
+foreach ($existingBulkSessions as $dates) {
+$existingBulkDates = array_merge($existingBulkDates, explode(',', $dates));
+}
+$existingBulkDates = array_unique($existingBulkDates); // Remove duplicates
+
+// Convert single session dates into day numbers & map time slots
+$existingSingleSessions = [];
+foreach ($singleSessions as $single) {
+$dayNumber = date('j', strtotime($single->date)); // Convert "YYYY-MM-DD" → "5"
+$existingSingleSessions[$dayNumber] = [
+    'start_time' => date('H:i', strtotime($single->start_time)),
+    'end_time' => date('H:i', strtotime($single->end_time))
+];
+}
+
+// Merge all existing session days (Bulk + Single)
+$existingAllDates = array_unique(array_merge($existingBulkDates, array_keys($existingSingleSessions)));
+
+// Get the selected session dates and remove duplicates
 $sessionDates = explode(',', $validatedData['sessionDates']);
-$filteredDates = array_diff($sessionDates, $existingDates); // Keep only new dates
+$sessionDates = array_map('trim', $sessionDates);
+$sessionDates = array_unique($sessionDates);
+
+// Filter out sessions that already exist in Bulk OR have time conflicts in Single
+$filteredDates = [];
+foreach ($sessionDates as $date) {
+if (in_array($date, $existingAllDates)) {
+    continue; // Skip if date already exists
+}
+
+foreach ($validatedData['sessions'] as $session) {
+    $bulkStart = date('H:i', strtotime($session['startTime']));
+    $bulkEnd   = date('H:i', strtotime($session['endTime']));
+
+    // Check if this date has a single session with the same time
+    if (isset($existingSingleSessions[$date])) {
+        $singleStart = $existingSingleSessions[$date]['start_time'];
+        $singleEnd = $existingSingleSessions[$date]['end_time'];
+
+        if ($bulkStart == $singleStart && $bulkEnd == $singleEnd) {
+            Log::info("🚨 Skipping $date: Time conflict ($bulkStart - $bulkEnd matches Single Session)");
+            continue 2; // Skip this date
+        }
+    }
+}
+
+Log::info("✅ Adding $date to filteredDates");
+$filteredDates[] = $date;
+}
 
 // If no new dates remain, return without inserting
 if (empty($filteredDates)) {
 return response()->json([
-    'message' => 'All selected dates already have sessions. No new sessions created.'
+    'message' => 'All selected dates either already have sessions or have time conflicts. No new sessions created.'
 ], 200);
 }
 
-// Convert filtered dates back to a string
+// Convert filtered dates back to a string and update validated data
 $validatedData['sessionDates'] = implode(',', $filteredDates);
+
+
     // ===================================================
 
         try {

@@ -525,6 +525,13 @@ console.log("SingleSession Date",SingleSessionChooseDate);
                     });
                 }
             });
+
+          } else if (error.response?.status === 400) {
+            // Handle "Exceeded Assigned Hours" error
+            toast.error(error.response.data.message , {
+                position: "top-right",
+                autoClose: 5000
+            });
         } else if (error.response?.status === 500) {
             toast.error("Internal server error. Please contact support.", { position: "top-right", autoClose: 5000 });
         } else {

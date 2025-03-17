@@ -65,10 +65,6 @@ const { id } = useParams();
     fetchStudentDetails();
   }, [id]);
 
-  // useEffect(() => {
-  //   console.log("Updated studentDetails:", studentDetails);
-  // }, [studentDetails]); // Runs when `studentDetails` updates
-  
 
 // ===========================================
 console.log("studentDetails",studentDetails);
@@ -95,6 +91,7 @@ useEffect(() => {
   fetch_start_end_date_of_student(id);
 }, []);
 console.log("Hours",Student_start_end_date);
+
 //-----------Start-----------Fetch  AssgniedProvider data------------
 const [assignedProviders, setAssignedProviders] = useState([]);
 const [AssignProviderID, setAssignProviderID] = useState(null);
@@ -148,11 +145,8 @@ if (selectedService && validServices.includes(selectedAssignProviderService)) {
     AssignProviderLimitStartDate = formatDate(selectedService.start_date);
 
 
-    // ========================================
-
-    
+    // ========================================   
 }
-
 
 
 
@@ -207,37 +201,26 @@ const getRemainingYearlyHoursinEdit = () => {
   return remainingYearlyHours;
 };
 
-console.log("assignedProviders333333",assignedProviders);
-
-console.log("assignedProvidersfffff",assignedProviders);
 // ==============================================================================================================
 const getRemainingYearlyHoursinAdd = () => {
-  // Ensure assignedProviders is an array
   const safeAssignedProviders = Array.isArray(assignedProviders) ? assignedProviders : [];
-
   const filteredProviders = safeAssignedProviders.filter(
     provider => provider.service_type === selectedAssignProviderService
   );
-
   console.log("Filtered Providers:", filteredProviders.length, filteredProviders);
-
   if (filteredProviders.length === 0) {
     console.log("No matching provider found.");
     return MAX_YEARLY_HOURS;
   }
-
   console.log("MAX_YEARLY_HOURS:", MAX_YEARLY_HOURS);
-
   const totalYearlyHours = filteredProviders.reduce(
     (sum, provider) => sum + (Number(provider.yearly_hours) || 0), 0
   );
-
   console.log("Summing yearly hours:", filteredProviders.map(p => p.yearly_hours));
   console.log("Total calculated yearly hours:", totalYearlyHours);
 
   const remainingHourswhenAssign = MAX_YEARLY_HOURS - totalYearlyHours;
   console.log("Remaining yearly hours:", remainingHourswhenAssign);
-
   return remainingHourswhenAssign;
 };
 
@@ -520,19 +503,27 @@ const handelAssignProviderData = async () => {
     assignProviderStartDate: FormatassignProviderStartDate,
     assignProviderEndDate: FormatassignProviderEndDate,
   };
-
-  console.log("Final validation passed, proceeding to API call...");
-  console.log("FormData:", formData);
-// Check yearly hours before submission
-const remainingYearlyHours = getRemainingYearlyHoursinAdd();
-if (inputYearlyHoursAssignProvider > remainingYearlyHours) {
-  toast.error(`Cannot assign more than ${remainingYearlyHours} yearly hours.`, { position: "top-right", autoClose: 5000 });
-  return; // Stop execution
+  if (inputWklyHoursAssignProvider <= 0) {
+    toast.error("Weekly hours must be greater than 0.", { position: "top-right", autoClose: 5000 });
+    return;
 }
-  try {
-    const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+
+if (inputYearlyHoursAssignProvider <= 0) {
+    toast.error("Yearly hours must be greater than 0.", { position: "top-right", autoClose: 5000 });
+    return;
+}
+  // console.log("Final validation passed, proceeding to API call...");
+  // console.log("FormData:", formData);
+// Check yearly hours before submission
+  const remainingYearlyHours = getRemainingYearlyHoursinAdd();
+  if (inputYearlyHoursAssignProvider > remainingYearlyHours) {
+    toast.error(`Cannot assign more than ${remainingYearlyHours} yearly hours.`, { position: "top-right", autoClose: 5000 });
+    return; // Stop execution
+  }
+    try {
+      const response = await axios.post(`${backendUrl}/api/AssignProvider`, JSON.stringify(formData), {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
     console.log('Data sent successfully:', response.data);
 
@@ -561,23 +552,23 @@ if (inputYearlyHoursAssignProvider > remainingYearlyHours) {
       toast.error("An error occurred. Please try again.", { position: "top-right", autoClose: 5000 });
       return; // Stop execution
     }
-    try {
-      const fetchResponse = await fetch(`${backendUrl}/api/AssignProvider`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const fetchData = await fetchResponse.json();
-      console.log("Fetch response:", fetchData);
+    // try {
+    //   const fetchResponse = await fetch(`${backendUrl}/api/AssignProvider`, {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(formData),
+    //   });
+    //   const fetchData = await fetchResponse.json();
+    //   console.log("Fetch response:", fetchData);
 
-      fetchAssignedProviderDetails();
-      setIsModalOpen(false);
-      setTimeout(() => {
-        toast.success("Provider assigned successfully (via fetch)", { position: "top-right", autoClose: 5000 });
-      }, 500);
-    } catch (fetchError) {
-      console.error("Error during fetch request:", fetchError);
-    }
+    //   fetchAssignedProviderDetails();
+    //   setIsModalOpen(false);
+    //   setTimeout(() => {
+    //     toast.success("Provider assigned successfully (via fetch)", { position: "top-right", autoClose: 5000 });
+    //   }, 500);
+    // } catch (fetchError) {
+    //   console.error("Error during fetch request:", fetchError);
+    // }
   }
 };
 
@@ -591,10 +582,7 @@ const AssignProviderEditID = selectedAssignProvider.split("|")[0];
 // =================Edit Assign Provider=========================
 
 const [AssignEditID, setAssignID] = useState("");
-
 // console.log("AssignEditID",AssignEditID);
-
-
 console.log("AssignProviderEditID",AssignProviderEditID);
 const handleAssignProviderDataEdit = async () => {
   console.log("handleAssignProvider triggered");
@@ -603,7 +591,6 @@ const handleAssignProviderDataEdit = async () => {
     toast.error("Please Select a Provider!");
     return;
   }
-
   const [providerId, full_name] = selectedAssignProvider.split("|");
   console.log("selectedAssignProvider",providerId);
   const startDate = new Date(assignProviderStartDate);
@@ -711,9 +698,6 @@ const handleAssignProviderDataEdit = async () => {
 
 
 //   =================Modal Open==================
-
-// ========================================
-
   const [ProviderDataAssignProvider, setProviderData] = useState(null);
 
   const fetchProviderData = async () => {
@@ -805,7 +789,6 @@ const closeModal = () => {
       SetAssignproviderAutoID(id);
       setEditingServiceId(id);
       const providerDetails = assignedProviders.find((provider) => provider.id === id);
-    // console.log("uegf",providerDetails.service_type);
       if (providerDetails) {
        setSelectedAssignProvider(`${providerDetails.provider_id}|${providerDetails.provider_name}`);
        setAssignID(providerDetails.id);
@@ -833,36 +816,23 @@ const openModalAssignProvider = (id, name) => {
 };
   useEffect(() => {
   }, [assignProviderStartDate]);
-// ================================================
-// useEffect(() => {
-//   setInputYearlyHoursAssignProvider(""); // Reset Yearly Hours when service type changes
-// }, [selectedAssignProviderService]);
 
-console.log("cccccccccccccccc",assignedProviders);
   return (
 <div>
     <ToastContainer />
     <div className="dashbord-container">
       <div className="row dashbord-list">
         <div className="heading-text">
-          
         <h3>Services and Provider for - {studentDetails?.first_name} {studentDetails?.last_name}</h3>
-
             <div onClick={backToStudent}>
                 <i className="fa fa-backward fc-back-icon" aria-hidden="true" id="back_student_click"></i>
             </div>
-
-
         </div>
         <table className="table bdr table-add-provider" border="1">
           <thead className="bg-red">
           </thead>
         </table>
       </div>
-
-    
-
-
       <div className="add-student-btn" onClick={() => openModalAssignProvider(id)}>
         <i className="fa fa-user-plus add-student-icon"></i> Assign a Provider
       </div>
@@ -967,7 +937,6 @@ console.log("cccccccccccccccc",assignedProviders);
                 </FormControl>
 
               </div>
-  
               <div className="col-12">
                 <TextField
                   id="rate-input"
@@ -1026,12 +995,10 @@ console.log("cccccccccccccccc",assignedProviders);
                 <div className="col-6" style={{ paddingRight: "5px" }}>
                 <TextField
                   id="weekly-input"
-                  // label="Weekly Hours - Total"
                   label={`Weekly Hours Total - ${MAX_WEEKLY_HOURS} `}
                   variant="outlined"
                   fullWidth
                   value={inputWklyHoursAssignProvider}
-                  // onChange={(e) => setinputWklyHoursAssignProvider(e.target.value)}
                   onChange={(e) => handleHoursChange('weekly', e)}
                   style={{ marginBottom: "16px" }}
                   placeholder="Enter Weekly Hours"
@@ -1042,9 +1009,7 @@ console.log("cccccccccccccccc",assignedProviders);
                 <div className="col-6" style={{ paddingLeft: "5px" }}>
                   <TextField
                     id="yearly-input"
-                    // label="Yearly Hours"
                     label={`Yearly Hours Total - ${MAX_YEARLY_HOURS} `}
-
                     variant="outlined"
                     fullWidth
                     value={inputYearlyHoursAssignProvider || 0}
@@ -1062,7 +1027,6 @@ console.log("cccccccccccccccc",assignedProviders);
                 </div>
               </div>
               {/* ============== */}
-           
               <div className="col-12 lctDropdown">
                 {/* Start Date Picker */}
                 <div className="col-6" style={{ paddingRight: "4px" }}>
@@ -1180,7 +1144,6 @@ console.log("cccccccccccccccc",assignedProviders);
                   fullWidth
                   value={inputRateAssignProvider}
                   onChange={(e) => {
-                    // Allow only numeric input
                     const value = e.target.value.replace(/[^0-9]/g, "");
                     setInputRateAssignProvider(value);
                   }}
@@ -1249,7 +1212,6 @@ console.log("cccccccccccccccc",assignedProviders);
                   label={`Yearly Hours Total - ${MAX_YEARLY_HOURS} `}
                   variant="outlined"
                   fullWidth
-                  // value={inputYearlyHoursAssignProvider}
                   value={inputYearlyHoursAssignProvider || "0"}
                   onChange={(e) => handleHoursChange('yearly', e)}
                   style={{ marginBottom: "16px" }}
@@ -1269,7 +1231,6 @@ console.log("cccccccccccccccc",assignedProviders);
                         <DatePicker
                           selected={assignProviderStartDate ? new Date(assignProviderStartDate) : null}
                           onChange={(date) => {
-                            // console.log("Selected Date:", date);
                             setAssignProviderStartDate(format(date, "yyyy-MM-dd"));
                           }}
                           dateFormat="MM/dd/yyyy" 
