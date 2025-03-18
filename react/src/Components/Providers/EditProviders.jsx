@@ -14,8 +14,13 @@ import validator from 'email-validator';
 import { toast, ToastContainer } from 'react-toastify';
 import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/material';
 import { useParams } from 'react-router-dom';
-
+import ClipLoader from "react-spinners/ClipLoader";
+import BeatLoader from "react-spinners/BeatLoader";
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 const EditProviders = () => {
+const [loading, setLoading] = useState(true);
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 const {ProviderID } = useParams();
 const [allProviderData, setProviderData] = useState(null);
 const [providerData, setAllProviderData] = useState({});
@@ -323,10 +328,10 @@ useEffect(() => {
   console.log("handleAddProvider triggered");
 
 // ==================================Date format to save in db==================================
-const formattedDOB = selectedDate ? new Date(selectedDate).toISOString().split('T')[0] : null;
-const lisenceExpDateFormat = licenseExpDate ? new Date(licenseExpDate).toISOString().split('T')[0] : null;
-const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toISOString().split('T')[0] : null;
-if (!first_name) {
+  const formattedDOB = selectedDate ? new Date(selectedDate).toISOString().split('T')[0] : null;
+  const lisenceExpDateFormat = licenseExpDate ? new Date(licenseExpDate).toISOString().split('T')[0] : null;
+  const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toISOString().split('T')[0] : null;
+  if (!first_name) {
         toast.error('Please fill First Name!');
         return;
     }
@@ -368,7 +373,14 @@ if (!first_name) {
     toast.error('Please Choose Pets Status!');
     return;
     }
-
+  if (!companyName) {
+      toast.error('Please Enter Company Name!');
+      return;
+    }
+  if (!rateNotes) {
+    toast.error('Please Enter Rate Notes!');
+    return;
+    }
    
 const formData = {
     first_name,
@@ -392,10 +404,17 @@ const formData = {
     status
   };
   console.log('Form data:', formData);
-  
+   if (formData.selectedGrades.length === 0) {
+        toast.error("Please Select Grade.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        return; // Prevent the form submission
+      }
   try {
-    const response = await axios.post(`/api/UpdateProvider/${ProviderID}`, JSON.stringify(formData), {
+    const response = await axios.post(`${backendUrl}/api/UpdateProvider/${ProviderID}`, JSON.stringify(formData), {
       headers: {
+        
         'Content-Type': 'application/json',
       },
     });
@@ -409,16 +428,22 @@ const formData = {
        
     navigate('/Providers', { state: { successMessage: 'Provider successfully Saved!!' } }); 
   } catch (error) {
-    toast.error("An error occurred. Please try again.", {
-      position: "top-right",
-      autoClose: 5000,
-    });
+    if (error.response && error.response.data.error === 'Email is already associated with another provider.') {
+      // Show error message for duplicate email
+      toast.error("Email is already associated with another provider.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    } else {
+      // General error message
+      toast.error("An error occurred. Please try again.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
   
     console.error('There was an error sending data:', error.response?.data || error.message);
   }
-      
-
-
 
   }
 
@@ -432,8 +457,9 @@ const formData = {
 //   ============================Fect Provider Data====================
 
 const fetchProviderDetails = async () => {
+  setLoading(true);
     try {
-      const response = await fetch(`/api/ProviderDataFetchAsID/${ProviderID}`);
+      const response = await fetch(`${backendUrl}/api/ProviderDataFetchAsID/${ProviderID}`);
       
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -448,6 +474,10 @@ const fetchProviderDetails = async () => {
     } catch (error) {
       console.error('Error fetching provider details:', error);
     }
+
+    finally {
+      setLoading(false); // Hide loader after the fetch completes
+    }
   };
 
   useEffect(() => {
@@ -459,12 +489,66 @@ const fetchProviderDetails = async () => {
 
 
 
+
+
   return (
-    <div className="dashbord-container">
+  <div className="dashbord-container">
+       {loading ? (
+     <div className="dashbord-container">
+     <div className="row dashbord-list">
+       <div className="heading-text">
+         <h3>
+           <Skeleton width={150} height={30} />
+         </h3>
+         <p>
+           <Skeleton width={200} height={20} />
+         </p>
+       </div>
+
+       <div className="row dashbord-list">
+         <div className="stu-pro-field-div">
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={100} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+           </div>
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={100} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+           </div>
+         </div>
+
+         <div className="stu-pro-field-div">
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={120} height={20} /></label>
+             <Skeleton height={45} width={'100%'} />
+           </div>
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={80} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+             <p className="error-message"><Skeleton width={150} height={15} /></p>
+           </div>
+         </div>
+
+         <div className="stu-pro-field-div">
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={80} height={20} /></label>
+             <Skeleton height={40} width={'100%'} />
+           </div>
+           <div className="col-md-6 student-profile-field">
+             <label><Skeleton width={80} height={20} /></label>
+             <Skeleton height={80} width={'100%'} />
+           </div>
+         </div>
+       </div>
+     </div>
+   </div>
+      ) : (
+        <>
       <header>
         <div className="row dashbord-list">
           <div className="heading-text personal-info-text">
-            <h3>Basic Information</h3>
+          <h3 style={{ marginTop: "-44px" }}>Edit Providers</h3>
+
             <i
               className="fa fa-backward fc-back-icon"
               aria-hidden="true"
@@ -472,11 +556,21 @@ const fetchProviderDetails = async () => {
             ></i>
           </div>
         </div>
+        <h2 style={{ 
+        color: "#4979a0", 
+        fontSize: "24px", 
+        fontWeight: "bold", 
+        marginBottom: "10px", 
+        marginLeft: "26px" 
+        }}>
+          Basic Information
+        </h2>
+
 
         <div className="row dashbord-list personal-profile">
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>First Name:</label>
+              <label>First Name*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -484,7 +578,7 @@ const fetchProviderDetails = async () => {
               />
             </div>
             <div className="col-md-6 student-profile-field">
-              <label>Last Name:</label>
+              <label>Last Name*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -507,7 +601,7 @@ const fetchProviderDetails = async () => {
   
                 </div>
                 <div className="col-md-6 student-profile-field">
-                  <label>Email:</label>
+                  <label>Email*</label>
                   <input
                     type="text"
                     className={`stu-pro-input-field ${isValid ? '' : 'invalid-email'}`}
@@ -521,7 +615,7 @@ const fetchProviderDetails = async () => {
 
           <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-                <label>Phone:</label>
+                <label>Phone*</label>
                 <input
                   type="text"
                   className="stu-pro-input-field"
@@ -531,7 +625,7 @@ const fetchProviderDetails = async () => {
                 />
               </div>
               <div className="col-md-6 student-profile-field">
-              <label>Address:</label>
+              <label>Address*</label>
               <textarea
                 rows="3"
                 cols="30"
@@ -554,7 +648,7 @@ const fetchProviderDetails = async () => {
         <div className="row dashbord-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-              <label>Rate:</label>
+              <label>Rate*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -564,7 +658,7 @@ const fetchProviderDetails = async () => {
               />
             </div>
             <div className="col-md-6 student-profile-field">
-              <label>Rate Notes:</label>
+              <label>Rate Notes*</label>
               <textarea
                 rows="3"
                 cols="30"
@@ -594,7 +688,7 @@ const fetchProviderDetails = async () => {
             </div>
 
             <div className="col-md-6 student-profile-field">
-              <label>Company Name:</label>
+              <label>Company Name*</label>
               <input
                 type="text"
                 className="stu-pro-input-field"
@@ -608,7 +702,7 @@ const fetchProviderDetails = async () => {
 
   <div className="stu-pro-field-div">
       <div className="col-md-6 student-profile-field">
-          <label>Grades Approved for:</label>
+          <label>Grades Approved for*</label>
           <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
             {selectedGrades.length > 0 ? selectedGrades.join(', ') : 'Choose Grades'}
           </Button>
@@ -660,7 +754,7 @@ const fetchProviderDetails = async () => {
 
         <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>License Exp Date:</label>
+              <label>License Exp Date*</label>
                 <DatePicker
                     value={licenseExpDate} // Bind the selected date to the DatePicker
                     onChange={handleLicenseExpDateChangeDate} // Handle the change of the date
@@ -708,7 +802,7 @@ const fetchProviderDetails = async () => {
         
         <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-                <label>PETS Approval Date:</label>
+                <label>PETS Approval Date*</label>
                 <DatePicker
                     value={petsApprovalDate}
                     onChange={handlePetsApprovalDateChange} // Handle the change of the date
@@ -735,7 +829,7 @@ const fetchProviderDetails = async () => {
 
             <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field attachmentcss">
-                    <label htmlFor="ssn-input">Social Security Number:</label>
+                    <label htmlFor="ssn-input">Social Security Number*</label>
                     <input
                       id="ssn-input"
                       type="text"
@@ -781,8 +875,11 @@ const fetchProviderDetails = async () => {
               <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
               <ToastContainer />
             </div>
-      </header>
+    </header>
+      </>
+      )}
     </div>
+     
   );
 };
 

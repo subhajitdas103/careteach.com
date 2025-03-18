@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState , useEffect ,useRef } from 'react';
 import { Dropdown } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
@@ -12,16 +12,25 @@ import { IconButton, Tooltip } from '@mui/material';
 import 'rsuite/styles/index.less'; // Import RSuite styles
 import { DatePicker } from 'rsuite';
 import { Modal as FlowbitModal } from 'flowbite-react';
+import 'rsuite/Uploader/styles/index.css';
 // import { useForm } from 'react-hook-form'; // Import useForm
 // import { useForm } from "react-hook-form";
 // import Dropdown from "react-bootstrap/Dropdown";
-
+import useAuth from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import React, { useState } from 'react';
-
+import { Uploader , Button  , Row, Col} from 'rsuite';
   const AddStudent = () => {
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+ 
+  // ============Getting Roll Name from Session=========
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name:", userRollName);
+  console.log("Updated Roll ID:", userRollID); 
+  
+  // ============Getting Roll Name from Session=========
+  
   
   const navigate = useNavigate();
 
@@ -37,12 +46,47 @@ import axios from "axios";
   // Function to handle changes in form inputs (e.g., Start Date, End Date)
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];
+     if (field === "startDate" && new Date(value) > new Date(updatedFormDataList[index].endDate)) {
+          // alert("Start date cannot be greater than end date!");
+              toast.error("Start date cannot be greater than end date!");
+          return;
+        }
+        if (field === "endDate" && new Date(value) < new Date(updatedFormDataList[index].startDate)) {
+          // alert("End date cannot be before start date!");
+          toast.error("End date cannot be before start date!");
+          return;
+        }   
+        
+        if (field === "weeklyMandate") {
+          // Convert both to numbers for comparison
+          const weeklyHours = parseFloat(value); // New weekly mandate value
+          const yearlyHours = parseFloat(updatedFormDataList[index].yearlyMandate); // Existing yearly mandate value
+      
+          // Ensure that the weekly mandate multiplied by 52 (weeks in a year) is not greater than the yearly mandate
+          const calculatedYearlyHours = weeklyHours * 52;
+      
+          // if (calculatedYearlyHours > yearlyHours) {
+          //     toast.error("Weekly Mandate exceeds the Yearly Mandate!");
+          //     return;
+          // }
+      }
+      
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
   };
 
-  // Function to handle the service type change (Male or Fe-Male)
   const handleServiceTypeChange = (index, type) => {
+    // ------When Add Student , Andif Service type Choose two times show error------
+    const isTypeAlreadySelected = formDataList.some((service, i) => 
+      service.service_type === type && i !== index
+    );
+    
+    if (isTypeAlreadySelected) {
+      toast.error(`${type} has already been selected. You cannot select it again.`);
+      return;
+    }
+
+
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index] = {
       ...updatedFormDataList[index], // Preserve the other fields
@@ -51,14 +95,27 @@ import axios from "axios";
     setFormDataList(updatedFormDataList);
   };
 
-  // Function to add a new service (clone the form)
+  // // Function to add a new service (clone the form)
+  // const addService = () => {
+  //   setFormDataList([
+  //     ...formDataList,
+  //     { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' ,  isClone: true}
+  //   ]);
+  // };
   const addService = () => {
-    setFormDataList([
-      ...formDataList,
-      { service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' ,  isClone: true}
+    setFormDataList((prevList) => [
+      ...(prevList || []),
+      {
+        service_type: '',
+        startDate: new Date().toISOString(), // ISO format
+        endDate: new Date().toISOString(), // ISO format
+        weeklyMandate: '',
+        yearlyMandate: '',
+        isClone: true
+      }
     ]);
   };
-
+  
   // Function to remove a service (form)
 const removeService = (index) => {
   const updatedFormDataList = formDataList.filter((_, i) => i !== index);
@@ -94,8 +151,59 @@ const removeService = (index) => {
     const [parent_phnumber, setParentPH] = useState('');
   // ---------------------Parent END------------------------
 
+     
+    // Handle Upload Success
+    const uploaderRef = useRef(null);
+    const [fileList, setFileList] = useState([]);
+    const handleUploadSuccess = async (response) => {
+      console.log("Upload success:", response);
+    
+      if (response.fileName) {
+        if (iep_doc) {
+          await deletePreviousFile(iep_doc);
+        }
+        setIEP(response.fileName); // Store uploaded file path in state
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.error("File upload failed!");
+      }
+    };
+    
 
+    const deletePreviousFile = async (fileName) => {
+      try {
+      
+        const response = await fetch(`${backendUrl}/api/delete_iep_upload_file/${fileName}`, {
+          method: "DELETE",
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          console.log("Previous file deleted:", data.message);
+        } else {
+          console.error("Error deleting file:", data.message);
+        }
+      } catch (error) {
+        console.error("Error in delete request:", error);
+      }
+    };
 
+    // ----------------------------------------
+    
+    const handleUploadError = async (errorResponse) => {
+      try {
+          const response = await errorResponse.json(); // Parse JSON response
+          if (response.message) {
+              toast.error(response.message); // Show Laravel error message in toast
+          } else {
+              toast.error("File upload failed!"); // Default error message
+          }
+      } catch (err) {
+          toast.error("An unexpected error occurred!");
+      }
+  };
+  
     const handleParentname = (event) => {
       setParent(event.target.value);
     };
@@ -109,6 +217,8 @@ const removeService = (index) => {
       setParentPH(event.target.value);
     };
 
+
+    
   const handleParentTypeChange = (selectedParent) => {
     setParentType(selectedParent);
   };
@@ -134,33 +244,26 @@ const removeService = (index) => {
       
     };
 
-
-
     const handelDoe_rate = (event) => {
     const value = event.target.value;
-    
-    // Allow only numeric input (whole numbers)
     if (/^\d+$/.test(value) || value === "") {
-      setDOE(value); // Update state if input is valid
+      setDOE(value); 
     }
 
     if (event.target.value) {
-      // setDOEError('');  // Clear the error as soon as the user types something
     }
   };
 
     const handelNycID = (event) => {
       const value = event.target.value;
-      // Allow only numeric input (whole numbers)
     if (/^\d+$/.test(value) || value === "") {
-      setNYC(value); // Update state if input is valid
+      setNYC(value);
     }
     };
     const handlenotesPerHour = (event) => {
       const value = event.target.value;
-      // Allow only numeric input (whole numbers)
   if (/^\d+$/.test(value) || value === "") {
-    setNotesPerHour(value); // Update state if input is valid
+    setNotesPerHour(value);
   }
     };
     const handleCase = (event) => {
@@ -168,28 +271,19 @@ const removeService = (index) => {
     };
     const handleGradeChange = (selectedGrade) => {
       setGrade(selectedGrade);
-      // setSchoolNameError(''); 
-      // if (event.target.value) {
-        // Clear the error as soon as the user types something
-      // }
     };
 
     const handelDisability = (selectedDisability) => {
       setDisability(selectedDisability);
       
     };
-    // Handle grade change
-    const handelIEP = (selectedIEP) => {
-      setIEP(selectedIEP);
 
-    };
-  
 
 //  ========================Fetch school Data==========================
   const [schools, setSchools] = useState([]);
  const fetchSchoolDetails = async () => {
   try {
-    const response = await fetch('/api/fetchSchoolData');
+    const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
     const data = await response.json();
     setSchools(data); // Update the state with fetched data
     console.log(data);
@@ -202,10 +296,10 @@ const removeService = (index) => {
   }, []);
 console.log(schools);
 // ===========================================================
- // Function to handle school selection
+
  const handleSchoolChange = (schoolName) => {
-  setSelectedSchool(schoolName); // Update the selected school in state
-  console.log('Selected school:', schoolName); // Optionally log the selected school
+  setSelectedSchool(schoolName);
+  console.log('Selected school:', schoolName); 
 };
     // ===================================================================
    
@@ -214,55 +308,54 @@ console.log(schools);
     
     };
 
-    const handleAddStudent   = async (event) => {
+    const handleAddStudent = async (event) => {
       console.log("handleAddStudent triggered");
-      if (!first_name) {
-        toast.error('Please fill First Name!');
-        return;
-    } else if (!last_name) {
-        toast.error('Please fill Last Name!');
-        return;
-    } else if (!grade) {
-        toast.error('Please Choose Grade!');
-        return;
-    }else if (!home_address) {
-      toast.error('Please fill Home address!');
-      return;
-    }else if (!doe_rate) {
-        toast.error('Please Enter DOE Rate!');
-        return;
-    }else if (!iep_doc) {
-      toast.error('Please Choose IEP!');
-      return;
-    }else if (!disability) {
-      toast.error('Please Choose Disability!');
-      return;
-    }else if (!nyc_id) {
-      toast.error('Please Enter NYC ID!');
-      return;
-    }else if (!parent_name) {
-      toast.error('Please Enter Parent Name!');
-      return;
-    }else if (!parent_email) {
-      toast.error('Please Enter Parent Email!');
-      return;
-    }else if (!selectedSchool) {
-      toast.error('Please Choose School!');
-      return;
-    }else if (!parent_type) {
-      toast.error('Please Choose Parent Type!');
-      return;
-    }else if (!parent_phnumber) {
-      toast.error('Please Enter Phone Number!');
-      return;
-    }
     
+      // Helper function for validation
+      const validateField = (field, message) => {
+        if (!field) {
+          toast.error(message);
+          return false;
+        }
+        return true;
+      };
     
+      if (
+        !validateField(first_name, 'Please fill First Name!') ||
+        !validateField(last_name, 'Please fill Last Name!') ||
+        !validateField(grade, 'Please Choose Grade!') ||
+        !validateField(home_address, 'Please fill Home address!') ||
+        !validateField(doe_rate, 'Please Enter DOE Rate!') ||
+        // !validateField(iep_doc, 'Please Choose IEP!') ||
+        !validateField(disability, 'Please Choose Disability!') ||
+        !validateField(nyc_id, 'Please Enter NYC ID!') ||
+        !validateField(parent_name, 'Please Enter Parent Name!') ||
+        !validateField(selectedSchool, 'Please Choose School!') ||
+        !validateField(parent_type, 'Please Choose Parent Type!')
+      ) {
+        return;
+      }
+    
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(parent_email)) {
+        toast.error('Enter a valid email!');
+        return;
+      }
+    
+      const cleanNumber = parent_phnumber.replace(/\s/g, '').trim(); // Remove spaces and trim
+
+      if (cleanNumber && !/^\d{10}$/.test(cleanNumber)) { 
+        toast.error('Phone number must be 10 digits!');
+        return;
+      }
+ 
+    
+
       const formData = {
         first_name,
         last_name,
         grade,
-        school_name : selectedSchool,
+        school_name: selectedSchool,
         home_address,
         doe_rate,
         iep_doc,
@@ -271,41 +364,55 @@ console.log(schools);
         notesPerHour,
         case_v,
         resolutionInvoice,
-        status ,
+        status,
         parent_name,
         parent_email,
         parent_phnumber,
         parent_type,
-        services: formDataList, 
+        services: formDataList,
+        userRollID,
       };
-      console.log('Form data:', formData);
-
       try {
-        const response = await axios.post('/api/addstudent', JSON.stringify(formData), {
+        const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
           headers: {
             'Content-Type': 'application/json',
           },
         });
-        
+    
         setTimeout(() => {
-                toast.success("Student Created successfully", {
-                  position: "top-right",
-                  autoClose: 5000,
-                });
-              }, 500);
-     
+          toast.success("Student Created successfully", {
+            position: "top-right",
+            autoClose: 5000,
+          });
+        }, 500);
+    
         navigate('/Students', { state: { successMessage: 'Student Created successfully!' } });
-              
-      } 
-      
-      catch (error) {
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right", // Correct syntax
-        autoClose: 5000,
-      });
-        console.error('There was an error sending data:', error.response?.data || error.message);
-      }
+      } catch (error) {
+    if (error.response && error.response.data.error) {
+        toast.error(error.response.data.error, {
+            position: "top-right",
+            autoClose: 5000,
+        });
+    } else if (error.response && error.response.data.errors) {
+        const errors = error.response.data.errors;
+        for (const [key, value] of Object.entries(errors)) {
+            toast.error(value[0], {
+                position: "top-right",
+                autoClose: 5000,
+            });
+            break;
+        }
+    } else {
+        toast.error('An error occurred. Please try again later.', {
+            position: "top-right",
+            autoClose: 5000,
+        });
     }
+}
+    };
+    
+// ==============================
+
 
   
     return (
@@ -322,7 +429,7 @@ console.log(schools);
         <div className="row dashboard-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">
-                <label>First Name:</label>
+                <label>First Name*</label>
                 <input
                   type="text"  
                   name="firstName"
@@ -332,14 +439,13 @@ console.log(schools);
               </div>
 
               <div className="col-md-6 student-profile-field widthcss">
-                <label>Last Name:</label>
+                <label>Last Name*</label>
                 <input
                   type="text"
                   name="lastName"
                   className="stu-pro-input-field"
                   placeholder="Enter Last Name"  value={last_name} onChange={handleLastNameChange}
                 />
-               
               </div>
             </div>
 
@@ -374,7 +480,7 @@ console.log(schools);
             </div>
             
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Grade:</label>
+                <label>Grade*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -483,7 +589,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Home Address:</label>
+              <label>Home Address*</label>
               <textarea
                 name="homeAddress"
                 rows="6"
@@ -491,61 +597,47 @@ console.log(schools);
                 className="text-field stu-pro-input-field"
                 placeholder="Enter home address"  value={home_address} onChange={handleHomeAddress}
               ></textarea>
-           
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>DOE Rate:</label>
+              <label>DOE Rate*</label>
               <input
                 type="text"
                 name="doeRate"
                 className="stu-pro-input-field"
                 placeholder="Enter Rate"  value={doe_rate} onChange={handelDoe_rate}
               />
-     
             </div>
           </div>
 
           <div className="stu-pro-field-div">
-            <div className="col-md-6 student-profile-field widthcss">
-                <label>Choose IEP:</label>
-              <div className="dropdown">
-                    <button
-                      className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-                      type="button"
-                      id="dropdownMenuButton"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      {iep_doc || "Choose IEP Document"}
-                    </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("A")}>
-                      A
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AA")}>
-                      AA
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AB")}>
-                      AB
-                    </button>
-                  </li>
-                </ul>
+          <div className="col-md-6 student-profile-field widthcss">
+            <label>Upload IEP Document*</label>
+            <div className="dropdown" style={{ padding: '20px' }}>
+               <Row>
+                  {/* Responsive layout */}
+                  <Col xs={24} sm={12} md={8}>
+                  <Uploader
+                  ref={uploaderRef}
+                  action={`${backendUrl}/api/upload_iep_doc`}
+                  autoUpload={true}
+                  name="iep_doc" // Ensure the field name matches Laravel's expectation
+                  onSuccess={handleUploadSuccess}
+                  onError={handleUploadError}
+                  multiple={false} 
+                  fileList={fileList}// Ensure only one file can be uploaded
+                  onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                  disabled={true}
+                  >
+                  <Button>Select IEP Document</Button>
+                  </Uploader>
+                  </Col>
+                </Row>
               </div>
             </div>
     
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Classification Disability:</label>
+                <label>Classification Disability*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -661,7 +753,6 @@ console.log(schools);
                       Other
                     </button>
                   </li>
-
                 </ul>
               </div>
             </div>
@@ -670,7 +761,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>NYC ID:</label>
+              <label>NYC ID*</label>
               <input
                 type="text"
                 name="nycId"
@@ -680,7 +771,7 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Case:</label>
+              <label>Case*</label>
               <input
                 type="text"
                 name="case"
@@ -692,7 +783,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No Notes Per Hr:</label>
+              <label>No Notes Per Hr*</label>
               <input
                 type="text"
                 name="notesPerHour"
@@ -751,7 +842,7 @@ console.log(schools);
         <div className="row dashboard-list personal-profile">
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Name:</label>
+              <label>Parent Name*</label>
               <input
                 type="text"
                 name="parentName"
@@ -761,7 +852,7 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Email:</label>
+              <label>Parent Email*</label>
               <input
                 type="text"
                 name="parentEmail"
@@ -773,7 +864,7 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
-                <label>Parent Type:</label>
+                <label>Parent Type*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -794,11 +885,10 @@ console.log(schools);
                   <li>
                     <button
                       className="dropdown-item"
-                      onClick={() => handleParentTypeChange("Fe-Male")}>
-                      Fe-Male
+                      onClick={() => handleParentTypeChange("Female")}>
+                      Female
                     </button>
                   </li>
-                
                 </ul>
               </div>
             </div>
@@ -807,6 +897,7 @@ console.log(schools);
               <label>Phone No:</label>
               <input
                 type="text"
+                maxLength="12" 
                 name="phoneNumber"
                 className="stu-pro-input-field"
                 placeholder="Enter parent phone no." value={parent_phnumber} onChange={handleParentPHnumber}
@@ -837,7 +928,7 @@ console.log(schools);
                     )
                   }
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Service Type:</label>
+                    <label>Service Type*</label>
                     <div className="dropdown">
                       <button
                         className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -902,12 +993,16 @@ console.log(schools);
                   </div>
 
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Start Date:</label>
+                    <label>Start Date*</label>
                     <DatePicker
                       className=""
-                      value={formData.startDate}
+                      // value={formData.startDate}
+                      value={formData.startDate ? new Date(formData.startDate) : null} // Ensure the value is a Date object
+                      dateFormat="MM/dd/yyyy" 
                       placeholder="Enter Start Date"
-                      onChange={(value) => handleInputChange(index, 'startDate', value)}
+                      onChange={(value) => {
+                        const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;
+                         handleInputChange(index, 'startDate', formattedStartDate)}}
                       style={{ width: '100%'}}  // Optional: Set width to match the input field's size
                     />
                   </div>
@@ -915,18 +1010,22 @@ console.log(schools);
                 
                 <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>End Date:</label>
+                    <label>End Date*</label>
                     <DatePicker
                       className=""
-                      value={formData.endDate}
+                      value={formData.endDate ? new Date(formData.endDate) : null} 
+                      // value={formData.endDate}
+                       dateFormat="MM/dd/yyyy"
                       placeholder="Enter End Date"
-                      onChange={(value) => handleInputChange(index, 'endDate', value)}
+                      onChange={(value) => {
+                        const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
+                        handleInputChange(index, 'endDate', formattedEndDate)}}
                       style={{ width: '100%', height: '45px' }}  // Added height and width
                     />
                   </div>
 
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Weekly Mandate:</label>
+                    <label>Weekly Mandate*</label>
                     <input
                       type="text"
                       name="weeklyMandate"
@@ -940,7 +1039,7 @@ console.log(schools);
 
                 <div className="stu-pro-field-div">
                   <div className="col-md-6 student-profile-field widthcss">
-                    <label>Yearly Mandate:</label>
+                    <label>Yearly Mandate*</label>
                     <input
                       type="text"
                       name="yearlyMandate"

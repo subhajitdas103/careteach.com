@@ -1,3 +1,73 @@
+
+.datepicker-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .datepicker-container .react-datepicker__input-container input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 35px; /* Space for the icon */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .calendar-icon {
+    position: absolute;
+    right: 10px;
+    color: #4979a0;
+    pointer-events: none; /* Prevents clicking on the icon */
+  }
+  
+  
+/* Flex container to align items in one row */
+.flex-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Adjust the gap between the sections */
+  }
+  
+  /* Individual section styles */
+  .details-section {
+    flex: 1; /* Each section will take equal width */
+    padding: 10px;
+  }
+  
+  /* Optional: You can add more styling here to adjust the table appearance */
+  .table {
+    width: 100%; /* Make the table span the full width of the section */
+  }
+  
+.css-lo82f3{
+    background-color: rgb(255, 255, 255) !important; 
+    display: inline-block;
+    /* padding: 2px 5px; */
+}
+
+.css-113d811-MuiFormLabel-root-MuiInputLabel-root {
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    background-color: white !important;
+    line-height: .4375em;
+    letter-spacing: 0.00938em;
+    padding: -25px;
+    position: relative;
+    display: block;
+    transform-origin: top left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+
 /* .datepicker_startDate_of_assignProvider{
     background-color: white;
 } */
@@ -257,15 +327,7 @@ button, input, optgroup, select, textarea {
 	justify-content: space-between;
 }
 
-.text-under {
-	font-size: 32px;
-	font-weight: 600;
-	text-align: end;
-	margin-right: 148px;
-	margin-top: -53px;
-	color: #007ec5;
-	text-transform: uppercase;
-}
+
 
 .user-loginarea {
 	padding: 60px 50px 60px 50px;
@@ -352,27 +414,9 @@ body{
     padding-right: 10px;
 }
 
-.header-logo{
-    width: 260px;
-    height: 75px;
-    margin-left: -20px;
-}
 
-.logout{
-    margin-right: 15px;
-    font-size: 25px;
-    color: #034b74;
-    /* border: 1px solid #034b74; */
-    border-radius: 5px;
-    padding: 0px 6px;
-    cursor: pointer;
-}
 
-.logout:hover{
-    color: #fff;
-    background-color: #034b74;
-    border: 1px solid #034b74;
-}
+
 
 .fa-1x {
     font-size: 0.9em !important;
@@ -492,7 +536,7 @@ body{
 
 .search-field{
     width: 100%;
-    height: 50px;
+    height: 40px;
     border: 3px solid #4979a0;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -557,7 +601,7 @@ body{
     border: 1px solid #4979a0;
     /* width: 125px; */
     height: 40px;
-    border-radius: 9px;
+    border-radius: 25px;
     text-align: center;
     padding: 5px 15px 1px 15px;
     margin: 35px 27px 35px 0px;
@@ -597,7 +641,7 @@ body{
 }
 
 .table tbody td {
-    vertical-align: bottom;
+    vertical-align: middle;
     color: #034b74;
     border: 1px solid #4979a0 !important;
     background-color: #fff;
@@ -638,13 +682,24 @@ z
     border: 1px solid #034b74;
 } */
 
-.fa-icon-img{
+/* .fa-icon-img{
     cursor: pointer;
     color: #034b74;
     border: 1px solid #034b74;
     border-radius: 5px;
     padding: 7px 7px !important;
     margin-right: 10px;
+} */
+
+.fa-icon-img {
+    cursor: pointer;
+    color: #034b74;
+    border: 1px solid #034b74;
+    border-radius: 5px;
+    padding: 15px 17px !important;
+    margin-right: -3px;
+    border-radius: 50%;
+    width: 50px;
 }
 
 .fc-back-icon{
@@ -666,6 +721,8 @@ z
     color: #fff;
     background-color: #034b74;
     border: 1px solid #034b74;
+    border-radius: 50%;
+    width: 50px;
 }
 
 .personal-profile{
@@ -810,14 +867,7 @@ textarea {
     background-color: #034b74;
 }
 
-input[type=checkbox] {
-    box-sizing: border-box;
-    padding: 0;
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    margin: 4px 0px 0px 14px;
-}
+
 
 input[type=radio] {
     box-sizing: border-box;

@@ -1,3 +1,17 @@
+.loader-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.8);
+    width: 100%;
+    z-index: 999;
+  }
+  
 .assign-student-name-mouse-over{
     cursor: pointer; /* Optional: Changes the cursor to indicate a clickable item */
   }
@@ -145,15 +159,7 @@ button, input, optgroup, select, textarea {
 	justify-content: space-between;
 }
 
-.text-under {
-	font-size: 32px;
-	font-weight: 600;
-	text-align: end;
-	margin-right: 148px;
-	margin-top: -53px;
-	color: #007ec5;
-	text-transform: uppercase;
-}
+
 
 .user-loginarea {
 	padding: 60px 50px 60px 50px;
@@ -240,27 +246,8 @@ body{
     padding-right: 10px;
 }
 
-.header-logo{
-    width: 260px;
-    height: 75px;
-    margin-left: -20px;
-}
 
-.logout{
-    margin-right: 15px;
-    font-size: 25px;
-    color: #034b74;
-    /* border: 1px solid #034b74; */
-    border-radius: 5px;
-    padding: 0px 6px;
-    cursor: pointer;
-}
 
-.logout:hover{
-    color: #fff;
-    background-color: #034b74;
-    border: 1px solid #034b74;
-}
 
 .fa-1x {
     font-size: 0.9em !important;
@@ -435,7 +422,7 @@ body{
     margin-right: 15px !important;
 }
 
-.add-student-btn{
+/* .add-student-btn{
     font-size: 18px;
     font-family: inherit;
     font-weight: 600;
@@ -443,14 +430,14 @@ body{
     color: #fff;
     float: right;
     border: 1px solid #4979a0;
-    /* width: 125px; */
+   
     height: 40px;
     border-radius: 9px;
     text-align: center;
     padding: 5px 15px 1px 15px;
     margin: 35px 27px 35px 0px;
     cursor: pointer;
-}
+} */
 
 .add-student-btn:hover {
     background-color: #034b74;
@@ -697,14 +684,7 @@ textarea {
     background-color: #034b74;
 }
 
-input[type=checkbox] {
-    box-sizing: border-box;
-    padding: 0;
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    margin: 4px 0px 0px 14px;
-}
+
 
 input[type=radio] {
     box-sizing: border-box;

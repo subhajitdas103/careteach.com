@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState , useEffect , useRef } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "font-awesome/css/font-awesome.min.css";
 import "./Students.css";
@@ -12,25 +12,50 @@ import { DatePicker } from 'rsuite';
 import { IconButton, Tooltip } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 // import React, { useState } from 'react';
-
+import { Uploader , Button } from 'rsuite';
   const AddStudent = () => {
+    const [loading, setLoading] = useState(true);
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const { id } = useParams();
-  // console.log(id);
+    // console.log(id);
     const [student, setStudent] = useState(null);
     const [parent, setParentData] = useState(null);
     const [StudentServices, setStudentServices] = useState(null);
-  
+
+    const selectedServices = StudentServices?.map(service => service.service_type) || [];
+
   const navigate = useNavigate();
 
   //==============================================================
     const backtostudent = () => {
       navigate('/Students'); 
     };
-
-
-    
    
+
+//-----------Start-----------Fetch  AssgniedProvider data------------
+const [assignedProviders, setAssignedProviders] = useState([]);
+const [AssignProviderID, setAssignProviderID] = useState(null);
+const fetchAssignedProviderDetails = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/FetchAssignedProviders/${id}`);
+      const data = await response.json();
+      setAssignedProviders(data);
+    
+      console.log("API Response Assigned:", data);
+    } catch (error) {
+      console.error('Error fetching provider details:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAssignedProviderDetails();
+  }, [id]);
+// ======================================================================================
+
+
   // ==========================Clone Service Div====================================
 
   const [formDataList, setFormDataList] = useState([
@@ -49,15 +74,50 @@ import axios from "axios";
       setFormDataList(updatedFormDataList);
     }
   }, [StudentServices]);
-  
+ 
+
 
   const handleInputChange = (index, field, value) => {
     const updatedFormDataList = [...formDataList];
+    if (field === "startDate" && new Date(value) > new Date(updatedFormDataList[index].endDate)) {
+      // alert("Start date cannot be greater than end date!");
+          toast.error("Start date cannot be greater than end date!");
+      return;
+    }
+
+    if (field === "endDate" && new Date(value) < new Date(updatedFormDataList[index].startDate)) {
+      // alert("End date cannot be before start date!");
+      toast.error("End date cannot be before start date!");
+      return;
+    }
+
+  //   if (field === "weeklyMandate") {
+  //     const currentValue = (updatedFormDataList[index].weeklyMandate);
+  //     const newValue = value === "" ? null : (value); // Allow clearing
+
+  //     if ( currentValue>newValue) {
+  //         toast.error("Weekly Mandate cannot be decreased!");
+  //         return;
+  //     }
+  // }
+
     updatedFormDataList[index][field] = value;
     setFormDataList(updatedFormDataList);
+
   };
 
+ console.log("assignedProviders",assignedProviders);
   const handleServiceTypeChange = (index, type) => {
+
+    const isTypeAlreadySelected = formDataList.some((service, i) => 
+      service.service_type === type && i !== index
+    );
+    
+    if (isTypeAlreadySelected) {
+      toast.error(`${type} has already been selected. You cannot select it again.`);
+      return;
+    }
+
     const updatedFormDataList = [...formDataList];
     updatedFormDataList[index] = {
       ...updatedFormDataList[index],
@@ -69,16 +129,69 @@ import axios from "axios";
   const addService = () => {
     setFormDataList([
       ...formDataList,
-      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '' }
+      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true}
     ]);
   };
 
-const removeService = (index) => {
-  if (formDataList.length > 1) {
-  const updatedFormDataList = formDataList.filter((_, i) => i !== index);
-  setFormDataList(updatedFormDataList);
+  const removeService = (id) => {
+    if(id == '') {
+     setFormDataList((prevFormDataList) =>
+        prevFormDataList?.filter((service) => service.id !== id)
+    );
+    setStudentServices((prevServices) =>
+        prevServices?.filter((service) => service.id !== id)
+    );
   }
+    console.log("Attempting to delete service with ID:", id);
+
+    axios.delete(`${backendUrl}/api/DeleteStudentService/${id}`)
+        .then((response) => {
+            console.log('Service deleted successfully:', response.data);
+
+            // Remove deleted service from state
+            setFormDataList((prevFormDataList) =>
+                prevFormDataList.filter((service) => service.id !== id)
+            );
+            setStudentServices((prevServices) =>
+                prevServices.filter((service) => service.id !== id)
+            );
+
+            // Show success toast
+            toast.success("Service successfully deleted!", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+        })
+        .catch((error) => {
+            if (error.response) {
+              if (error.response.status === 404 && error.response.data.message.includes("The route api/DeleteStudentService could not be found")) {
+                return; // Do nothing (hides this error)
+            }
+                console.error('Error deleting service (response):', error.response);
+
+                // Show API error message in toast
+                toast.error(error.response.data.message || "Failed to delete service.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+
+            } else if (error.request) {
+                console.error('Error deleting service (request):', error.request);
+                toast.error("No response from server. Please try again.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+
+            } else {
+                console.error('Error deleting service (message):', error.message);
+                toast.error("An unexpected error occurred.", {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+        });
 };
+
   // ===================================================================
 
   const [resolutionInvoice, setResolutionInvoice] = useState(false);
@@ -94,6 +207,7 @@ const removeService = (index) => {
     const [school_name, setSchoolName] = useState(student?.school_name || '');
     const [home_address, setHomeaddress] = useState(student?.home_address || '');
     const [doe_rate, setDOE] = useState(student?.doe_rate || '');
+    const [DOEError, setDOEError] = useState("");
     const [iep_doc, setIEP] = useState("");
     const [disability, setDisability] = useState("");
     const [nyc_id, setNYC] = useState(student?.nyc_id || '');
@@ -230,18 +344,8 @@ useEffect(() => {
     };
 
     // ================IEP Doc=============
-    useEffect(() => {
-      if (student && student.iep_doc) {
-        setIEP(student.iep_doc); 
-      }
-    }, [student]); 
-
     
-  // Handle grade change
-  const handelIEP = (selectedIEP) => {
-    setIEP(selectedIEP);
-
-  };
+   
 
   // ============Clasification of Disability ============
   useEffect(() => {
@@ -255,6 +359,68 @@ useEffect(() => {
     setLastNameError('');
   };
 
+  // --------------------IEP doc upload-------------------------------
+  const [fileName, setFileName] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
+  const uploaderRef = useRef(null);
+  const [fileList, setFileList] = useState([]);
+
+  useEffect(() => {
+  console.log("Updated IEP:", iep_doc);
+  }, [iep_doc]);  // Logs whenever `iep_doc` updates
+  
+
+  const handleUploadError = (error) => {
+    console.error("Upload failed:", error);
+  }
+
+ const handleUploadSuccess = async (response) => {
+      console.log("Upload success:", response);
+    
+      if (response.fileName) {
+        if (iep_doc) {
+          await deletePreviousFile(iep_doc);
+        }
+        setIEP(response.fileName); // Store uploaded file path in state
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.error("File upload failed!");
+      }
+    };
+
+    const deletePreviousFile = async (fileName) => {
+      try {
+      
+        const response = await fetch(`${backendUrl}/api/delete_iep_upload_file/${fileName}`, {
+          method: "DELETE",
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          console.log("Previous file deleted:", data.message);
+        } else {
+          console.error("Error deleting file:", data.message);
+        }
+      } catch (error) {
+        console.error("Error in delete request:", error);
+      }
+    };
+
+
+   // Fetch file from database
+   useEffect(() => {
+    axios.get(`${backendUrl}/api/get_iep/${id}`)
+      .then((response) => {
+        setFileName(response.data.file_name);
+        setFileUrl(response.data.file_url);
+        console.log("response",response);
+        // setFileType(response.data.file_type);
+      })
+      .catch(() => {
+        console.log("No file found for this student.");
+      });
+  }, [backendUrl, id]);
     // ===============DOE Rate==================
 
         useEffect(() => {
@@ -343,9 +509,7 @@ useEffect(() => {
     }else if (!doe_rate) {
         toast.error('Please Enter DOE Rate!');
         return;
-    }else if (!iep_doc) {
-      toast.error('Please Choose IEP!');
-      return;
+    
     }else if (!disability) {
       toast.error('Please Choose Disability!');
       return;
@@ -384,7 +548,7 @@ useEffect(() => {
       console.log('Form data:', formData);
 
       try {
-        const response = await axios.post(`/api/EditStudent/${id}`, formData, {
+        const response = await axios.post(`${backendUrl}/api/EditStudent/${id}`, formData, {
          
           headers: {
             'Content-Type': 'application/json',
@@ -403,22 +567,41 @@ useEffect(() => {
      
 
         console.log('Data sent successfully:', response.data);  
-      } 
-      
-      catch (error) {
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-      });
-        console.error('There was an error sending data:', error.response?.data || error.message);
-      }
+      } catch (error) {
+        // Check if the error is a validation or custom error (like the weekly mandate issue)
+        if (error.response && error.response.data.error) {
+            // Show custom error (e.g., Weekly Mandate cannot exceed Yearly Mandate)
+            toast.error(error.response.data.error, {
+                position: "top-right",
+                autoClose: 5000,
+            });
+        } else if (error.response && error.response.status === 422) {
+            const errors = error.response.data.errors;
+            for (const [key, value] of Object.entries(errors)) {
+                toast.error(value[0], {
+                    position: "top-right",
+                    autoClose: 5000,
+                });
+            }
+        } else {
+            // Handle other types of errors (network, server, etc.)
+            toast.error("An error occurred. Please try again.", {
+                position: "top-right",
+                autoClose: 5000,
+            });
+            console.error('There was an error sending data:', error.response?.data || error.message);
+        }
     }
-
+  }
+    
+    
+    
     // =============Detch Student Detials=========================
 
     const fetchStudentDetails = async () => {
+      setLoading(true);
       try {
-        const response = await fetch(`/api/StudentDataFetchAsID/${id}`);
+        const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${id}`);
         const data = await response.json();
     
         if (data.student) {
@@ -435,6 +618,9 @@ useEffect(() => {
       } catch (error) {
         console.error('Error fetching student details:', error);
       }
+      finally {
+        setLoading(false); // Hide loader after the fetch completes
+      }
     };
     
     useEffect(() => {
@@ -445,19 +631,74 @@ useEffect(() => {
   // ======================================================
     return (
     <div className="dashboard-container">
+      {loading ? (
+          
+           <div className="row dashbord-list">
+             <div className="heading-text">
+               <h3>
+                 <Skeleton width={150} height={30} />
+               </h3>
+               <p>
+                 <Skeleton width={200} height={20} />
+               </p>
+             </div>
+      
+             <div className="row dashbord-list">
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={100} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={100} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+               </div>
+      
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={120} height={20} /></label>
+                   <Skeleton height={45} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                   <p className="error-message"><Skeleton width={150} height={15} /></p>
+                 </div>
+               </div>
+      
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={80} width={'100%'} />
+                 </div>
+               </div>
+             </div>
+           </div>
+       
+          ) : (
+            <>
             <div className="row dashboard-list">
               <div className="heading-text personal-info-text">
-                <h3 style={{ marginLeft: '15px' }}>Basic Information</h3>
+                <h2 style={{ marginLeft: '15px' ,marginTop: "-44px" }}>Edit Student</h2>
+                {/* <h3 style={{ marginTop: "-44px" }}>Students</h3> */}
                 <div className="" id="" onClick={backtostudent}>
                 <i className="fa fa-backward fc-back-icon" aria-hidden="true"></i>
                 </div>
               </div>
             </div>
-
+            <div className="personal-info-text">
+            {/* <h3 style={{ marginLeft: '29px', color:'#4979a0'}}>Basic Information</h3> */}
+            <h3 style={{ marginTop: "-44px" ,color:'#4979a0',marginLeft: '29px',marginTop: "-23px"  }}>Students</h3>
+            </div>
         <div className="row dashboard-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">
-                <label>First Name:</label>
+                <label>First Name*</label>
                 <input
                   type="text"  
                   name="firstName"
@@ -467,7 +708,7 @@ useEffect(() => {
               </div>
 
               <div className="col-md-6 student-profile-field widthcss">
-                <label>Last Name:</label>
+                <label>Last Name*</label>
                 <input
                   type="text"
                   name="lastName"
@@ -480,7 +721,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field widthcss">
-                <label>School Name:</label>
+                <label>School Name*</label>
                 <input
                   type="text"
                   name="schoolName"
@@ -491,7 +732,7 @@ useEffect(() => {
               </div>
             
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Grade:</label>
+                <label>Grade*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -600,7 +841,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Home Address:</label>
+              <label>Home Address*</label>
               <textarea
                 name="homeAddress"
                 rows="6"
@@ -612,7 +853,7 @@ useEffect(() => {
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>DOE Rate:</label>
+              <label>DOE Rate*</label>
               <input
                 type="text"
                 name="doeRate"
@@ -623,49 +864,37 @@ useEffect(() => {
             </div>
           </div>
 
-          <div className="stu-pro-field-div">
-            <div className="col-md-6 student-profile-field widthcss">
-                <label>Choose IEP:</label>
-              <div className="dropdown">
-                    <button
-                      className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-                      type="button"
-                      id="dropdownMenuButton"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      {iep_doc || "Choose IEP Document"}
-                    </button>
-                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("A")}>
-                      A
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AA")}>
-                      AA
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={() => handelIEP("AB")}>
-                      AB
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-        
-
+              <div className="stu-pro-field-div">
+                  <div className="col-md-6 student-profile-field widthcss">
+                    <label>Upload IEP Document*</label>
+                    <div className="dropdown">
+                    <Uploader
+                    ref={uploaderRef}
+                    action={`${backendUrl}/api/upload_iep_doc`}
+                    autoUpload={true}
+                    name="iep_doc" // Ensure the field name matches Laravel's expectation
+                    onSuccess={handleUploadSuccess}
+                    onError={handleUploadError}
+                    multiple={false} 
+                    fileList={fileList}// Ensure only one file can be uploaded
+                    onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
+                    disabled={true}
+                    >
+                    <Button>Select IEP Document</Button>
+                    </Uploader>
+                    {fileName && fileUrl && (
+                      <div style={{ marginTop: "10px" }}>
+                        <strong>Uploaded File: </strong> {fileName} &nbsp;
+                        {/* <a href={fileUrl} download={fileName} target="_blank" rel="noopener noreferrer">
+                          Download
+                      </a> */}
+                      </div>
+                      )}
+                  </div>
+               </div>
     
             <div className="col-md-6 student-profile-field widthcss">
-                <label>Classification Disability:</label>
+                <label>Classification Disability*</label>
               <div className="dropdown">
                     <button
                       className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -789,7 +1018,7 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>NYC ID:</label>
+              <label>NYC ID*</label>
               <input
                 type="text"
                 name="nycId"
@@ -871,7 +1100,7 @@ useEffect(() => {
         <div className="row dashboard-list personal-profile">
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Name:</label>
+              <label>Parent Name*</label>
               <input
                 type="text"
                 name="parentName"
@@ -881,7 +1110,7 @@ useEffect(() => {
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Parent Email:</label>
+              <label>Parent Email*</label>
               <input
                 type="text"
                 name="parentEmail"
@@ -945,7 +1174,7 @@ useEffect(() => {
                 <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-1rem', marginTop: '-7rem' }}>
                   <Tooltip title= "Remove Service"  arrow>
                     <IconButton
-                      onClick={() => removeService(index)}
+                      onClick={() => removeService(formData.id)}
                       style={{
                         background: 'none',
                         padding: '0',
@@ -953,6 +1182,7 @@ useEffect(() => {
                         cursor: formDataList.length > 1 || index === formDataList.length - 1 ? 'pointer' : 'allowed',
                       }}
                        disabled={formDataList.length <= 1 && index === formDataList.length - 1}
+                       
                     >
                       <FontAwesomeIcon icon={faSquareMinus} />
                     </IconButton>
@@ -962,61 +1192,79 @@ useEffect(() => {
                   <div className="col-md-6 student-profile-field widthcss">
                     <label>Service Type:</label>
                     <div className="dropdown">
+                      
                       <button
                         className="btn btn-secondary dropdown-toggle stu-pro-input-field"
                         type="button"
                         id="dropdownMenuButton"
                         data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                        aria-expanded="false"
+                        disabled={!formDataList[index]?.isCloned}
+                        >
                         {formData.service_type || "Choose Service Type"}
                       </button>
                       <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                       <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "SEIT")}>
+                            onClick={() => handleServiceTypeChange(index, "SEIT")}
+                            disabled={selectedServices.includes("SEIT")} 
+                            >
                             SEIT
+                            
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "SETSS")}>
+                            onClick={() => handleServiceTypeChange(index, "SETSS")}
+                            disabled={selectedServices.includes("SETSS")} 
+                            >
                             SETSS
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "PT")}>
+                            onClick={() => handleServiceTypeChange(index, "PT")}
+                            disabled={selectedServices.includes("PT")} 
+                            >
                             PT
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "OT")}>
+                            onClick={() => handleServiceTypeChange(index, "OT")}
+                            disabled={selectedServices.includes("OT")} 
+                            >
                             OT
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "SPEECH")}>
+                            onClick={() => handleServiceTypeChange(index, "SPEECH")}
+                            disabled={selectedServices.includes("SPEECH")} 
+                            >
                             SPEECH
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "HEALTH PARA")}>
+                            onClick={() => handleServiceTypeChange(index, "HEALTH PARA")}
+                            disabled={selectedServices.includes("HEALTH PARA")} 
+                            >
                             HEALTH PARA
                           </button>
                         </li>
                         <li>
                           <button
                             className="dropdown-item"
-                            onClick={() => handleServiceTypeChange(index, "COUNSELING")}>
+                            onClick={() => handleServiceTypeChange(index, "COUNSELING")}
+                            disabled={selectedServices.includes("COUNSELING")} 
+                            >
                             COUNSELING
                           </button>
                         </li>
@@ -1027,12 +1275,16 @@ useEffect(() => {
                   <div className="col-md-6 student-profile-field widthcss">
                       <label>Start Date:</label>
                       <DatePicker
-                          className=""
-                          value={formData.startDate ? new Date(formData.startDate) : null}  // Convert string to Date object
-                          placeholder="Enter Start Date"
-                          onChange={(value) => handleInputChange(index, 'startDate', value)}  // Handle Date object change
-                          style={{ width: '100%' }}  // Optional: Set width to match the input field's size
-                      />
+                        className=""
+                        value={formData.startDate ? new Date(formData.startDate) : null} 
+                         // Convert string to Date object
+                        placeholder="Enter Start Date"
+                        onChange={(value) => {
+                            const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;
+                            handleInputChange(index, 'startDate', formattedStartDate);  // Handle Date object change
+                        }}
+                        style={{ width: '100%' }}  // Optional: Set width to match the input field's size
+                     />
                   </div>
                   {/* -------Delete Button of services----------- */}
                   
@@ -1046,7 +1298,9 @@ useEffect(() => {
                             className=""
                             value={formData.endDate ? new Date(formData.endDate) : null}  // Convert string to Date object if needed
                             placeholder="Enter End Date"
-                            onChange={(value) => handleInputChange(index, 'endDate', value)}  // Handle Date object change
+                            onChange={(value) => {
+                              const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
+                              handleInputChange(index, 'endDate', formattedEndDate)}}  // Handle Date object change
                             style={{ width: '100%', height: '45px' }}  // Optional: Set height and width
                         />
                     </div>
@@ -1090,6 +1344,8 @@ useEffect(() => {
       <button  type="button" id = "handleAddStudent" className="save-student-btn" onClick={handleAddStudent}>Save Student</button>
       <ToastContainer />
     </div>
+    </>
+      )}
   </div>
     );
 

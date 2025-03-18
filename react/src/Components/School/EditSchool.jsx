@@ -14,7 +14,11 @@ import validator from 'email-validator';
 import { toast, ToastContainer } from 'react-toastify';
 import { Checkbox, FormGroup, Button, Popover, List, ListItem } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Import useParams
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 const EditSchool = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [loading, setLoading] = useState(true);
   const [schoolDatabyid, setSchoolData] = useState(null);
   const {SchoolID } = useParams();
   const [apicall, setApiCall] = useState(false); 
@@ -154,28 +158,25 @@ if (value.length <= 10) {
 }
 };
 
-  const handelEditSchool = async () => {
-
-    if (!schoolName ) {
-      toast.error('Please Enter School Name!');
-      return;
-    }
-    if ( !principalName) {
-      toast.error('Please Enter Principal Name!');
-      return;
-    }
-    if (!address) {
-      toast.error('Please Enter Address !');
-      return;
-    }
-    if (!phone) {
-      toast.error('Please Enter Phone Number!');
-      return;
-    }
-    
 
 
-   // Email validation
+const handleEditSchool = async () => {
+  const validations = [
+    { field: schoolName, message: 'Please Enter School Name!' },
+    { field: principalName, message: 'Please Enter Principal Name!' },
+    { field: address, message: 'Please Enter Address!' },
+    { field: phone, message: 'Please Enter Phone Number!' },
+    { field: emailAddress, message: 'Please Enter Email Address!' },
+  ];
+
+  for (let { field, message } of validations) {
+    if (!field) {
+      toast.error(message);
+      return;
+    }
+  }
+
+  // Email validation
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!emailRegex.test(emailAddress)) {
     toast.error('Enter a valid email!');
@@ -189,53 +190,70 @@ if (value.length <= 10) {
     return;
   }
 
+  // Ensure SelectedWorkingDays is an array before using .join(',')
+  const workingDays = Array.isArray(SelectedWorkingDays) ? SelectedWorkingDays.join(',') : '';
 
-    const schoolData = {
-      schoolName,
-      principalName,
-      address,
-      phone,
-      workingDays: SelectedWorkingDays.join(','),
-      holidays,
-      status,
-      emailAddress,
-    };
-
-    try {
-      const response = await axios.post(`/api/EditSchool/${SchoolID}`, schoolData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-     
-    setTimeout(() => {
-                    toast.success("School Updated successfully!", {
-                      position: "top-right",
-                      autoClose: 5000,
-                    });
-                  }, 500);
-         
-    navigate('/School', { state: { successMessage: 'School Updated successfully!!' } });
-
-    } catch (error) {
-      toast.error('Error adding school!');
-      // console.error('Error adding school:', error);
-    }
+  const schoolData = {
+    schoolName,
+    principalName,
+    address,
+    phone,
+    workingDays,
+    holidays,
+    status,
+    emailAddress,
   };
+
+  try {
+    const response = await axios.post(`${backendUrl}/api/EditSchool/${SchoolID}`, schoolData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    setTimeout(() => {
+      toast.success('School Updated successfully!', {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+    }, 500);
+
+    navigate('/School', { state: { successMessage: 'School Updated successfully!!' } });
+  } catch (error) {
+    if (error.response) {
+      // console.log('Full error response:', error.response);
+      if (error.response.status === 422) {
+        const errorMessage = error.response.data.errors?.emailAddress?.[0] || 'The email address is already registered';
+        console.log('Validation error:', errorMessage);
+        toast.error(errorMessage);
+      } else {
+        toast.error('Error updating school!');
+      }
+    } else {
+      toast.error('Server not responding');
+    }
+  }
+};
+
+
+
 
 
    
 
   //============================Fect School Data====================
   const FetchSchoolDataBYID = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`/api/FetchSchoolDataBYID/${SchoolID}`);
+      const response = await fetch(`${backendUrl}/api/FetchSchoolDataBYID/${SchoolID}`);
       const data = await response.json();
       setSchoolData(data); 
       // console.log("SchholDataByID",data);
     } catch (error) {
       console.error('Error fetching provider details:', error);
+    }
+    finally {
+      setLoading(false); // Hide loader after the fetch completes
     }
   };
 
@@ -252,9 +270,61 @@ if (value.length <= 10) {
 
   return (
     <div className="dashboard-container">
+       {loading ? (
+          <div className="dashbord-container">
+           <div className="row dashbord-list">
+             <div className="heading-text">
+               <h3>
+                 <Skeleton width={150} height={30} />
+               </h3>
+               <p>
+                 <Skeleton width={200} height={20} />
+               </p>
+             </div>
+      
+             <div className="row dashbord-list">
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={100} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={100} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+               </div>
+      
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={120} height={20} /></label>
+                   <Skeleton height={45} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                   <p className="error-message"><Skeleton width={150} height={15} /></p>
+                 </div>
+               </div>
+      
+               <div className="stu-pro-field-div">
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={40} width={'100%'} />
+                 </div>
+                 <div className="col-md-6 student-profile-field">
+                   <label><Skeleton width={80} height={20} /></label>
+                   <Skeleton height={80} width={'100%'} />
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+            ) : (
+              <>
+            <header>
       <div className="row dashboard-list">
         <div className="heading-text personal-info-text">
-          <h3>Add Basic Information of School</h3>
+          <h3 style={{marginTop: "-42px",marginLeft:"17px"}}>Edit School</h3>
           <i className="fa fa-backward fc-back-icon" onClick={backToSchool} aria-hidden="true"></i>
         </div>
       </div>
@@ -262,7 +332,7 @@ if (value.length <= 10) {
       <div className="row dashboard-list personal-profile">
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-            <label>School Name:</label>
+            <label>School Name*</label>
             <input
               type="text"
               className="stu-pro-input-field sch-dropbtn"
@@ -273,7 +343,7 @@ if (value.length <= 10) {
           </div>
 
           <div className="col-md-6 student-profile-field">
-            <label>Principal Name:</label>
+            <label>Principal Name*</label>
             <input
               type="text"
               className="stu-pro-input-field"
@@ -286,7 +356,7 @@ if (value.length <= 10) {
 
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-            <label>Address:</label>
+            <label>Address*</label>
             <textarea
               rows="6"
               cols="50"
@@ -298,7 +368,7 @@ if (value.length <= 10) {
           </div>
 
           <div className="col-md-6 student-profile-field">
-            <label>Phone:</label>
+            <label>Phone*</label>
             <input
               type="tel"
               className="stu-pro-input-field"
@@ -312,7 +382,7 @@ if (value.length <= 10) {
 
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-            <label>Working Days:</label>
+            <label>Working Days*</label>
             <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
               {SelectedWorkingDays.length > 0 ? SelectedWorkingDays.join(', ') : 'Choose Working Days'}
             </Button>
@@ -346,7 +416,7 @@ if (value.length <= 10) {
           </div>
 
           <div className="col-md-6 student-profile-field">
-            <label>Holidays:</label>
+            <label>Holidays*</label>
             <div className="dropdown">
               <button
                 className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -381,7 +451,7 @@ if (value.length <= 10) {
 
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field">
-              <label>Email:</label>
+              <label>Email*</label>
               <input
                 type="email"
                 className="stu-pro-input-field"
@@ -421,10 +491,12 @@ if (value.length <= 10) {
 
       </div>
 
-      <div className="btn btn-primary save-student-btn" onClick={handelEditSchool}>
+      <div className="btn btn-primary save-student-btn" onClick={handleEditSchool}>
         Save School
       </div>
-
+      </header>
+      </>
+      )}
       <ToastContainer />
     </div>
   );

@@ -10,19 +10,21 @@ import Billing from "./Components/Billing/Billing";
 import Providers from "./Components/Providers/Providers";
 import School from "./Components/School/School";
 import EditSchool from "./Components/School/EditSchool";
-import Calendar from "./Components/Calendar/Calendar";
+import CalendarComponent from "./Components/Calendar/Calendar";
 import Holidays from "./Components/Holidays/Holidays";
 import AddHoliday from "./Components/Holidays/AddHoliday";
 import AddProviders from "./Components/Providers/AddProviders";
 import EditProviders from "./Components/Providers/EditProviders";
 import AddSchool from "./Components/School/AddSchool";
 import AssignProviders from "./Components/Students/AssignProviders";
-// import Students from "./Components/School/AddSchool";
+import StudentDetails from "./Components/Students/StudentDetails";
+
+import ProtectedRoute from './Components/ProtectedRoute';
+import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-
 // Higher-Order Component to wrap routes with Navbar
-const WithNavbar = ({ component: Component }) => (
+const WithNavbar = ({ Component }) => (
   <>
     <Navbar />
     <Component />
@@ -35,24 +37,76 @@ const App = () => {
       <Routes>
         {/* Route for Login */}
         <Route path="/" element={<Login />} />
-      
-        {/* Routes for pages that include Navbar */}
-        <Route path="/Dashboard" element={<WithNavbar component={Dashboard} />} />
-        <Route path="/Students" element={<WithNavbar component={Students} />} />
-        <Route path="/Billing" element={<WithNavbar component={Billing} />} />
-        <Route path="/Providers" element={<WithNavbar component={Providers} />} />
-        <Route path="/School" element={<WithNavbar component={School} />} />
-        <Route path="/Holidays" element={<WithNavbar component={Holidays} />} />
-        <Route path="/AddHoliday" element={<WithNavbar component={AddHoliday} />} />
-        <Route path="/Calendar" element={<WithNavbar component={Calendar} />} />
-        <Route path="/AddProviders" element={<WithNavbar component={AddProviders} />} />
-        <Route path="/EditProviders/:ProviderID" element={<WithNavbar component={EditProviders} />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* Private Route for Dashboard */}
+        <Route 
+          path="/Dashboard" 
+          element={<ProtectedRoute><WithNavbar Component={Dashboard} /></ProtectedRoute>} 
+        />
         
-        <Route path="/AddSchool" element={<WithNavbar component={AddSchool} />} />
-        <Route path="/AddStudent" element={<WithNavbar component={AddStudent} />} />
-        <Route path="/EditStudent/:id" element={<WithNavbar component={EditStudent} />} />
-        <Route path="/AssignProviders/:id" element={<WithNavbar component={AssignProviders} />} />
-        <Route path="/EditSchool/:SchoolID" element={<WithNavbar component={EditSchool} />} />
+        {/* Private Routes */}
+        <Route 
+          path="/Students" 
+          element={<ProtectedRoute><WithNavbar Component={Students} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/Billing" 
+          element={<ProtectedRoute><WithNavbar Component={Billing} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/Providers" 
+          element={<ProtectedRoute><WithNavbar Component={Providers} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/School" 
+          element={<ProtectedRoute><WithNavbar Component={School} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/Holidays" 
+          element={<ProtectedRoute><WithNavbar Component={Holidays} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/AddHoliday" 
+          element={<ProtectedRoute><WithNavbar Component={AddHoliday} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/Calendar" 
+          element={<ProtectedRoute><WithNavbar Component={CalendarComponent} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/AddProviders" 
+          element={<ProtectedRoute><WithNavbar Component={AddProviders} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/EditProviders/:ProviderID" 
+          element={<ProtectedRoute><WithNavbar Component={EditProviders} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/AddSchool" 
+          element={<ProtectedRoute><WithNavbar Component={AddSchool} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/AddStudent" 
+          element={<ProtectedRoute><WithNavbar Component={AddStudent} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/EditStudent/:id" 
+          element={<ProtectedRoute><WithNavbar Component={EditStudent} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/AssignProviders/:id" 
+          element={<ProtectedRoute><WithNavbar Component={AssignProviders} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/StudentDetails/:id" 
+          element={<ProtectedRoute><WithNavbar Component={StudentDetails} /></ProtectedRoute>} 
+        />
+
+
+        <Route 
+          path="/EditSchool/:SchoolID" 
+          element={<ProtectedRoute><WithNavbar Component={EditSchool} /></ProtectedRoute>} 
+        />
       </Routes>
     </Router>
   );

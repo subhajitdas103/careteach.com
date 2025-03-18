@@ -1,7 +1,10 @@
-import React from "react";
+import { React, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-const DashboardCard = ({ title, iconClass, onClick }) => (
-
+import useAuth from "../../hooks/useAuth";
+import logo from "../../Assets/logo.png"; // Importing Logo as Loader
+import './Dashboard.css';
+import PropagateLoader from "react-spinners/PropagateLoader";
+const DashboardCard = ({ title, iconClass, onClick, disabled }) => (
   <div className="col-lg-3 col-md-6">
     <div className="panel panel-success">
       <div className="panel-success-box">
@@ -17,7 +20,11 @@ const DashboardCard = ({ title, iconClass, onClick }) => (
         </div>
         <div className="panel-footer">
           <div className="pull-left">
-            <div className="view-details-button" onClick={onClick}>
+            <div
+              className="view-details-button"
+              onClick={!disabled ? onClick : undefined}
+              style={disabled ? { cursor: "not-allowed", opacity: 0.5 } : {}}
+            >
               View Details
             </div>
           </div>
@@ -29,80 +36,79 @@ const DashboardCard = ({ title, iconClass, onClick }) => (
 );
 
 const Dashboard = () => {
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  
+  const { userRollID, userRollName } = useAuth();
+
+  useEffect(() => {
+    if (userRollID && userRollName) {
+      setTimeout(() => setLoading(false), 50); // Simulating Loading Delay
+    }
+  }, [userRollID, userRollName]);
+
+  const isProvider = userRollName === "Provider";
 
   return (
     <div className="dashbord-container">
-      <div className="row dashbord-list">
-        <div className="heading-text">
-          <h3>
-            <i className="fa fa-home fa-1x home-icon-dashbord"></i>Dashboard
-          </h3>
-          {/* <p>(Admin Portal)</p> */}
+      {loading ? (
+        <div className="loader-container">
+          <div className="loader-content">
+            <img src={logo} alt="Loading..." className="logo-loader" />
+            <PropagateLoader  color="#3498db" size={10} />
+          </div>
         </div>
+      ) : (
+        <div className="row dashbord-list">
+          <div className="heading-text">
+            <h3 style={{ marginTop: "-42px" }}>
+              <i className="fa fa-home fa-1x home-icon-dashbord"></i> Dashboard
+            </h3>
+            <p>{isProvider ? "Provider Portal" : "Admin Portal"}</p>
+          </div>
 
-        <DashboardCard
-          title="Students"
-          iconClass="fa-user-graduate"
-          onClick={() => {
-          console.log("Navigating to /students");
-          navigate("/Students");
-          }}
-        />
-        <DashboardCard
-          title="Billing"
-          iconClass="fa-credit-card"
-          onClick={() => {
-            alert("Under development.. ");
-          // navigate("/Billing");
-          }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
-        />
-        <DashboardCard
-          title="Providers"
-          iconClass="fa-chalkboard-teacher"
-          onClick={() => {
-          navigate("/Providers");
-          }}
-        />
+          {!isProvider && (
+            <DashboardCard
+              title="Schools"
+              iconClass="fa-school"
+              onClick={() => navigate("/School")}
+            />
+          )}
 
-        <DashboardCard
-          title="School"
-          iconClass="fa-school"
-          onClick={() => {
-          navigate("/School");
-          }}
-        />
-        {/* <DashboardCard
-          title="Calendar"
-          iconClass="fa-calendar-alt"
-          onClick={() => {
-          navigate("/Calendar");
-          }}
-        /> */}
+          <DashboardCard
+            title={isProvider ? "Profile" : "Providers"}
+            iconClass="fa-chalkboard-teacher"
+            onClick={() => navigate("/Providers")}
+          />
 
-        <DashboardCard
-          title="Calendar"
-          iconClass="fa-calendar-alt"
-          onClick={() => {
-            alert("Under development.. ");
-            // Optionally, you can add a condition to prevent navigation
-          }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
-        />
+          <DashboardCard
+            title="Students"
+            iconClass="fa-user-graduate"
+            onClick={() => navigate("/Students")}
+          />
 
-        <DashboardCard
-          title="Holidays"
-          iconClass="fa-glass-cheers"
-          onClick={() => {
-            alert("Under development.. ");
-          // navigate("/Holidays");
-          }}
-          style={{ cursor: 'not-allowed', opacity: 0.5 }} // Disable click appearance
-        />
-       
-      </div>
+          {!isProvider && (
+            <DashboardCard
+              title="Holidays"
+              iconClass="fa-glass-cheers"
+              onClick={() => alert("Coming Soon..")}
+              disabled
+            />
+          )}
+
+          <DashboardCard
+            title="Calendar"
+            iconClass="fa-calendar-alt"
+            onClick={() => navigate("/Calendar")}
+          />
+
+          <DashboardCard
+            title="Billing"
+            iconClass="fa-credit-card"
+            onClick={() => alert("Coming Soon..")}
+            disabled
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -7,7 +7,13 @@ import { useLocation } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './School.css';
+import ClipLoader from "react-spinners/ClipLoader";
+import BeatLoader from "react-spinners/BeatLoader";
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
 const School = () => {
+  const [loading, setLoading] = useState(true);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -21,7 +27,7 @@ const School = () => {
   const navigate = useNavigate();
   const [schools, setSchools] = useState([]);
   // const [searchQuery, setSearchQuery] = useState("");
- 
+//  console.log("cccc",schools);
   const [show, setShow] = useState(false);
   const [IDSchool, setIDSchool] = useState(null);
     const [data, setData] = useState([]);
@@ -30,20 +36,23 @@ const School = () => {
   }, []);
 
   const fetchSchoolDetails = async () => {
+    setLoading(true);
     try {
-      
-      const response = await fetch('/api/fetchSchoolData');
+      const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
       const data = await response.json();
       setSchools(data); // Update the state with fetched data
       console.log(data);
     } catch (error) {
       console.error('Error fetching school details:', error);
+    } finally {
+      setLoading(false); // Hide loader after fetch completes
     }
   };
+  
 
   useEffect(() => {
     if (!searchQuery) {
-    axios.get('/api/fetchSchoolData')
+    axios.get(`${backendUrl}/api/fetchSchoolData`)
       .then((response) => {
         setSchools(response.data); 
       })
@@ -61,45 +70,37 @@ const School = () => {
     navigate('/Dashboard');
   };
 
-  // const handleSearchSchoolChange = (e) => {
-  //   setSearchQuery(e.target.value); // Update search query state
-  // };
 
 
   const editSchool =(id) =>{
-    alert(id);
-    // navigate('/EditSchool');
+
     navigate(`/EditSchool/${id}`);
   }
   const handleShow = (id) => {
     setShow(true);
     setIDSchool(id);
-    // alert(id);
   };
   const handleClose = () => {
     setShow(false);
    
   };
-// alert(IDSchool);
   // =========Start==========Delete School ====================
   const confirmDeleteSchool = () => {
    
 
       axios
-        .delete(`/api/DeleteSchool/${IDSchool}`)
+        .delete(`${backendUrl}/api/DeleteSchool/${IDSchool}`)
         .then(() => {
-          setShow(false); // Hides the modal or updates the state
+          setShow(false);
           console.log('School deleted successfully');
            toast.success("School successfully Deleted!", {
                       position: "top-right", 
                       autoClose: 5000,
                     });
-          // Optionally refresh the list or update the state
           fetchSchoolDetails();
         })
         .catch((error) => {
           console.error('Error deleting school:', error);
-          // Show an error notification or message to the user
         });
     
   };
@@ -110,8 +111,8 @@ const School = () => {
    const handleSearchSchool = async (event) => {
        event.preventDefault();
        try {
-           const response = await axios.get(`/api/searchschool?query=${searchQuery}`);
-           setSchools(response.data); // Update the student list with the search results
+           const response = await axios.get(`${backendUrl}/api/searchschool?query=${searchQuery}`);
+           setSchools(response.data);
        } catch (error) {
            console.error('Error fetching by Search:', error);
        }
@@ -122,9 +123,61 @@ const School = () => {
 <div>
     <ToastContainer />
     <div className="dashboard-container">
+       {loading ? (
+        <div className="dashbord-container">
+          <div className="row dashbord-list">
+            <div className="heading-text">
+              <h3>
+                <Skeleton width={150} height={30} />
+              </h3>
+              <p>
+                <Skeleton width={200} height={20} />
+              </p>
+            </div>
+    
+            <div className="row dashbord-list">
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={120} height={20} /></label>
+                  <Skeleton height={45} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                  <p className="error-message"><Skeleton width={150} height={15} /></p>
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={80} width={'100%'} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+    <header>
       <div className="row dashboard-list">
         <div className="heading-text">
-          <h3>School</h3>
+          <h3 style={{marginTop:"-42px"}}>Schools</h3>
           <i
             className="fa fa-backward fc-back-icon"
             aria-hidden="true"
@@ -140,7 +193,7 @@ const School = () => {
                       type="text"
                       name="search"
                       className="search-field"
-                      placeholder="Search for providers"
+                      placeholder="Search for a School"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -167,7 +220,7 @@ const School = () => {
             </tr>
           </thead>
           <tbody>
-            {schools.length > 0 ? (
+              { schools.length > 0 ? (
               schools.map((school, index) => (
                 <tr key={index}>
                   <td>{school.school_name}</td>
@@ -202,6 +255,9 @@ const School = () => {
           </tbody>
         </table>
       </div>
+    </header>
+      </>
+      )}
       {/* Modal for Student Deletion */}
      
         <Modal show={show} onHide={handleClose}>
@@ -218,9 +274,6 @@ const School = () => {
             </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button className="cancel-button" variant="secondary" onClick={handleClose} >
-              <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-            </Button>
             <Button className="delete-button" variant="danger"onClick={confirmDeleteSchool}>
               <i className="fa fa-trash" aria-hidden="true"></i>
             </Button>
@@ -228,7 +281,9 @@ const School = () => {
         </Modal>
       
     </div>
+    
 </div>
+
   );
 };
 

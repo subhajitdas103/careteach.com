@@ -14,7 +14,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:8000', // The server where your backend is running
+        target: 'http://127.0.0.1:8000',
+        // taget: 'https://careteach-admin.east-coast-developer.pro',
+        //  // The server where your backend is running
         changeOrigin: true,             // Modify the origin header to match the target
         secure: false,                  // If using HTTPS and self-signed certificates
       },

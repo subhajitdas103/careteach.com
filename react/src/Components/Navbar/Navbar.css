@@ -1,3 +1,13 @@
+.toast_message_logout {
+    background: #9ecce8 !important;
+    color: #fff !important;
+    font-size: 17px;
+    /* padding: 1px 3px !important; */
+    margin-left: -4rem;
+    margin-top: -15px;
+    margin-right: -10px;
+}
+
 .icons8-logout{
     width: 39px;
     margin-left: 10px;
@@ -10,7 +20,7 @@
     font-family: inherit;
     font-weight: 500;
     color: #007fc7;
-    margin: -40px 0 10px 116px;
+    margin: -40px 0 10px 96px;
 }
 .nav{
     display: flex;

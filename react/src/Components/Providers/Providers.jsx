@@ -10,7 +10,18 @@ import { Modal as FlowbitModal } from 'flowbite-react';
 import { useParams } from 'react-router-dom'; // Import useParams
 // import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import useAuth from "../../hooks/useAuth";
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
+ 
 const Providers = () => {
+  const [loading, setLoading] = useState(true);
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name:", userRollName);
+  console.log("Updated Roll ID:", userRollID); 
+
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -49,7 +60,7 @@ const Providers = () => {
   // Confirm deletion and remove provider
   const confirmDelete = () => {
     if (selectedProviderToDelete) {
-      axios.delete(`api/DeleteProvider/${selectedProviderToDelete.id}`)
+      axios.delete(`${backendUrl}/api/DeleteProvider/${selectedProviderToDelete.id}`)
         .then((response) => {
           setData(data.filter(provider => provider.id !== selectedProviderToDelete.id));
           setShow(false); // Close the modal
@@ -73,17 +84,44 @@ const Providers = () => {
     navigate('/dashboard');
   };
 // ======================  Fetch data from API=================
+//  useEffect(() => {
+//     if (!searchQuery && userRollID) {
+//       axios
+//         .get(`${backendUrl}/api/ViewProvidersbyrollID/${userRollID}`)
+//         .then((response) => {
+//           if (Array.isArray(response.data) && response.data.length > 0) {
+//             setData(response.data); // Update state with valid data
+//           } else {
+//             console.warn("No data available or invalid data format.");
+//           }
+//         })
+//         .catch((error) => {
+//           console.error("Error fetching data:", error);
+//         });
+//     }
+//   }, []);
+
+
   useEffect(() => {
-    if (!searchQuery) {
-    axios.get('api/ViewProviders')
-      .then((response) => {
-        setData(response.data); 
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    if (!searchQuery && userRollID) { // Only make the call if userRollID exists
+      axios
+        .get(`${backendUrl}/api/ViewProvidersbyrollID/${userRollID}/${userRollName}`)
+        .then((response) => {
+          if (Array.isArray(response.data) && response.data.length > 0) {
+            setData(response.data); // Update state with valid data
+          } else {
+            console.warn("No data available or invalid data format.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error); // Handle errors
+        })
+        .finally(() => {
+          setLoading(false); // Hide loader after fetch completes
+        });
     }
-  }, []);
+  }, [backendUrl, userRollID]);
+  
 // =============================================================
 const [isOpen, setIsOpen] = useState(false);
 const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,9 +140,11 @@ const handleCloseModal = () => {
 };
 // =============================
 const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
+
 const StudentOfAssignedProviders = async (id) => {
+  setLoading(true);
   try {
-    const response = await fetch(`api/FetchStudentOfAssignedProviders/${id}`, {
+    const response = await fetch(`${backendUrl}/api/FetchStudentOfAssignedProviders/${id}`, {
       method: "GET",
     });
 
@@ -121,6 +161,9 @@ const StudentOfAssignedProviders = async (id) => {
     setAssignofStudentData("");
     console.error("Error fetching provider data:", error);
   }
+finally {
+  setLoading(false); // Hide loader after the fetch completes
+}
 };
 
 const handleStudentClick = (studentId) => {
@@ -134,7 +177,7 @@ const handleStudentClick = (studentId) => {
   const handleSearch = async (event) => {
       event.preventDefault();
       try {
-          const response = await axios.get(`/api/searchproviders?query=${searchQuery}`);
+          const response = await axios.get(`${backendUrl}/api/searchproviders?query=${searchQuery}`);
           setData(response.data); // Update the student list with the search results
       } catch (error) {
           console.error('Error fetching by Search:', error);
@@ -147,9 +190,61 @@ const handleStudentClick = (studentId) => {
 <div>
     <ToastContainer />
     <div className="dashbord-container">
+       {loading ? (
+        <div className="dashbord-container">
+          <div className="row dashbord-list">
+            <div className="heading-text">
+              <h3>
+                <Skeleton width={150} height={30} />
+              </h3>
+              <p>
+                <Skeleton width={200} height={20} />
+              </p>
+            </div>
+    
+            <div className="row dashbord-list">
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={120} height={20} /></label>
+                  <Skeleton height={45} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                  <p className="error-message"><Skeleton width={150} height={15} /></p>
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={80} width={'100%'} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+    <header>
       <div className="row dashbord-list">
         <div className="heading-text">
-          <h3>Providers</h3>
+          <h3 style={{ marginTop: "-44px" }}>Providers</h3>
           <i
             className="fa fa-backward fc-back-icon"
             aria-hidden="true"
@@ -159,7 +254,7 @@ const handleStudentClick = (studentId) => {
         </div>
       </div>
 
-      
+      {userRollName !== "Provider" && (
       <div className="row col-md-12 form-grouptop_search topnav">
           <div className="search-container">
               <form className="search-bar dashboard-list" onSubmit={handleSearch}>
@@ -167,7 +262,7 @@ const handleStudentClick = (studentId) => {
                       type="text"
                       name="search"
                       className="search-field"
-                      placeholder="Search for providers"
+                      placeholder="Search for Providers"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -177,11 +272,16 @@ const handleStudentClick = (studentId) => {
               </form>
           </div>
       </div>
-
+      )}
+   
+     
+      {userRollName !== "Provider" && (
       <div className="add-student-btn" id="add_provider_btn" onClick={addProvider}>
-        <i className="fa-brands fa-product-hunt me-1"></i>Add a Provider
+        <i className="fa-brands me-1 fa fa-user-plus add-student-icon"></i>Add a Provider
       </div>
+      )}
 
+    
       <div className="tbl-container bdr tbl-container-student">
         <table className="table bdr table-student">
           <thead className="bg-red">
@@ -196,7 +296,7 @@ const handleStudentClick = (studentId) => {
             </tr>
           </thead>
           <tbody>
-            {data.length > 0 ? (
+          {data.length > 0 ? (
               data.map((provider, index) => (
                 <tr key={index}>
                   <td>{provider.provider_first_name}</td>
@@ -204,32 +304,41 @@ const handleStudentClick = (studentId) => {
                   <td>{provider.provider_email}</td>
                   <td>{provider.provider_phone}</td>
                   <td>{provider.rate}</td>
-                  <td>{provider.status}</td>
+                  {/* <td>{provider.status}</td> */}
+                  <td style={{ color: provider.status === "active" ? "green" : "red", fontWeight: "bold" }}>
+                    {provider.status === "active" ? "Active" : "In-Active"}
+                  </td>
                   <td className="col-md-2">
                     <div className="status-area">
-                      <div>
-                      <button
-                        type="button"
-                        onClick={() => redirectToEditProviders(provider.id)}
-                        style={{ background: 'none', border: 'none', padding: 0 }}
-                      >
-                        <i className="fa fa-edit fa-1x fa-icon-img"></i>
-                      </button>
-
-                      </div>
-                      <button
-                        type="button"
-                        className="holiday-delete"
-                        onClick={() => deleteProvider(provider)}
-                      >
-                        <i className="fa fa-trash fa-1x fa-icon-img"></i>
-                      </button>
+                    
+                   
+                        <div>
+                          <button
+                            type="button"
+                            onClick={() => redirectToEditProviders(provider.id)}
+                            style={{ background: 'none', border: 'none', padding: 0 }}
+                          >
+                            <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                          </button>
+                        </div>
+                        {userRollName !== "Provider" && (
+                        <button
+                          type="button"
+                          className="holiday-delete"
+                          onClick={() => deleteProvider(provider)}
+                        >
+                          <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                        </button>
+                      
+                      )}
+                       {userRollName !== "Provider" && (
                       <button
                         type="button" onClick={() => ViewStudentModalClick(provider.id)}
                         className="assign-pro-btn"
                       >
                         View Students
                       </button>
+                        )}
                     </div>
                   </td>
                 </tr>
@@ -242,52 +351,52 @@ const handleStudentClick = (studentId) => {
           </tbody>
         </table>
       </div>
-
-      {/* Modal for provider details */}
-      {selectedProviderToDelete && (
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Delete Provider</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-          <p>
-            Are you sure you want to delete the provider{" "}
-            <strong className="provider-name-delete-modal">
-              {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
-            </strong>
-            ?
-          </p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button className="cancel-button" variant="secondary" onClick={handleClose}>
-            <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-            </Button>
-            <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
-            <i className="fa fa-trash" aria-hidden="true"></i>
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      </header>
+      </>
       )}
+
+          {/* Modal for provider details */}
+          {selectedProviderToDelete && (
+            <Modal show={show} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Delete Provider</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+              <p>
+                Are you sure you want to delete the provider{" "}
+                <strong className="provider-name-delete-modal">
+                  {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
+                </strong>
+                ?
+              </p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
+                <i className="fa fa-trash" aria-hidden="true"></i>
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          )}
 
                {/* View Student Click Modal */}
               <Modal show={isModalOpen} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
+                <Modal.Header >
                   <Modal.Title>Associated Students</Modal.Title>
                 </Modal.Header>
                 
                 <Modal.Body>
                   {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
-                    <ul>
-                      {ProviderDataAssignProvider.map((assignStudent) => (
-                       <li
-                       key={assignStudent.student_id}
-                       onClick={() => handleStudentClick(assignStudent.student_id)}
-                        className="assign-student-name-mouse-over"
-                     >
-                       {assignStudent.student_name}
-                     </li>
-                      ))}
-                    </ul>
+                      <ul>
+                        {ProviderDataAssignProvider.map((assignStudent) => (
+                          <li
+                            key={assignStudent.student_id}
+                            onClick={() => handleStudentClick(assignStudent.student_id)}
+                            className="assign-student-name-mouse-over"
+                          >
+                            {assignStudent.student_name}
+                          </li>
+                        ))}
+                      </ul>
                   ) : (
                     <p>No Associated Student found.</p>
                   )}

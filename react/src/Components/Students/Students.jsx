@@ -8,10 +8,18 @@ import Modal from 'react-bootstrap/Modal';
 import { DatePicker } from 'rsuite';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import useAuth from "../../hooks/useAuth";
 import 'rsuite/dist/rsuite.min.css';
-// import { useLocation } from 'react-router-dom';
+import "react-loading-skeleton/dist/skeleton.css";
+import Skeleton from "react-loading-skeleton";
+
 const Students = () => {
+  const [loading, setLoading] = useState(true);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const { userRollID, userRollName } = useAuth(); 
+  console.log("Updated Roll Name:", userRollName);
+  console.log("Updated Roll ID:", userRollID);   
+       
   const location = useLocation();
   const message = location.state?.message;
   useEffect(() => {
@@ -27,18 +35,41 @@ const Students = () => {
   const [show, setShow] = useState(false);
   const [SelectedStudentToDelete, setSelectedStudentToDelete] = useState(null); 
 
+  
   useEffect(() => {
-    if (!searchQuery) {
-    axios.get('api/Students')
+    // Set loading state to false once the user data is available
+    if (userRollID && userRollName) {
+      setLoading(false);
+    }
+  }, [userRollID, userRollName]);
+
+
+  useEffect(() => {
+    if (!searchQuery && userRollID && userRollName) {
+      setLoading(true);
+    axios.get(`${backendUrl}/api/Studentsincalendar/${userRollID}/${userRollName}`)
+
       .then((response) => {
-        setData(response.data);
-        console.log(response.data);
+
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setData(response.data); // Update state with valid data
+        } else {
+          console.warn("No data available or invalid data format.");
+        }
+
+        console.log("VVVVV",response.data);
       })
+
       .catch((error) => {
         console.error('Error fetching data:', error);
+      })
+      .finally(() => {
+        setLoading(false); // Hide loader after fetch completes
       });
     }
-  }, []);
+  }, [userRollID, userRollName]);
+
+  
 
 
 
@@ -68,7 +99,7 @@ const Students = () => {
 // =========Start==========Delete Student ====================
   const confirmDelete = () => {
     if (SelectedStudentToDelete) {
-      axios.delete(`api/DeleteStudent/${SelectedStudentToDelete.id}`)
+      axios.delete(`${backendUrl}/api/DeleteStudent/${SelectedStudentToDelete.id}`)
         .then(() => {
           setData(data.filter(student => student.id !== SelectedStudentToDelete.id));
           setShow(false);
@@ -91,8 +122,12 @@ const Students = () => {
   };
 
  // ==========End=========Delete Student ====================
-
-  
+ const OpenStudentDetails = (id) => {
+  console.log('Student ID passed:', id);
+  setSelectedStudentId(id); // Store the selected student ID
+  navigate(`/StudentDetails/${id}`);
+};
+ 
 
 
   // ======================Fetch Student details==============================
@@ -100,7 +135,7 @@ const Students = () => {
 const fetchStudentDetails = async () => {
   if (!selectedStudentId) return;
       try {
-        const response = await fetch(`/api/StudentDataFetchAsID/${selectedStudentId}`);
+        const response = await fetch(`${backendUrl}/api/StudentDataFetchAsID/${selectedStudentId}`);
         const data = await response.json();
         console.log("API Response 2:", data); 
     
@@ -130,25 +165,83 @@ const fetchStudentDetails = async () => {
 
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = async (event) => {
-      event.preventDefault();
-      try {
-          const response = await axios.get(`/api/search?query=${searchQuery}`);
-          setData(response.data); // Update the student list with the search results
-      } catch (error) {
-          console.error('Error fetching Prov:', error);
-      }
-  };
-  
-
-  
-  return (
+ const handleSearch = async (event) => {
+    event.preventDefault();
+    try {
+        const response = await axios.get(`${backendUrl}/api/search`, {
+            params: {
+                query: searchQuery,
+                userRollID: userRollID,
+                userRollName: userRollName
+            }
+        });
+        // Handle the response here
+        console.log(response.data); 
+        setData(response.data);// Example: logging the response data
+    } catch (error) {
+        console.error('Error fetching search results:', error);
+    }
+};
+ 
+return (
 <div>
-<ToastContainer />
+    <ToastContainer />
     <div className="dashboard-container">
+      {loading ? (
+        <div className="dashbord-container">
+          <div className="row dashbord-list">
+            <div className="heading-text">
+              <h3>
+                <Skeleton width={150} height={30} />
+              </h3>
+              <p>
+                <Skeleton width={200} height={20} />
+              </p>
+            </div>
+    
+            <div className="row dashbord-list">
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={100} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={120} height={20} /></label>
+                  <Skeleton height={45} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                  <p className="error-message"><Skeleton width={150} height={15} /></p>
+                </div>
+              </div>
+    
+              <div className="stu-pro-field-div">
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={40} width={'100%'} />
+                </div>
+                <div className="col-md-6 student-profile-field">
+                  <label><Skeleton width={80} height={20} /></label>
+                  <Skeleton height={80} width={'100%'} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+    <header>
       <div className="row dashboard-list">
         <div className="heading-text">
-          <h3>Students</h3>
+          <h3 style={{ marginTop: "-44px" }}>Students</h3>
           <div onClick={backToDashboard}>
             <i className="fa fa-backward fc-back-icon" aria-hidden="true" id="back_student_click"></i>
           </div>
@@ -163,7 +256,7 @@ const fetchStudentDetails = async () => {
                       type="text"
                       name="search"
                       className="search-field"
-                      placeholder="Search for student"
+                      placeholder="Search for Student"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -173,23 +266,24 @@ const fetchStudentDetails = async () => {
               </form>
           </div>
       </div>
-
-
-      <div className="add-student-btn" onClick={handleAddStudent}>
-        <i className="fa fa-user-plus add-student-icon"></i>Add a Student
-      </div>
-
-      <div className="tbl-container bdr tbl-container-student">
+      {
+         userRollName !== 'Provider' && (
+        <div className="add-student-btn" onClick={handleAddStudent}>
+            <i className="fa fa-user-plus add-student-icon"></i>Add Student
+        </div>
+          )
+      }
+      <div className="tbl-container bdr tbl-container-student"  style={{ marginTop: '3rem' }}> 
         <table className="table bdr table-student">
           <thead className="bg-red">
             <tr>
               <th>Student Name</th>
               <th>School Name</th>
-              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {data.length > 0 ? (
+          {data.length > 0 ? (
               data.map((student, index) => (
                 <tr key={index}>
                   <td className="col-md-5">
@@ -198,29 +292,52 @@ const fetchStudentDetails = async () => {
                   <td className="col-md-5">{student.school_name}</td>
                   <td className="col-md-2">
                     <div className="status-area">
-                      <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
-                        <i className="fa fa-edit fa-1x fa-icon-img"></i>
-                      </div>
-                      <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
-                        <i className="fa fa-trash fa-1x fa-icon-img"></i>
-                      </button>
-
-                      <button type="button" className="assignProviderBTN" style={{ backgroundColor: '#fff'}} onClick={() => OpenAssignProvider(student.id)} // ✅ Correct usage
-                      >
-                        <div className="assign-pro-btn">Assign Provider</div>
-                      </button>
+                      {userRollName !== "Provider" && (
+                        <>
+                          <div className="student-edit-click" onClick={() => EditStudentClick(student.id)}>
+                            <i className="fa fa-edit fa-1x fa-icon-img"></i>
+                          </div>
+                          <button type="button" className="holiday-delete" onClick={() => handleShow(student)}>
+                            <i className="fa fa-trash fa-1x fa-icon-img"></i>
+                          </button>
+                          <button
+                            type="button"
+                            className="assignProviderBTN"
+                            style={{ backgroundColor: "#fff" }}
+                            onClick={() => OpenAssignProvider(student.id)}
+                          >
+                            <div className="assign-pro-btn">Assign Provider</div>
+                          </button>
+                        </>
+                      )}
+                      {userRollName === "Provider" && (
+                        <button
+                          type="button"
+                          className="assignProviderBTN"
+                          style={{ backgroundColor: "#fff" }}
+                          onClick={() => OpenStudentDetails(student.id)}
+                        >
+                          <div className="assign-pro-btn">View Student Details</div>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="9" className='text-center'>No Students available.</td>
+                <td colSpan="9" className="text-center">
+                  No Students available.
+                </td>
               </tr>
             )}
           </tbody>
+
         </table>
       </div>
+      </header>
+      </>
+      )}
 
       {/* Modal for Student Deletion */}
       {SelectedStudentToDelete && (
@@ -238,9 +355,6 @@ const fetchStudentDetails = async () => {
             </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button className="cancel-button" variant="secondary" onClick={handleClose}>
-              <i className="fa-sharp-duotone fa-solid fa-xmark"></i>
-            </Button>
             <Button className="delete-button" variant="danger" onClick={confirmDelete}>
               <i className="fa fa-trash" aria-hidden="true"></i>
             </Button>

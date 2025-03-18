@@ -1,67 +1,100 @@
-import React, { useState ,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./style.css";
 import logo from "../../Assets/logo.png";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-// import ProtectedRoute from "./Components/ProtectedRoute";
+import { useNavigate, Link } from "react-router-dom";
+import { Checkbox } from "@material-tailwind/react";
+import Spinner from 'react-bootstrap/Spinner';
 const Login = () => {
-  const navigate = useNavigate(); // For Redirect use react hooks (useNavigate)
-  useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-    // console.log(authToken);
-    if (authToken) {
-      navigate("/dashboard"); // Redirect if already logged in
-    }else{
-      navigate("/"); 
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const navigate = useNavigate();
+
+  const isTokenValid = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.exp * 1000 > Date.now();
+    } catch (error) {
+      return false;
     }
-  }, []);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token && isTokenValid(token)) {
+      navigate("/dashboard");
+    } else {
+      localStorage.removeItem("authToken");
+    }
+
+    const storedEmail = localStorage.getItem("email");
+    const storedPassword = localStorage.getItem("password");
+    if (storedEmail && storedPassword) {
+      setEmail(storedEmail);
+      setPassword(storedPassword);
+      setRememberMe(true);
+    }
+  }, [navigate]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); 
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
 
     try {
-      const response = await axios.post("/api/login", {
-        email,
-        password,
-      });
-// console.response(responce);
+      const response = await axios.post(
+        `${backendUrl}/api/login`, 
+        { email, password },
+        { withCredentials: true }
+      );
+
       if (response.data.status === "success") {
+        const {token,roll_name,roll_id} = response.data;
+        localStorage.setItem("authToken", token);
+        localStorage.setItem("authRollName",roll_name);
+        localStorage.setItem("authRollID",roll_id);
+        console.log(response.data);
         setSuccess("Login successful!");
-        setError("");
-        // Save the token in localStorage or context
-        localStorage.setItem("authToken", response.data.token);
-        navigate("/dashboard"); // Redirect to the dashboard
+        navigate("/Dashboard");
+
+        if (rememberMe) {
+          localStorage.setItem("email", email);
+          localStorage.setItem("password", password);
+        } else {
+          localStorage.removeItem("email");
+          localStorage.removeItem("password");
+        }
+      } else {
+        setError(response.data.message || "Login failed. Please try again.");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
-
-      setSuccess("");
+      setError(err.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
- 
-  
+
   return (
     <div className="login_body">
       <main className="form-signin w-100 m-auto">
-        <div className="col-md-12 d-flex log-in-area">
-          {/* Left Section */}
-          <div className="col-md-6">
+        <div className="row justify-content-center align-items-center">
+          <div className="col-12 col-md-6 text-center">
             <img className="Klogo-image" src={logo} alt="Logo" />
             <h2 className="text-under">Care Teach</h2>
           </div>
-
-          {/* Right Section */}
-          <div className="col-md-6 user-loginarea">
+          <div className="col-12 col-md-6 user-loginarea">
             <form onSubmit={handleLogin}>
               <h1 className="h3 mb-3 fw-normal">User login</h1>
               <p>Hey, enter your details to login</p>
-              {/* Email Input */}
               <div className="mb-3">
                 <input
                   type="email"
@@ -70,12 +103,12 @@ const Login = () => {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
                 <label className="pass" htmlFor="floatingInput">
                   Email address
                 </label>
               </div>
-              {/* Password Input */}
               <div className="mb-3">
                 <input
                   type="password"
@@ -84,20 +117,41 @@ const Login = () => {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <label className="pass" htmlFor="floatingPassword">
                   Password
                 </label>
               </div>
-              {/* Error Message */}
+              <div className="checkbox mb-3 d-flex justify-content-between">
+                <label>
+                  Remember me
+                  <input
+                    type="checkbox"
+                    className="rememberMeButton"
+                    value="remember-me"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                </label>
+                <p className="text-right">
+                  <Link to="/forgot-password">Forgot password?</Link>
+                </p>
+              </div>
               {error && <p className="text-danger">{error}</p>}
               {success && <p className="text-success">{success}</p>}
-              {/* Login Button */}
+             
               <button
                 className="w-100 btn btn-lg log-in-btn"
                 type="submit"
+                disabled={loading}
               >
-                Login
+                {loading ? "" : "Login"}
+                {loading && (
+                  <Spinner animation="border" role="status">
+                        
+                  </Spinner>
+                )}
               </button>
             </form>
           </div>

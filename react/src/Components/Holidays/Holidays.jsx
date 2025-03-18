@@ -21,8 +21,11 @@ const Holidays = () => {
   };
 
   const AddHoliday = () => {
+    alert("ff");
     navigate('/AddHoliday'); // Specify the path you want to navigate to
   };
+
+  
 
   return (
     <div className="dashbord-container">
@@ -33,9 +36,11 @@ const Holidays = () => {
         </div>
       </div>
 
-      <div className="add-student-btn" id="add_holiday_btn" onClick={AddHoliday}>
-        <i className="fa fa-mug-hot me-1"></i>Add holiday
-      </div>
+
+      <button className="add-student-btn" id="add_holiday_btn" onClick={AddHoliday}>
+  <i className="fa fa-mug-hot me-1"></i> Add holidays
+</button>
+
 
       <div className="tbl-container bdr tbl-container-student">
         <table className="table bdr table-student">
