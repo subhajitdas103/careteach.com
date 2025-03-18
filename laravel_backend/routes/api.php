@@ -77,4 +77,4 @@ Route::delete('/DeleteStudentService/{id}', [StudentController::class, 'DeleteSt
 
 Route::post('/UpdateSingleSession', [CalendarController::class, 'UpdateSingleSession']);
 Route::delete('/DeleteFutureSession', [CalendarController::class, 'DeleteFutureSession']);
-
+Route::get('/AssignProviderMinMaxDate/{id}', [CalendarController::class, 'AssignProviderMinMaxDate']);

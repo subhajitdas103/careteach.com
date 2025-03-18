@@ -134,6 +134,14 @@ const fetchAssignedProviderDetails = async () => {
   };
 
   const removeService = (id) => {
+    if(id == '') {
+     setFormDataList((prevFormDataList) =>
+        prevFormDataList?.filter((service) => service.id !== id)
+    );
+    setStudentServices((prevServices) =>
+        prevServices?.filter((service) => service.id !== id)
+    );
+  }
     console.log("Attempting to delete service with ID:", id);
 
     axios.delete(`${backendUrl}/api/DeleteStudentService/${id}`)
@@ -156,6 +164,9 @@ const fetchAssignedProviderDetails = async () => {
         })
         .catch((error) => {
             if (error.response) {
+              if (error.response.status === 404 && error.response.data.message.includes("The route api/DeleteStudentService could not be found")) {
+                return; // Do nothing (hides this error)
+            }
                 console.error('Error deleting service (response):', error.response);
 
                 // Show API error message in toast
@@ -1171,6 +1182,7 @@ useEffect(() => {
                         cursor: formDataList.length > 1 || index === formDataList.length - 1 ? 'pointer' : 'allowed',
                       }}
                        disabled={formDataList.length <= 1 && index === formDataList.length - 1}
+                       
                     >
                       <FontAwesomeIcon icon={faSquareMinus} />
                     </IconButton>

@@ -133,6 +133,18 @@ if ($totalUsedHours > $totalAssignedHours) {
         $newStartTime = Carbon::parse($slot['startTime']);
         $newEndTime = Carbon::parse($slot['endTime']);
     
+
+        // Enforce 8 AM to 10 PM rule
+        $allowedStartTime = Carbon::parse('08:00:00');
+        $allowedEndTime = Carbon::parse('22:00:00');
+
+        if ($newStartTime < $allowedStartTime || $newEndTime > $allowedEndTime) {
+            return response()->json([
+                'errors' => ['timeSlots' => ['Session must be scheduled between 8 AM and 10 PM.']]
+            ], 422);
+        }
+
+
         foreach ($existingSessions as $session) {
             $existingStartTime = Carbon::parse($session->start_time);
             $existingEndTime = Carbon::parse($session->end_time);
@@ -308,19 +320,26 @@ foreach ($validatedData['sessions'] as $session) {
     $bulkStart = date('H:i', strtotime($session['startTime']));
     $bulkEnd   = date('H:i', strtotime($session['endTime']));
 
+ // Enforce 8 AM to 8 PM rule
+ if ($bulkStart < '08:00' || $bulkEnd > '22:00') {
+    return response()->json([
+        'errors' => ['sessions' => ['Sessions must be scheduled between 8 AM and 10 PM.']]
+    ], 422);
+}
+
     // Check if this date has a single session with the same time
     if (isset($existingSingleSessions[$date])) {
         $singleStart = $existingSingleSessions[$date]['start_time'];
         $singleEnd = $existingSingleSessions[$date]['end_time'];
 
         if ($bulkStart == $singleStart && $bulkEnd == $singleEnd) {
-            Log::info("🚨 Skipping $date: Time conflict ($bulkStart - $bulkEnd matches Single Session)");
+            Log::info(" Skipping $date: Time conflict ($bulkStart - $bulkEnd matches Single Session)");
             continue 2; // Skip this date
         }
     }
 }
 
-Log::info("✅ Adding $date to filteredDates");
+Log::info(" Adding $date to filteredDates");
 $filteredDates[] = $date;
 }
 
@@ -651,7 +670,7 @@ foreach ($existingSessions as $session) {
             // Validate request data
             $validatedData = $request->validate([
                 'student_id' => 'required|integer',
-                'selectedStudentUpdateSingleSession' => 'nullable|string',
+                'selectedStudentUpdateSingleSession' => 'required',
                 'startTimeConfirmSession' => 'required|date_format:H:i:s',
                 'selectedDateConfirmSession' => 'required|date',
                 'endTimeConfirmSession' => 'required|date_format:H:i:s',
@@ -676,6 +695,29 @@ foreach ($existingSessions as $session) {
             return response()->json(['error' => 'Failed to delete session', 'details' => $e->getMessage()], 500);
         }
     }
+
+
+ 
+    public function assignProviderMinMaxDate($userRollID)
+    {
+        $existingAssignProvider = AssignProviderModel::where('provider_id', $userRollID)
+            // ->where('student_id', $studentID)
+            ->orderBy('start_date', 'asc') // Sort by earliest start date
+            ->orderBy('end_date', 'desc') // Sort by latest end date
+            ->get();
+    
+        $minStartDate = $existingAssignProvider->first()?->start_date; // Get the lowest start_date
+        $maxEndDate = $existingAssignProvider->max('end_date'); // Get the highest end_date
+     
+        Log::info("Earliest ccc Start Date: " . $minStartDate);
+        Log::info("Latest  End Date: " . $maxEndDate);
+    
+        return response()->json([
+            'min_start_date' => $minStartDate,
+            'max_end_date' => $maxEndDate
+        ]);
+    }
+    
 }
 
 

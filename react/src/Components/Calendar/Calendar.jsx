@@ -208,7 +208,7 @@ useEffect(() => {
 
   FetchSingleSessionDetails();
   setShouldFetchSingle(false); 
-}, [shouldFetchSingle]);
+}, [selectedStudent,shouldFetchSingle]);
 
 
 // =====================================
@@ -228,10 +228,16 @@ useEffect(() => {
     setFormValue({ ...formValue, date });
     setClickedDate(date);
     setShowModal(true); // Show the modal when the plus icon is clicked
+  
+    setdayofweek([]); 
+    setDivs([{ startTime: null, endTime: null }]); // Reset time fields for single session
+    setBulkDivs([{ startTime: null, endTime: null }]);
   };
 
   const handleCloseModal = () => {
     setShowModal(false); // Hide the modal
+    setSelectedStudentDropdown(null);
+    setDivs(null);
   };
 
   const [formValue, setFormValue] = useState({ time: null });
@@ -1353,8 +1359,35 @@ console.log("singlesessionAutoID",singlesessionAutoID);
         );
       }
     };
-    
+    // -----------------------------------------------------
 
+    const [MinDate, SetMinDate] = useState(null);
+    const [MaxDate, SetMaxDate] = useState(null);
+
+
+    console.log("MinDate",MinDate);
+    console.log("MaxDate",MaxDate);
+    useEffect(() => {
+      if (userRollID) {
+        const FetchFetchAssignProviderMinMaxDate = async () => {
+          try {
+            const response = await axios.get(`${backendUrl}/api/AssignProviderMinMaxDate/${userRollID}`);
+  
+            const data = response.data; // Assume API returns an object with date properties
+            if (data && data.min_start_date && data.max_end_date) {
+              SetMinDate(new Date(data.min_start_date)); // Convert to Date object
+              SetMaxDate(new Date(data.max_end_date));
+            }
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+    
+        FetchFetchAssignProviderMinMaxDate();
+      } else {
+      }
+    }, [userRollID]); // Dependency array: the effect will run when userRollID changes
+    
 
     return (
       <div style={{ color: '#4979a0', backgroundColor: 'white' }}>
@@ -1456,37 +1489,48 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 ),
     
                 // ==============Start of Add Session===========
-                dateCellWrapper:
-                  userRollName === 'Provider'
-                    ? ({ children, value }) => {
-                        const isCurrentMonth = value.getMonth() === currentDate.getMonth();
-                        return (
-                          <div
-                            className="rbc-day-bg"
-                            role="cell"
+               dateCellWrapper:
+              userRollName === 'Provider'
+                ? ({ children, value }) => {
+                    const isWithinRange = MinDate && MaxDate && value >= MinDate && value <= MaxDate;
+                    const isCurrentMonth = value.getMonth() === currentDate.getMonth();
+
+                    return (
+                      <div
+                        className="rbc-day-bg"
+                        role="cell"
+                        style={{
+                          backgroundColor: isWithinRange
+                            ? isCurrentMonth
+                              ? 'white' // Allowed range in current month
+                              : '#f0f0f0' // Allowed but in a different month
+                            : '#e0e0e0', // Fully greyed out for out-of-range dates
+                      // Greyed-out text for disabled dates
+                          pointerEvents: isWithinRange ? 'auto' : 'none', // Disable clicks on out-of-range dates
+                          opacity: isWithinRange ? 1 : 0.5, // Make out-of-range dates visually dim
+                        }}
+                      >
+                        {children}
+                        {isWithinRange && (
+                          <button
+                            type="button"
+                            className="rbc-button-link"
                             style={{
-                              backgroundColor: isCurrentMonth ? 'white' : '#f0f0f0', // Grey color for non-current month dates
-                              color: isCurrentMonth ? 'inherit' : '#a0a0a0', // Greyed-out text color for non-current month dates
+                              position: 'relative',
+                              marginLeft: '4px',
+                              top: '0px',
+                              zIndex: 10,
                             }}
+                            onClick={() => handlePlusClick(value)}
                           >
-                            {children}
-                            <button
-                              type="button"
-                              className="rbc-button-link"
-                              style={{
-                                position: 'relative',
-                                marginLeft: '4px',
-                                top: '0px',
-                                zIndex: 10,
-                              }}
-                              onClick={() => handlePlusClick(value)}
-                            >
-                              <FontAwesomeIcon icon={faPlusCircle} />
-                            </button>
-                          </div>
-                        );
-                      }
-                    : undefined,
+                            <FontAwesomeIcon icon={faPlusCircle} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
+                : undefined,
+
               }}
             />
           </>
@@ -1750,12 +1794,12 @@ console.log("singlesessionAutoID",singlesessionAutoID);
             </Modal.Body>
            
             <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+             
               {selectedValueRadio === "bulk" && (
-              <Button variant="primary" onClick={addBulkSession}>Save changes B</Button>
+              <Button variant="primary" onClick={addBulkSession}>Save changes</Button>
               )}
               {selectedValueRadio === "single" && (
-                  <Button variant="primary" onClick={addSingleSession}>Save changes S</Button>
+                  <Button variant="primary" onClick={addSingleSession}>Save changes</Button>
               )}
                
             </Modal.Footer>
@@ -1913,12 +1957,12 @@ console.log("singlesessionAutoID",singlesessionAutoID);
         <div className="modal show" style={{ display: 'block' }}>
           <Modal.Dialog>
             <Modal.Header closeButton onClick={handleCloseModalSession}>
-              <Modal.Title>Update Session Bulk</Modal.Title>
+              <Modal.Title>Update Session </Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <div className="stu-pro-field-div">
                 <Form.Group controlId="date">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                   <DatePicker
                     format="yyyy-MM-dd"
                     value={selectedEvent.start ? new Date(selectedEvent.start) : null}
@@ -1927,7 +1971,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                   
                 </Form.Group>
                 <Form.Group controlId="date">
-                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                  <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                   <DatePicker
                     format="yyyy-MM-dd"
                     value={selectedEvent.start ? new Date(selectedEvent.start) : null}
@@ -1937,7 +1981,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               </div>
               <div className="stu-pro-field-div">
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
                  <Input className="rs_input_custom"  placeholder="Default Input"
                   value={startTimeConfirmSession  || "" }
                 />
@@ -1946,7 +1990,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               </Form.Group>
               <br/>
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
                 
                 <Input className="rs_input_custom" placeholder="Default Input"
                   value={endTimeConfirmSession  || ""}
@@ -1956,13 +2000,14 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
+             
 
-              {selectedValueRadioConfirmSession === "no" ? (
-              <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
-            ) : (
-              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
-            )}
+             
+              <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}
+                disabled={true} 
+                >Update Session
+              </Button>
+            
             </Modal.Footer>
           </Modal.Dialog>
         </div>
