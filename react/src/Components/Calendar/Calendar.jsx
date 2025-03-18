@@ -1235,6 +1235,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
     const requestData = {
       singlesessionAutoID: singlesessionAutoID,
       userRollID: userRollID,
+      selectedStudentUpdateSingleSession : selectedStudentUpdateSingleSession,
       student_id: selectedSession_studentID,
       selectedDateConfirmSession: selectedDateConfirmSession,
       startTimeConfirmSession: startTimeConfirmSession,
@@ -1306,6 +1307,55 @@ console.log("singlesessionAutoID",singlesessionAutoID);
   }, [userRollID, userRollName]);
   
     // ============End of Single session modal update===========
+    // --------------Future Session Delete -------------
+   
+
+    const formattedStartTime = moment(startTimeConfirmSession, "HH:mm").format("HH:mm:ss");
+    const formattedEndTime = moment(endTimeConfirmSession, "HH:mm").format("HH:mm:ss");
+    const handleDeleteFutureSession = async (
+      selectedSession_studentID,
+      startTimeConfirmSession,
+      selectedDateConfirmSession,
+      endTimeConfirmSession,
+      selectedStudentUpdateSingleSession
+
+    ) => {
+      try {
+        await axios.delete(`${backendUrl}/api/DeleteFutureSession`, {
+          headers: { "Content-Type": "application/json" },
+          data: {
+            student_id: selectedSession_studentID,
+            selectedStudentUpdateSingleSession,
+            startTimeConfirmSession : formattedStartTime,
+            selectedDateConfirmSession,
+            endTimeConfirmSession : formattedEndTime,
+          },
+        });
+    
+        setShowModalSessionUpdateSingle(false);
+        toast.success("Session successfully deleted!", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+    
+        // Trigger re-fetch for updated data
+        setShouldFetch(true);
+        setShouldFetchSingle(true);
+      } catch (error) {
+        console.error("Error deleting session:", error.response || error);
+    
+        toast.error(
+          error.response?.data?.message || "Failed to delete the session. Please try again.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+          }
+        );
+      }
+    };
+    
+
+
     return (
       <div style={{ color: '#4979a0', backgroundColor: 'white' }}>
         {loading ? (
@@ -1804,8 +1854,8 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               <SelectPicker
               className="updateSinglesessionmodalclass"
               data={studentOptions}
-              value={selectedStudent}
-              onChange={setSelectedStudent}
+              value={selectedStudentUpdateSingleSession}
+              onChange={setselectedStudentUpdateSingleSession}
               placeholder="Select a Student"
               searchable={false}  // 🔥 This should remove the search box
               style={{ width: 224 }}
@@ -1842,11 +1892,16 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           </Modal.Body>
 
             <Modal.Footer>
-                <Button className=" .delete_button_update_single_session" variant="danger" >
-                <i className="fa fa-trash" aria-hidden="true"></i>
-              </Button>
+            <Button
+            className="delete_button_update_single_session"
+            variant="danger"
+            onClick={() => handleDeleteFutureSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession , selectedStudentUpdateSingleSession)} // Replace handleDelete with your actual function
+          >
+            <i className="fa fa-trash" aria-hidden="true"></i>
+          </Button>
 
-              <Button variant="primary" onClick={() => onclickUpdateSingleSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Update</Button>
+
+              <Button variant="primary" onClick={() => onclickUpdateSingleSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession , selectedStudentUpdateSingleSession)}>Update</Button>
             
             </Modal.Footer>
           </Modal.Dialog>

@@ -488,6 +488,7 @@ public function FetchConfirmessionDetails()
     
             $validatedData = $request->validate([
                 'student_id' => 'required|integer|exists:single_session,student_id', 
+                'selectedStudentUpdateSingleSession' => 'required|array',
                 'selectedDateConfirmSession' => 'required|date_format:Y-m-d', 
                 'startTimeConfirmSession' => 'required',
                 'endTimeConfirmSession' => 'required',
@@ -610,11 +611,15 @@ foreach ($existingSessions as $session) {
 
     
     
-    
+
+        $studentData = $validatedData['selectedStudentUpdateSingleSession'];
+        $studentName = $studentData['first_name'] . ' ' . $studentData['last_name'];
+
             // Update only the session with the matching ID
             $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])
                 // ->where('student_id', $validatedData['student_id'])
                 ->update([
+                    'student_name' => $studentName,
                     'date' => $validatedData['selectedDateConfirmSession'],
                     'start_time' => $startTime,
                     'end_time' => $endTime,
@@ -638,13 +643,40 @@ foreach ($existingSessions as $session) {
             return response()->json(['error' => 'Something went wrong.'], 500);
         }
     }
-    
 
-    
-    
-    
 
-    
+    public function DeleteFutureSession(Request $request)
+    {
+        try {
+            // Validate request data
+            $validatedData = $request->validate([
+                'student_id' => 'required|integer',
+                'selectedStudentUpdateSingleSession' => 'nullable|string',
+                'startTimeConfirmSession' => 'required|date_format:H:i:s',
+                'selectedDateConfirmSession' => 'required|date',
+                'endTimeConfirmSession' => 'required|date_format:H:i:s',
+            ]);
+
+            // Find the session
+            $session = CalendarModel::where('student_id', $validatedData['student_id'])
+                ->where('start_time', $validatedData['startTimeConfirmSession'])
+                ->where('date', $validatedData['selectedDateConfirmSession'])
+                ->where('end_time', $validatedData['endTimeConfirmSession'])
+                ->first();
+
+            if (!$session) {
+                return response()->json(['message' => 'Session not found'], 404);
+            }
+
+            // Delete session
+            $session->delete();
+
+            return response()->json(['message' => 'Session successfully deleted'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete session', 'details' => $e->getMessage()], 500);
+        }
+    }
 }
+
 
 
