@@ -658,7 +658,44 @@ public function updateAssignProvider(Request $request, $id)
         'end_date' => $validatedData['assignProviderEndDate'],
         'student_id' => $validatedData['id'],
     ];
+    // ===========================================================
+    // ✅ Step 2: Get Student Service Details
+    $studentService = StudentServices::where('student_id', $validatedData['id'])
+    ->where('service_type', $validatedData['selectedAssignProviderService'])
+    ->first();
 
+    if (!$studentService) {
+    Log::info("Service not found for student ID: " . $validatedData['id']);
+    return response()->json(['error' => 'Service not found'], 404);
+    }
+
+    $weeklyMandate = (int) $studentService->weekly_mandate;
+    Log::info(" Student Service Details: Weekly Mandate = $weeklyMandate");
+
+    // ✅ Step 3: Calculate Total Weekly Hours Used
+    $totalWeeklyHoursUsed = AssignProviderModel::where('student_id', $validatedData['id'])
+    ->where('service_type', $validatedData['selectedAssignProviderService'])
+    ->where(function ($query) use ($validatedData) {
+        $query->whereBetween('start_date', [$validatedData['assignProviderStartDate'], $validatedData['assignProviderEndDate']])
+            ->orWhereBetween('end_date', [$validatedData['assignProviderStartDate'], $validatedData['assignProviderEndDate']]);
+    })
+    ->where('id', '!=', $id)
+    ->sum('wkly_hours');  // ✅ Sum weekly hours directly
+
+    Log::info("🔢 Total Weekly Hours Used: $totalWeeklyHoursUsed");
+
+    // ✅ Step 4: Validate Weekly Hours Limit
+    $newAssignmentHours = (int) $validatedData['inputWklyHoursAssignProvider'];
+    $remainingHours = $weeklyMandate - $totalWeeklyHoursUsed;
+
+    if ($newAssignmentHours > $remainingHours) {
+    Log::info("Assignment Rejected: Weekly limit exceeded! Weekly Mandate = $weeklyMandate, Used = $totalWeeklyHoursUsed, New = $newAssignmentHours");
+    return response()->json([
+        'error' => "Weekly hours limit exceeded! You have only $remainingHours hours left."
+    ], 400);
+    }
+    
+    // 
 
     $existingAssignServices = AssignProviderModel::where('student_id', $validatedData['id'])
         ->where('service_type', $validatedData['selectedAssignProviderService'])

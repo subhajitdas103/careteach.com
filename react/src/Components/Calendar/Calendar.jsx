@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 // import moment from 'moment';
+import { SelectPicker , ButtonToolbar } from 'rsuite';
 import moment from 'moment-timezone';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus,faMinusCircle  } from "@fortawesome/free-solid-svg-icons";
@@ -43,10 +44,11 @@ const CalendarComponent = () => {
   const [startTimeUpdateConfirmSession, setStartTimeUpdateConfirmSession] = useState(null);
   const [studentData, setStudentData] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [selectedStudentUpdateSingleSession, setselectedStudentUpdateSingleSession] = useState(null);
   const [selectedStudentDropdown, setSelectedStudentDropdown] = useState(null);
-  // console.log("Selected student",selectedStudent);
+  console.log("Selected student",selectedStudent);
   const [events, setEvents] = useState([]);
- 
+  console.log("Selected  cccccc:", selectedStudentUpdateSingleSession);
   
 
   const [Bulkevents, setBulkEvents] = useState([
@@ -748,6 +750,14 @@ const sessionData = {
   }
 };
 
+const studentOptionsinUpdateSingleSession = studentData.map(student => ({
+  label: `${student.first_name} ${student.last_name}`, // Name displayed in the dropdown
+  value: student, // The actual selected student object
+}));
+
+console.log("Selected Student:", selectedStudent);
+
+console.log("studentOptionsinUpdateSingleSession",studentOptionsinUpdateSingleSession);
 
 // ==========================================
 console.log("studentDetails",studentData);
@@ -1744,7 +1754,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               
               </div>
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date S</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                 <DatePicker
                   format="yyyy-MM-dd"
                   value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
@@ -1754,14 +1764,14 @@ console.log("singlesessionAutoID",singlesessionAutoID);
 
               <div className="stu-pro-field-div">
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time C</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
                  <Input className="rs_input_custom"  placeholder="Default Input"
                   value={startTimeConfirmSession  || "" } disabled
                 />
               </Form.Group>
               <br/>
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time C</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
                 
                 <Input className="rs_input_custom" placeholder="Default Input"
                   value={endTimeConfirmSession  || ""} disabled 
@@ -1786,12 +1796,21 @@ console.log("singlesessionAutoID",singlesessionAutoID);
       {/* ================================== */}
       {showModalofSessionSingle && (
         <div className="modal show" style={{ display: 'block' }}>
-          <Modal.Dialog>
-            <Modal.Header closeButton onClick={handleCloseModalSession}>
-              <Modal.Title>Update Session Single</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-             
+            <Modal.Dialog>
+              <Modal.Header closeButton onClick={handleCloseModalSession}>
+                <Modal.Title>Update Session</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+              <SelectPicker
+              className="updateSinglesessionmodalclass"
+              data={studentOptions}
+              value={selectedStudent}
+              onChange={setSelectedStudent}
+              placeholder="Select a Student"
+              searchable={false}  // 🔥 This should remove the search box
+              style={{ width: 224 }}
+              />
+
               <Form.Group controlId="date">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
@@ -1823,7 +1842,11 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="primary" onClick={() => onclickUpdateSingleSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Save Changes</Button>
+                <Button className=" .delete_button_update_single_session" variant="danger" >
+                <i className="fa fa-trash" aria-hidden="true"></i>
+              </Button>
+
+              <Button variant="primary" onClick={() => onclickUpdateSingleSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Update</Button>
             
             </Modal.Footer>
           </Modal.Dialog>

@@ -860,8 +860,16 @@ const openModalAssignProvider = (id, name) => {
                         <td>{provider.service_type}</td>
                         <td>{provider.wkly_hours}</td>
                         <td>{provider.yearly_hours}</td>
-                        <td>{new Date(provider.start_date).toLocaleDateString("en-US")}</td>
-                        <td>{new Date(provider.end_date).toLocaleDateString("en-US")}</td>
+                        <td>{new Date(provider.start_date).toLocaleDateString("en-US", { 
+                              month: "2-digit", 
+                              day: "2-digit", 
+                              year: "numeric" 
+                          }).replace(/\//g, "-")}</td>
+                          <td>{new Date(provider.end_date).toLocaleDateString("en-US", { 
+                              month: "2-digit", 
+                              day: "2-digit", 
+                              year: "numeric" 
+                          }).replace(/\//g, "-")}</td>
                         <td>{provider.location}</td>
                         <td>{provider.provider_rate}</td>
                         <td>
