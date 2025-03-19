@@ -8,6 +8,7 @@ import { faPlus,faMinusCircle  } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
+
 import PropagateLoader from "react-spinners/PropagateLoader";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
@@ -188,6 +189,7 @@ useEffect(() => {
           title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
           start: sessionStartTime, // Combined Date and start_time
           end: sessionEndTime, 
+          student_name: session.student_name,
           student_id :session.student_id,
           session_name: session.session_name, 
           session_date :session.date, 
@@ -207,8 +209,13 @@ useEffect(() => {
   };
 
   FetchSingleSessionDetails();
-  setShouldFetchSingle(false); 
-}, [selectedStudent,shouldFetchSingle]);
+
+
+  if (selectedStudent || shouldFetchSingle) {
+   
+    setShouldFetchSingle(false);  // Reset shouldFetch after data is fetched
+  }
+}, [selectedStudent, shouldFetchSingle]); 
 
 
 // =====================================
@@ -840,7 +847,8 @@ useEffect(() => {
   // Fetch data when selectedStudent or shouldFetch is updated
   if (selectedStudent || shouldFetch) {
    
-    setShouldFetch(false);  // Reset shouldFetch after data is fetched
+    setShouldFetch(false);
+    // Reset shouldFetch after data is fetched
   }
 
 }, [selectedStudent, shouldFetch]);  // Dependencies: selectedStudent and shouldFetch
@@ -903,6 +911,7 @@ const handleCloseModalSession = () => {
 // ====================Confirm Session================================
   const [selectedDateConfirmSession, setConfirmSessionSelectedDate] = useState(null);
   const [selectedSession_type, setSession_type] = useState(null);
+  const [studentNameSingleSession, SetstudentNameSingleSession] = useState(null);
   const [selectedSession_studentID, setSession_StudentID] = useState(null);
   const [startTimeConfirmSession, setStartTimeConfirmSession] = useState(null);
   const [SingleSessionDate, setSingleSessiondate] = useState(null);
@@ -922,6 +931,8 @@ console.log("selected_session_type",selectedEvent);
       const eventEndDate = new Date(selectedEvent.end);
       const session_name = selectedEvent.session_name;
       const selected_session_studentID = selectedEvent.student_id;
+
+      const single_session_student_name = selectedEvent.student_name;
       const single_session_date = selectedEvent.session_date;
       const bulk_session_id = selectedEvent.bulk_session_id;
       const single_seesion_autoID = selectedEvent.id;
@@ -951,7 +962,7 @@ console.log("selected_session_type",selectedEvent);
       setEndTimeConfirmSession(eventEndTime);
       set_bulk_session_id(bulk_session_id);
       setSingleSessionAutoID(single_seesion_autoID);
-  
+      SetstudentNameSingleSession(single_session_student_name);
       // Log times for debugging
       console.log("Event Date:", eventDate);
       console.log("Start Time:", eventStartTime);
@@ -975,7 +986,7 @@ console.log("selected_session_type",selectedEvent);
   console.log("AAAA",selectedSession_type);
   console.log("AAAA",selectedSession_studentID);
   console.log("AAAA",selectedDateConfirmSession);
-  console.log("AAAA",bulk_session_id);
+  console.log("AAAA2",studentNameSingleSession);
 //  ===============================================
   
 const onclickConfirmSession = () => {
@@ -1029,32 +1040,33 @@ const onclickConfirmSession = () => {
   // ===================================================
 
   const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession , bulk_session_id) => {
+    // Optimistically remove deleted session from UI
+    setEvents(prevEvents =>
+      prevEvents.filter(event => 
+        !(event.session_date === SingleSessionDate && event.student_id === selectedSession_studentID)
+      )
+    );
+
     axios
       .delete(`${backendUrl}/api/DeleteSession`, {
-        headers: { 'Content-Type': 'application/json' }, // Explicit headers
+        headers: { 'Content-Type': 'application/json' },
         data: {
           session_type: selectedSession_type,
           student_id: selectedSession_studentID,
           single_session_date: SingleSessionDate,
-          selectedDateConfirmSession : selectedDateConfirmSession,
-          bulk_session_id :bulk_session_id,
+          selectedDateConfirmSession: selectedDateConfirmSession,
+          bulk_session_id: bulk_session_id,
         },
       })
-      
       .then(() => {
-        // FetchSingleSessionDetails();
-        // FetchBulkSessionDetails(); 
-         
-
-
-         setShowModalConfirmSession(false); 
+        setShowModalConfirmSession(false); 
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
         });
-        // Trigger re-fetch for the next deletion or update
-      setShouldFetch(true);
-      setShouldFetchSingle(true);
+
+        // Force re-fetch immediately
+        setShouldFetchSingle(true);
       })
       .catch((error) => {
         console.error('Error deleting session:', error);
@@ -1062,9 +1074,12 @@ const onclickConfirmSession = () => {
           position: "top-right",
           autoClose: 5000,
         });
+
+        // Rollback UI if delete fails
+        setShouldFetchSingle(true);
       });
-  };
-  
+};
+
   const [showMoreEvents, setShowMoreEvents] = useState(false);
 
 // Handler to toggle the visibility of additional events
@@ -1327,6 +1342,12 @@ console.log("singlesessionAutoID",singlesessionAutoID);
 
     ) => {
       try {
+
+        setEvents(prevEvents =>
+          prevEvents.filter(event => 
+            !(event.session_date === SingleSessionDate && event.student_id === selectedSession_studentID)
+          )
+        );
         await axios.delete(`${backendUrl}/api/DeleteFutureSession`, {
           headers: { "Content-Type": "application/json" },
           data: {
@@ -1358,6 +1379,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           }
         );
       }
+      setShouldFetchSingle(true);
     };
     // -----------------------------------------------------
 
@@ -1387,8 +1409,20 @@ console.log("singlesessionAutoID",singlesessionAutoID);
       } else {
       }
     }, [userRollID]); // Dependency array: the effect will run when userRollID changes
+
+
+
+    // ---------------Auto Select student name in update single session-------------------------------
+    useEffect(() => {
+      if (studentData.length > 0 && selectedSession_studentID) {
+        const selectedStudent = studentData.find(student => student.id === selectedSession_studentID);
+        setselectedStudentUpdateSingleSession(selectedStudent || null);
+      }
+    }, [selectedSession_studentID, studentData]);
     
 
+ 
+// ------------------------------------------------
     return (
       <div style={{ color: '#4979a0', backgroundColor: 'white' }}>
         {loading ? (
@@ -1403,6 +1437,8 @@ console.log("singlesessionAutoID",singlesessionAutoID);
             <ToastContainer />
             <h2>Calendar</h2>
     
+
+            {userRollID  ? (
             <Calendar
               localizer={localizer}
               events={[...events, ...Bulkevents]}
@@ -1533,6 +1569,9 @@ console.log("singlesessionAutoID",singlesessionAutoID);
 
               }}
             />
+          ) : (
+            <p>You do not have permission to view this calendar.</p>
+          )}
           </>
         )}
       
@@ -1573,6 +1612,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                     name="radio-buttons"
                     inputProps={{ "aria-label": "bulk" }}
                     className="text-blue-600"
+                    disabled={true}
                   />
                   <span>Bulk Session</span>
                 </label>
@@ -1636,11 +1676,11 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                {/* ===================For Single ====================== */}
               {selectedValueRadio === "single" && (
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose Date</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose1 Date</Form.ControlLabel>
                 <DatePicker
                   value={formValue.date ? new Date(selectedDate) : null}
                   onChange={handleDateChange}
-                  format="yyyy-MM-dd" // Correct date format
+                  format="MM-dd-yyyy" // Correct date format
                 />
               </Form.Group>
                 )}
@@ -1895,23 +1935,22 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <Modal.Title>Update Session</Modal.Title>
               </Modal.Header>
               <Modal.Body>
+              <Form.ControlLabel className ="fontsizeofaddsessionmodal">Student Name</Form.ControlLabel>
               <SelectPicker
               className="updateSinglesessionmodalclass"
               data={studentOptions}
               value={selectedStudentUpdateSingleSession}
               onChange={setselectedStudentUpdateSingleSession}
               placeholder="Select a Student"
-              searchable={false}  // 🔥 This should remove the search box
+              searchable={false}  //  This should remove the search box
               style={{ width: 224 }}
               />
-
               <Form.Group controlId="date">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
-                  format="yyyy-MM-dd"
+                  format="MM-dd-yyyy"
                   value={selectedDateConfirmSession ? new Date(selectedDateConfirmSession) : null}
                   onChange={handleDateChangeInSingleSessionUpdate}
-
                 />
               </Form.Group>
 
@@ -1964,7 +2003,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <Form.Group controlId="date">
                   <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                   <DatePicker
-                    format="yyyy-MM-dd"
+                    format="MM-dd-yyyy"
                     value={selectedEvent.start ? new Date(selectedEvent.start) : null}
                   />
 
@@ -1973,7 +2012,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <Form.Group controlId="date">
                   <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                   <DatePicker
-                    format="yyyy-MM-dd"
+                    format="MM-dd-yyyy"
                     value={selectedEvent.start ? new Date(selectedEvent.start) : null}
 
                   />
