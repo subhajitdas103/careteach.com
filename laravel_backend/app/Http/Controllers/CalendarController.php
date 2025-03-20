@@ -173,6 +173,9 @@ if ($totalUsedHours > $totalAssignedHours) {
     }
 
         foreach ($existingSessions as $session) {
+
+            Log::info("Existing Sessions1:", $existingSessions->toArray());
+
             $existingStartTime = Carbon::parse($session->start_time);
             $existingEndTime = Carbon::parse($session->end_time);
     
@@ -251,26 +254,33 @@ if ($totalUsedHours > $totalAssignedHours) {
 public function FetchSingleSession($id, $roll_name)
 {
     try {
-        if ($roll_name === 'Admin') {
-            // If the user is an admin, fetch all sessions
+        \Log::info("Fetching sessions for id: $id, role: $roll_name");
+
+        if ($roll_name == 'Admin') {
             $sessions = CalendarModel::orderBy('id', 'desc')->get();
-        } else {
-            // Otherwise, fetch all sessions for the specific user
+        } else if ($roll_name == 'Provider') {
+            \Log::info("Querying sessions for Provider with user_roll_id: $id");
             $sessions = CalendarModel::where('user_roll_id', $id)
                 ->orderBy('id', 'desc')
                 ->get();
+            \Log::info("Fetched sessions count: " . $sessions->count());
+        } else {
+            \Log::error("Invalid role: $roll_name");
+            return response()->json(['error' => 'Invalid role'], 400);
         }
 
         if ($sessions->isEmpty()) {
-            return response()->json(['error' => 'Session not found'], 404);
+            \Log::info("No sessions found for user_roll_id: $id");
+            return response()->json([]);
         }
 
         return response()->json($sessions);
     } catch (\Exception $e) {
         \Log::error('Error fetching session: ' . $e->getMessage());
-        return response()->json(['error' => 'Error fetching session'], 500);
+        return response()->json(['error' => 'Error fetching session', 'message' => $e->getMessage()], 500);
     }
 }
+
 
 
 
@@ -679,31 +689,24 @@ if ($start->greaterThanOrEqualTo($end)) {
      
    // Check for overlapping time slots
    // Get new session start and end times
-$newStartTime = Carbon::parse($validatedData['startTimeConfirmSession']);
-$newEndTime = Carbon::parse($validatedData['endTimeConfirmSession']);
+        $newStartTime = Carbon::parse($validatedData['startTimeConfirmSession']);
+        $newEndTime = Carbon::parse($validatedData['endTimeConfirmSession']);
 
-foreach ($existingSessions as $session) {
-    // **Ensure we skip the session being updated**
-    if ($session->id == $singlesessionAutoID) {
-        continue;
-    }
+        $existingSessionsTimeConflicts = CalendarModel::where('date', $validatedData['selectedDateConfirmSession'])
+        ->where('student_id', '!=', $validatedData['student_id']) 
+        ->where('user_roll_id', $validatedData['userRollID'])// Exclude the session being updated
+        ->get();
 
-    $existingStartTime = Carbon::parse($session->start_time);
-    $existingEndTime = Carbon::parse($session->end_time);
+        foreach ($existingSessionsTimeConflicts as $session) {
+            $existingStartTime = Carbon::parse($session->start_time);
+            $existingEndTime = Carbon::parse($session->end_time);
 
-    if (
-        ($newStartTime->gt($existingStartTime) && $newStartTime->lt($existingEndTime)) ||  // Starts inside another session
-        ($newEndTime->gt($existingStartTime) && $newEndTime->lt($existingEndTime)) ||      // Ends inside another session
-        ($newStartTime->lte($existingStartTime) && $newEndTime->gte($existingEndTime))     // Completely overlaps another session
-    ) {
-        return response()->json([
-            'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
-        ], 422);
-    }
-}
-
-    
-    
+            if (!($newEndTime->lte($existingStartTime) || $newStartTime->gte($existingEndTime))) {
+                return response()->json([
+                    'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
+                ], 422);
+            }
+        }
 
         $studentData = $validatedData['selectedStudentUpdateSingleSession'];
         $studentName = $studentData['first_name'] . ' ' . $studentData['last_name'];

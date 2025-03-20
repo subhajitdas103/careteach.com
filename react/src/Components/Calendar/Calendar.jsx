@@ -135,18 +135,22 @@ useEffect(() => {
 // ==========================================
 const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
 console.log("ddddddddLine 121d",confirmSession);
+
+
 useEffect(() => {
+
+  if (!userRollID || !userRollName) {
+    console.warn("Skipping fetch, missing parameters:", { userRollID, userRollName });
+    return;
+  }
   const FetchSingleSessionDetails = async () => {
     try {
       // const response = await axios.get(`${backendUrl}/api/SingleSession`);
       const response = await axios.get(`${backendUrl}/api/SingleSession/${userRollID}/${userRollName}`);
-
       const data = response.data; // Axios automatically parses JSON
-      
       // Transform the data to match the events structure
       const formattedEvents = data.map((session) => {
 
-       
 
         // if (!session) return null;
         const sessionStartTime = moment(`${session.date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
@@ -215,7 +219,7 @@ useEffect(() => {
    
     setShouldFetchSingle(false);  // Reset shouldFetch after data is fetched
   }
-}, [selectedStudent, shouldFetchSingle]); 
+}, [selectedStudent, shouldFetchSingle,userRollID,userRollName]);  // Dependencies: selectedStudent and shouldFetch
 
 
 // =====================================
