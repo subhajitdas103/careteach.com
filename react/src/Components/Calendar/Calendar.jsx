@@ -113,7 +113,7 @@ const CalendarComponent = () => {
   // ====================Confirm Session================================
   const [confirmSession, setConfirmSession] = useState(null);
 
-console.log("confirmSession",confirmSession);
+
 
 useEffect(() => {
   const FetchConfirmSessionDetails = async () => {
@@ -198,6 +198,8 @@ useEffect(() => {
           session_name: session.session_name, 
           session_date :session.date, 
           id:session.id,
+          user_id:session.user_roll_id,
+         
           // eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
           style: eventStyle,
         };
@@ -921,6 +923,7 @@ const handleCloseModalSession = () => {
   const [SingleSessionDate, setSingleSessiondate] = useState(null);
   const [endTimeConfirmSession, setEndTimeConfirmSession] = useState(null);
   const [bulk_session_id, set_bulk_session_id] = useState(null);
+  const [user_role_id, setUserRollID] = useState(null);
   
   const [selectedValueRadioConfirmSession, setSelectedValueRadioConfirmSession] = useState("yes");
   const [selectedEvent, setSelectedEvent] = useState({
@@ -940,6 +943,7 @@ console.log("selected_session_type",selectedEvent);
       const single_session_date = selectedEvent.session_date;
       const bulk_session_id = selectedEvent.bulk_session_id;
       const single_seesion_autoID = selectedEvent.id;
+      const user_roll_id = selectedEvent.user_id;
       // Format the start time to 'hh:mm AM/PM'
       const eventStartTime = eventStartDate.toLocaleTimeString([], {
         hour: '2-digit',
@@ -967,6 +971,7 @@ console.log("selected_session_type",selectedEvent);
       set_bulk_session_id(bulk_session_id);
       setSingleSessionAutoID(single_seesion_autoID);
       SetstudentNameSingleSession(single_session_student_name);
+      setUserRollID(user_roll_id);
       // Log times for debugging
       console.log("Event Date:", eventDate);
       console.log("Start Time:", eventStartTime);
@@ -978,8 +983,6 @@ console.log("selected_session_type",selectedEvent);
   }, [selectedEvent]);
   
   
- 
-
       // Handle changes in radio buttons
   const handleChangeConfirmSession = (e) => {
     setSelectedValueRadioConfirmSession(e.target.value);
@@ -987,14 +990,11 @@ console.log("selected_session_type",selectedEvent);
     
   }
 
-  console.log("AAAA",selectedSession_type);
-  console.log("AAAA",selectedSession_studentID);
-  console.log("AAAA",selectedDateConfirmSession);
-  console.log("AAAA2",studentNameSingleSession);
 //  ===============================================
   
 const onclickConfirmSession = () => {
   const requestData = {
+    singlesessionAutoID: singlesessionAutoID,
     userRollID: userRollID,
     session_type: selectedSession_type,
     student_id: selectedSession_studentID,
@@ -1022,7 +1022,7 @@ const onclickConfirmSession = () => {
       // Handle errors
       if (error.response && error.response.data) {
         // Display the exact message from the server
-        toast.error(error.response.data.message || "Session alreday Exists.", {
+        toast.error(error.response.data.message, {
           position: "top-right",
           autoClose: 5000,
         });
@@ -1167,9 +1167,15 @@ const handleEndTimeChangeBulk = (value, index) => {
   setBulkDivs(newBulkDivs);
 };
 // ====================When click on Session in calender , then show as per session type=================
+const [singlesessionAutoID, setSingleSessionAutoID] = useState(null);
+useEffect(() => {
+
+}, [singlesessionAutoID]); // Debugging change
+
 const handleSessionClick = (event) => {
-  setSelectedEvent(null); // Force re-run of useEffect by clearing first
-  setTimeout(() => setSelectedEvent(event), 0); // Delay ensures state update
+  setSelectedEvent(null);
+  setTimeout(() => setSelectedEvent(event), 0);
+  setSingleSessionAutoID(event.id);
 };
 
 useEffect(() => {
@@ -1180,10 +1186,26 @@ useEffect(() => {
 
   eventDate.setHours(0, 0, 0, 0);
   today.setHours(0, 0, 0, 0);
+  
+  
+  
+  console.log("startTimeConfirmSession:", startTimeConfirmSession);
 
-  console.log("Latest selectedSession_type:", selectedSession_type);
+  console.log("endTimeConfirmSession:", endTimeConfirmSession);
 
-  // Reset modal states before opening the correct one
+  console.log("user_role_id:", user_role_id);
+
+
+
+  
+  const valueToSet = Array.isArray(confirmSession) && confirmSession.some(item => item.single_session_id === singlesessionAutoID) ? 1 : 0;
+
+  console.log("Immediate valueToSet:", valueToSet);
+  
+
+
+  console.log("xxxxxxxxxx",confirmSession);
+ console.log("single_seesion_autoIDxxxxxxxxxx",singlesessionAutoID);
   setShowModalConfirmSession(false);
   setShowModalSessionUpdateSingle(false);
   setShowModalConfirmSessionBulk(false);
@@ -1196,9 +1218,13 @@ useEffect(() => {
     } else if (selectedSession_type === "bulk") {
       setShowModalConfirmSessionBulk(true);
     }
-  }, 0); // Small delay ensures re-render
+  }, 0);
+  
+ 
 }, [selectedEvent, selectedSession_type]);
 
+
+console.log("confirmSessionconfirmSession",user_role_id);
 // ====================================================
 // ==============Single session modal update===============================
 const handleChangeSingleSessionUpdatestartTime = (time) => {
@@ -1254,11 +1280,8 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
     }
   };
 
-  const [singlesessionAutoID, setSingleSessionAutoID] = useState(false);
-console.log("singlesessionAutoID",singlesessionAutoID);
   const onclickUpdateSingleSession = () => {
     const requestData = {
-      singlesessionAutoID: singlesessionAutoID,
       userRollID: userRollID,
       selectedStudentUpdateSingleSession : selectedStudentUpdateSingleSession,
       student_id: selectedSession_studentID,
@@ -1441,7 +1464,6 @@ console.log("singlesessionAutoID",singlesessionAutoID);
             <ToastContainer />
             <h2>Calendar</h2>
     
-
             {userRollID  ? (
             <Calendar
               localizer={localizer}
@@ -1464,8 +1486,17 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               eventPropGetter={(event) => ({
                 style: event.style || {},
               })}
+              
               components={{
                 toolbar: ({ label }) => (
+                  <div className="custom-toolbar">
+                  <i
+                  className="fa fa-backward fc-back-icon_calendar"
+                  aria-hidden="true"
+                  id="back_provider_click"
+                  onClick={backtodashboard}
+                ></i>
+
                   <div
                     className="rbc-toolbar"
                     style={{
@@ -1474,6 +1505,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                       alignItems: 'center',
                     }}
                   >
+                    
                     <div className="rbc-btn-group">
                       <button onClick={() => setView('month')}>Month</button>
                       <button onClick={() => setView('week')}>Week</button>
@@ -1493,13 +1525,6 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                     >
                       {label}
                     </div>
-                    <i
-                      className="fa fa-backward fc-back-icon_calendar"
-                      aria-hidden="true"
-                      id="back_provider_click"
-                      onClick={backtodashboard}
-                    ></i>
-    
                     {view !== 'week' && (
                       <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
                         <button onClick={() => handleNavigate('PREV')}>Prev</button>
@@ -1525,6 +1550,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                         highlightOnSelect={false}
                       />
                     </div>
+                  </div>
                   </div>
                 ),
     

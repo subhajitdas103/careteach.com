@@ -47,12 +47,15 @@
 .fc-back-icon_calendar{
    
     float: inline-end;
-    /* margin-top: -39px; */
     font-size: 21px !important;
     border: 1px solid;
     border-radius: 17px;
     padding: 3px 17px;
-    margin-right: 14px;
+    margin-right: 9px;
+    margin-top: -2rem;
+    display: inline-block;  /* Ensures it behaves like a block */
+    cursor: pointer;        /* Shows pointer on hover */
+    font-size: 20px; 
 }
 .rbc-event, .rbc-day-slot .rbc-background-event {
   border: none;

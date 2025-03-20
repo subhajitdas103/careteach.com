@@ -10,6 +10,7 @@ class ConfirmSession extends Model
     protected $fillable = [ 
         'student_id', 
         'provider_id',
+        'single_session_id',
         'session_type',
         'date',
         'start_time',

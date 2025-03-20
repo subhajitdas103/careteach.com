@@ -10,6 +10,7 @@ class CalendarModel extends Model
     protected $fillable = [ 
         'student_id', 
         'user_roll_id',
+       
         'student_name',
         'session_name',
         'date',

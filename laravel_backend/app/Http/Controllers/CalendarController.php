@@ -534,16 +534,17 @@ public function CalendarConfirmSession(Request $request)
             'student_id' => 'required|integer|exists:students,id',
             'selectedDateConfirmSession' => 'required|date',
             'userRollID' => 'required|integer|exists:providers,id',
+            'singlesessionAutoID' => 'required',
         ]);
 
-        // Check if session already exists
-        $existingSession = ConfirmSession::where('student_id', $validatedData['student_id'])
-                                         ->where('date', $validatedData['selectedDateConfirmSession'])
-                                         ->exists();
+        // // Check if session already exists
+        // $existingSession = ConfirmSession::where('student_id', $validatedData['student_id'])
+        //                                  ->where('date', $validatedData['selectedDateConfirmSession'])
+        //                                  ->exists();
 
-        if ($existingSession) {
-            return response()->json(['error' => 'Session already exists for this student on this date'], 409);
-        }
+        // if ($existingSession) {
+        //     return response()->json(['error' => 'Session already exists for this student on this date'], 409);
+        // }
 
         // Insert session
         ConfirmSession::create([
@@ -553,6 +554,7 @@ public function CalendarConfirmSession(Request $request)
             'start_time' => $startTime, // Converted format
             'end_time' => $endTime, // Converted format
             'provider_id' => $validatedData['userRollID'],
+            'single_session_id' => $validatedData['singlesessionAutoID'],
         ]);
 
         return response()->json(['message' => 'Session confirmed successfully'], 201);
