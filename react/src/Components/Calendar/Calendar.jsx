@@ -62,6 +62,7 @@ const CalendarComponent = () => {
   const [showModalofSession, setShowModalConfirmSession] = useState(false); 
   const [showModalofSessionSingle, setShowModalSessionUpdateSingle] = useState(false);
   const [showModalofSessionBulk, setShowModalConfirmSessionBulk] = useState(false); 
+  const [showModalofSingleSessionPastDateDelete, setshowModalofSingleSessionPastDateDelete] = useState(false); 
   
   const [SelectedDateConfirmSession, setSelectedDateConfirmSession] = useState(false);
   
@@ -199,7 +200,7 @@ useEffect(() => {
           session_date :session.date, 
           id:session.id,
           user_id:session.user_roll_id,
-         
+          
           // eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
           style: eventStyle,
         };
@@ -912,6 +913,7 @@ const handleCloseModalSession = () => {
   setShowModalConfirmSession(false); // Hide the modal
   setShowModalSessionUpdateSingle(false); // Hide the modal);
   setShowModalConfirmSessionBulk(false);
+  setshowModalofSingleSessionPastDateDelete(false);
 };
 
 // ====================Confirm Session================================
@@ -1064,6 +1066,7 @@ const onclickConfirmSession = () => {
       })
       .then(() => {
         setShowModalConfirmSession(false); 
+     
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
@@ -1198,14 +1201,17 @@ useEffect(() => {
 
 
   
-  const valueToSet = Array.isArray(confirmSession) && confirmSession.some(item => item.single_session_id === singlesessionAutoID) ? 1 : 0;
+  if (Array.isArray(confirmSession)) {
+    const isConfirmed = confirmSession.some(item => item.single_session_id === singlesessionAutoID);
+    console.log("Immediate valueToSet:", isConfirmed ? 1 : 0);
 
-  console.log("Immediate valueToSet:", valueToSet);
-  
-
-
+ 
   console.log("xxxxxxxxxx",confirmSession);
  console.log("single_seesion_autoIDxxxxxxxxxx",singlesessionAutoID);
+
+ if (isConfirmed) {
+  setshowModalofSingleSessionPastDateDelete(true);
+} else {
   setShowModalConfirmSession(false);
   setShowModalSessionUpdateSingle(false);
   setShowModalConfirmSessionBulk(false);
@@ -1219,7 +1225,8 @@ useEffect(() => {
       setShowModalConfirmSessionBulk(true);
     }
   }, 0);
-  
+}
+  }
  
 }, [selectedEvent, selectedSession_type]);
 
@@ -1385,7 +1392,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
             endTimeConfirmSession : formattedEndTime,
           },
         });
-    
+        setshowModalofSingleSessionPastDateDelete(false);
         setShowModalSessionUpdateSingle(false);
         toast.success("Session successfully deleted!", {
           position: "top-right",
@@ -1952,6 +1959,55 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
             ) : (
               <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
             )}
+            </Modal.Footer>
+          </Modal.Dialog>
+        </div>
+      )}
+      {/* ===========Delete Single Session Past Date======================= */}
+      {showModalofSingleSessionPastDateDelete && (
+        <div className="modal show" style={{ display: 'block' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton onClick={handleCloseModalSession}>
+              <Modal.Title>Delete Session</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">  
+              </Form.Group>
+              </div>
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
+                <DatePicker
+                  format="yyyy-MM-dd"
+                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
+                />
+              </Form.Group>
+
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
+                 <Input className="rs_input_custom"  placeholder="Default Input"
+                  value={startTimeConfirmSession  || "" } disabled
+                />
+              </Form.Group>
+              <br/>
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
+                
+                <Input className="rs_input_custom" placeholder="Default Input"
+                  value={endTimeConfirmSession  || ""} disabled 
+                />
+              </Form.Group>
+            </div>
+          </Modal.Body>
+            <Modal.Footer>
+            <Button
+            className="delete_button_update_single_session"
+            variant="danger"
+            onClick={() => handleDeleteFutureSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession , selectedStudentUpdateSingleSession)} // Replace handleDelete with your actual function
+          >
+            <i className="fa fa-trash" aria-hidden="true"></i>
+          </Button>
             </Modal.Footer>
           </Modal.Dialog>
         </div>
