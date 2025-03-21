@@ -172,23 +172,29 @@ if ($totalUsedHours > $totalAssignedHours) {
         ], 422);
     }
 
-        foreach ($existingSessions as $session) {
 
-            Log::info("Existing Sessions1:", $existingSessions->toArray());
+    $existingSessionsSingleSession = CalendarModel::where('user_roll_id', $validatedData['userRollID'])
+    ->where('date', $validatedData['date'])
+    ->get();
 
-            $existingStartTime = Carbon::parse($session->start_time);
-            $existingEndTime = Carbon::parse($session->end_time);
+
+    foreach ($existingSessionsSingleSession as $session) {
+        Log::info("Checking conflict with session:", $session->toArray());
     
-            if (
-                ($newStartTime->between($existingStartTime, $existingEndTime) || 
-                $newEndTime->between($existingStartTime, $existingEndTime) ||  
-                ($newStartTime <= $existingStartTime && $newEndTime >= $existingEndTime))
-            ) {
-                return response()->json([
-                    'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
-                ], 422);
-            }
+        $existingStartTime = Carbon::parse($session->start_time);
+        $existingEndTime = Carbon::parse($session->end_time);
+    
+        // STRICT overlap check (Ensures full & partial conflicts are blocked)
+        if (
+            ($newStartTime < $existingEndTime && $newEndTime > $existingStartTime) ||  // Partial overlap
+            ($newStartTime == $existingStartTime && $newEndTime == $existingEndTime)   // Exact same session exists
+        ) {
+            return response()->json([
+                'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
+            ], 422);
         }
+    }
+    
     }
     
         // -----------------------------------------------
@@ -597,10 +603,13 @@ public function FetchConfirmessionDetails()
                 'selectedDateConfirmSession' => 'required|date_format:Y-m-d', 
                 'startTimeConfirmSession' => 'required',
                 'endTimeConfirmSession' => 'required',
-                'singlesessionAutoID' => 'required|integer|exists:single_session,id',
+                // 'singlesessionAutoID' => 'nullable|integer|exists:single_session,id',
                 'userRollID' => 'required|integer', 
             ]);
-            $singlesessionAutoID = $validatedData['singlesessionAutoID']; 
+            // $singlesessionAutoID = $validatedData['singlesessionAutoID']; 
+            // $singlesessionAutoID = $validatedData['singlesessionAutoID'] ?? null;
+            // Use input() instead of accessing validatedData directly
+$singlesessionAutoID = $request->input('singlesessionAutoID', null);
             $startTime = Carbon::createFromFormat('h:i A', $validatedData['startTimeConfirmSession'])->format('H:i:s');
             $endTime = Carbon::createFromFormat('h:i A', $validatedData['endTimeConfirmSession'])->format('H:i:s');
     
@@ -635,7 +644,7 @@ public function FetchConfirmessionDetails()
     $existingSessions = CalendarModel::where('student_id', $validatedData['student_id'])
     ->where('date', $validatedData['selectedDateConfirmSession'])
     ->when(isset($validatedData['session_id']), function ($query) use ($validatedData) {
-        return $query->where('id', '!=', $validatedData['singlesessionAutoID']);
+        return $query->where('id', '!=', $singlesessionAutoID);
     })
     ->get();
 
@@ -714,7 +723,7 @@ if ($start->greaterThanOrEqualTo($end)) {
         $studentName = $studentData['first_name'] . ' ' . $studentData['last_name'];
 
             // Update only the session with the matching ID
-            $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])
+            $updated = CalendarModel::where('id', $singlesessionAutoID)
                 // ->where('student_id', $validatedData['student_id'])
                 ->update([
                     'student_name' => $studentName,

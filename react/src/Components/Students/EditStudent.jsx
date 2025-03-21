@@ -175,14 +175,18 @@ const fetchAssignedProviderDetails = async () => {
                     autoClose: 5000,
                 });
 
-            } else if (error.request) {
-                console.error('Error deleting service (request):', error.request);
-                toast.error("No response from server. Please try again.", {
-                    position: "top-right",
-                    autoClose: 5000,
-                });
+            }
+            
+            // else if (error.request) {
+            //     console.error('Error deleting service (request):', error.request);
+            //     toast.error("No response from server. Please try again.", {
+            //         position: "top-right",
+            //         autoClose: 5000,
+            //     });
 
-            } else {
+            // } 
+            
+            else {
                 console.error('Error deleting service (message):', error.message);
                 toast.error("An unexpected error occurred.", {
                     position: "top-right",

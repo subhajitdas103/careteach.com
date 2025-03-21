@@ -173,7 +173,7 @@ console.log("ddddddddLine 121d",confirmSession);
             return cs.student_id === session.student_id && cs.date === session.date;
           });
           
-        const eventStyle = isMatched ? { backgroundColor: '#cb1313' } : {}; 
+        const eventStyle = isMatched ? { backgroundColor: 'rgb(73, 121, 160)' } : {}; 
 
           const matchedData = confirmSession && Array.isArray(confirmSession)
           ? confirmSession.some(cs => 
@@ -1203,6 +1203,11 @@ useEffect(() => {
 
 // ==============Single Session Delete Modal open as per date ================
 const handleSessionClick = (event) => {
+
+  if (userRollName === "Admin") {
+    return; // ❌ Prevent function execution for admins
+  }
+  
   setSelectedEvent(null);
   setSingleSessionAutoID(null); // Reset session ID to avoid stale state
 
@@ -1310,6 +1315,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
 
   const onclickUpdateSingleSession = () => {
     const requestData = {
+      singlesessionAutoID: selectedEvent.id,
       userRollID: userRollID,
       selectedStudentUpdateSingleSession : selectedStudentUpdateSingleSession,
       student_id: selectedSession_studentID,
@@ -2143,16 +2149,11 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
               </Form.Group>
             </div>
           </Modal.Body>
-
             <Modal.Footer>
-             
-
-             
               <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}
                 disabled={true} 
                 >Update Session
               </Button>
-            
             </Modal.Footer>
           </Modal.Dialog>
         </div>

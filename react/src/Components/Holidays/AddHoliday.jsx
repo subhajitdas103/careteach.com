@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 import { DatePicker } from 'rsuite';
 import { toast, ToastContainer } from 'react-toastify';
+// import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddHoliday = () => {
   const navigate = useNavigate();
@@ -16,10 +18,6 @@ const AddHoliday = () => {
   const [holidayName, setHolidayName] = useState('');
   const [startDate, handleStartDateChange] = useState(null);
   const [endDate, handleEndDateChange] = useState(null);
-
-
-  
-
 
       const handeladdHoliday = async () => {
         if (!holidayName || holidayName.trim() === "") {
@@ -46,16 +44,16 @@ const AddHoliday = () => {
           return;
         }
       
-        // Format dates in 'YYYY-MM-DD' format
-        const formattedStartDate = start.toISOString().split('T')[0];
-        const formattedEndDate = end.toISOString().split('T')[0];
-      
+
+        const formattedStartDate = start.toLocaleDateString('en-CA'); // YYYY-MM-DD
+        const formattedEndDate = end.toLocaleDateString('en-CA'); // YYYY-MM-DD
+        
         const holidayData = {
           holidayName: holidayName.trim(),
           startDate: formattedStartDate,
           endDate: formattedEndDate,
         };
-      
+
         try {
 
             const response = await axios.post(`${backendUrl}/api/addHoliday`, holidayData, {
@@ -72,9 +70,8 @@ const AddHoliday = () => {
           if (error.response) {
             console.error('Server Error:', error.response.data);
             
-            const errorMessage = error.response.data.errors?.workingDays?.[0] 
-              || error.response.data.errors?.emailAddress?.[0]
-              || error.response.data.message
+            const errorMessage =
+               error.response.data.message
               || 'Failed to add holiday';
             
             toast.error(errorMessage);
@@ -91,7 +88,7 @@ const AddHoliday = () => {
         <div className="dashbord-container">
           <div className="row dashbord-list">
             <div className="heading-text personal-info-text">
-              <h3>Basic Information</h3>
+              <h3>Add New Holiday</h3>
               <i
                 className="fa fa-backward fc-back-icon" onClick={backToHoliday}
                 aria-hidden="true"
@@ -103,11 +100,11 @@ const AddHoliday = () => {
           <div className="row dashbord-list personal-profile">
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-                <label>Name:</label>
+                <label>Holiday Name*</label>
                 <input
                   type="text"
                   className="stu-pro-input-field sch-dropbtn"
-                  placeholder="Enter name" value={holidayName}
+                  placeholder="Enter Name" value={holidayName}
                   onChange={(e) => setHolidayName(e.target.value)}
                 />
               </div>
@@ -115,21 +112,23 @@ const AddHoliday = () => {
 
             <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
-                <label>Start Date:</label>
+                <label>Start Date*</label>
                 <DatePicker
                
                   value={startDate}
-                  placeholder="Enter date"
+                  placeholder="Enter Start Date"
                   onChange={(e) => handleStartDateChange(new Date(e))}
+                  format="MM/dd/yyyy"
                 />
               </div>
 
               <div className="col-md-6 student-profile-field">
-                <label>End Date:</label>
+                <label>End Date*</label>
                 <DatePicker
                   value={endDate}
-                  placeholder="Enter date"
+                  placeholder="Enter End Date"
                   onChange={(e) => handleEndDateChange(new Date(e))}
+                   format="MM/dd/yyyy"
                 />
               </div>
             </div>

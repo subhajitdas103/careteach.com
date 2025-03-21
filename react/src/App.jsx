@@ -111,12 +111,11 @@ const App = () => {
         />
 
 
-<Route 
+        <Route 
           path="/EditHoliday/:id" 
           element={<ProtectedRoute><WithNavbar Component={EditHoliday} /></ProtectedRoute>} 
         />
-    
-<Route 
+        <Route 
           path="/Holidays" 
           element={<ProtectedRoute><WithNavbar Component={Holidays} /></ProtectedRoute>} 
         />

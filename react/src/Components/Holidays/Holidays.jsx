@@ -6,8 +6,12 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
-
+import './Holidays.css';
+import { PropagateLoader } from "react-spinners";
+// import logo from "../assets/logo.png"; 
+import logo from "../../Assets/logo.png"; 
 const Holidays = () => {
+   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -25,7 +29,10 @@ const Holidays = () => {
         }
       } catch (error) {
         console.error("Error fetching holiday details:", error);
+      } finally {
+        setLoading(false); // Ensure loading state is updated
       }
+      
     };
 
     fetchHolidayDetails();
@@ -82,9 +89,19 @@ const Holidays = () => {
 
   return (
     <div className="dashbord-container">
+       {loading ? (
+              <div className="loader-container">
+                <div className="loader-content">
+                  <img src={logo} alt="Loading..." className="logo-loader" />
+                  <PropagateLoader color="#3498db" size={10} />
+                </div>
+              </div>
+            ) : (
+              <>
       <div className="row dashbord-list">
         <div className="heading-text">
-          <h3>Holidays</h3>
+          <h3 style={{ marginTop: "-42px" }}>Holidays</h3>
+          
           <i
             className="fa fa-backward fc-back-icon"
             onClick={backToDashboard}
@@ -94,8 +111,8 @@ const Holidays = () => {
         </div>
       </div>
 
-      <div className="add-student-btn" id="add_holiday_btn" onClick={AddHoliday}>
-        <i className="fa fa-mug-hot me-1"></i>Add holiday
+      <div className="add-student-btn holiday_button" id="add_holiday_btn" onClick={AddHoliday}>
+        <i className="fa fa-mug-hot me-1"></i>Add Holiday
       </div>
 
       <div className="tbl-container bdr tbl-container-student">
@@ -113,8 +130,21 @@ const Holidays = () => {
             holidays.map((holiday, index) => (
               <tr key={index}>
                 <td className="col-md-3">{holiday.name}</td>
-                <td className="col-md-4">{holiday.start_date}</td>
-                <td className="col-md-4">{holiday.end_date}</td>
+                <td className="col-md-4">
+                  {new Date(holiday.start_date).toLocaleDateString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric",
+                  })}
+                </td>
+                <td className="col-md-4">
+                  {new Date(holiday.end_date).toLocaleDateString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    
+                    year: "numeric",
+                  })}
+               </td>
                 <td className="col-md-1">
                   <div className="status-area">
                     <div onClick={() => handleEdit(holiday.id)}>
@@ -161,7 +191,9 @@ const Holidays = () => {
                       </Button>
                     </Modal.Footer>
         </Modal>
-      )}
+            )}
+      </>    
+  )}
     </div>
   );
 };
