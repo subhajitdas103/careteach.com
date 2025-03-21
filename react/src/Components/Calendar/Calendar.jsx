@@ -138,14 +138,15 @@ const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
 console.log("ddddddddLine 121d",confirmSession);
 
 
-useEffect(() => {
 
-  if (!userRollID || !userRollName) {
-    console.warn("Skipping fetch, missing parameters:", { userRollID, userRollName });
-    return;
-  }
+
+  
   const FetchSingleSessionDetails = async () => {
     try {
+      if (!userRollID || !userRollName) {
+        console.warn("Skipping fetch, missing parameters:", { userRollID, userRollName });
+        return;
+      }
       // const response = await axios.get(`${backendUrl}/api/SingleSession`);
       const response = await axios.get(`${backendUrl}/api/SingleSession/${userRollID}/${userRollName}`);
       const data = response.data; // Axios automatically parses JSON
@@ -214,9 +215,9 @@ useEffect(() => {
       console.error('Error fetching session details:', error);
     }
   };
-
+  useEffect(() => {
   FetchSingleSessionDetails();
-
+ 
 
   if (selectedStudent || shouldFetchSingle) {
    
@@ -1019,7 +1020,29 @@ const onclickConfirmSession = () => {
         autoClose: 5000,
       });
       console.log("Session confirmed:", response.data);
-    })
+          // Fetch the updated session details
+    
+    // Manually update confirmSession state before fetching
+    // setShowModalConfirmSession(false);
+    
+       setShowModalConfirmSession(false);
+       setShowModalSessionUpdateSingle(false);
+       setShowModalConfirmSessionBulk(false);
+   
+       setConfirmSession((prev) => {
+        // Check if the ID already exists
+        if (prev.some((session) => session.single_session_id === singlesessionAutoID)) {
+          return prev; // If already present, return previous state (no changes)
+        }
+      
+        return [...prev, { single_session_id: singlesessionAutoID }];
+    
+      });
+      setshowModalofSingleSessionPastDateDelete(false);
+    
+      FetchSingleSessionDetails();
+
+  })
     .catch((error) => {
       // Handle errors
       if (error.response && error.response.data) {
@@ -1028,6 +1051,8 @@ const onclickConfirmSession = () => {
           position: "top-right",
           autoClose: 5000,
         });
+     
+       
         console.error("Error response from server:", error.response.data);
       } else {
         // General error fallback
@@ -1040,8 +1065,7 @@ const onclickConfirmSession = () => {
     });
 };
 
-
-
+// ====================Delete Session================================
   
   // ===================================================
 
@@ -1168,6 +1192,7 @@ const handleEndTimeChangeBulk = (value, index) => {
   const newBulkDivs = [...bulkDivs];
   newBulkDivs[index].endTime = value;
   setBulkDivs(newBulkDivs);
+ 
 };
 // ====================When click on Session in calender , then show as per session type=================
 const [singlesessionAutoID, setSingleSessionAutoID] = useState(null);
@@ -1175,63 +1200,59 @@ useEffect(() => {
 
 }, [singlesessionAutoID]); // Debugging change
 
+
+// ==============Single Session Delete Modal open as per date ================
 const handleSessionClick = (event) => {
   setSelectedEvent(null);
-  setTimeout(() => setSelectedEvent(event), 0);
-  setSingleSessionAutoID(event.id);
-};
-
-useEffect(() => {
-  if (!selectedEvent) return;
-
-  const eventDate = new Date(selectedEvent.start);
-  const today = new Date();
-
-  eventDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  
-  
-  
-  console.log("startTimeConfirmSession:", startTimeConfirmSession);
-
-  console.log("endTimeConfirmSession:", endTimeConfirmSession);
-
-  console.log("user_role_id:", user_role_id);
-
-
-
-  
-  if (Array.isArray(confirmSession)) {
-    const isConfirmed = confirmSession.some(item => item.single_session_id === singlesessionAutoID);
-    console.log("Immediate valueToSet:", isConfirmed ? 1 : 0);
-
- 
-  console.log("xxxxxxxxxx",confirmSession);
- console.log("single_seesion_autoIDxxxxxxxxxx",singlesessionAutoID);
-
- if (isConfirmed) {
-  setshowModalofSingleSessionPastDateDelete(true);
-} else {
-  setShowModalConfirmSession(false);
-  setShowModalSessionUpdateSingle(false);
-  setShowModalConfirmSessionBulk(false);
+  setSingleSessionAutoID(null); // Reset session ID to avoid stale state
 
   setTimeout(() => {
-    if (eventDate < today) {
-      setShowModalConfirmSession(true);
-    } else if (selectedSession_type === "single") {
-      setShowModalSessionUpdateSingle(true);
-    } else if (selectedSession_type === "bulk") {
-      setShowModalConfirmSessionBulk(true);
+    setSelectedEvent(event);
+    setSingleSessionAutoID(event.id);
+
+    if (!Array.isArray(confirmSession)) return;
+
+    const isConfirmed = confirmSession.some(item => item.single_session_id === event.id);
+    // console.log("Immediate valueToSet:", isConfirmed ? 1 : 0);
+    // console.log("confirmSession:", confirmSession);
+    // console.log("single_session_autoID:", event.id);
+
+    if (isConfirmed) {
+
+      setshowModalofSingleSessionPastDateDelete(true); // ✅ Open delete modal if confirmed
+      return;
     }
-  }, 0);
-}
-  }
- 
-}, [selectedEvent, selectedSession_type]);
+
+    // Ensure `event.start` is accessed only after `selectedEvent` is set
+    const eventDate = new Date(event.start);
+    const today = new Date();
+
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    // console.log("startTimeConfirmSession:", startTimeConfirmSession);
+    // console.log("endTimeConfirmSession:", endTimeConfirmSession);
+    // console.log("user_role_id:", user_role_id);
+
+    // Close other modals before opening a new one
+    setShowModalConfirmSession(false);
+    setShowModalSessionUpdateSingle(false);
+    setShowModalConfirmSessionBulk(false);
+
+    setTimeout(() => {
+      if (eventDate <= today) {
+        setShowModalConfirmSession(true);
+      } else if (selectedSession_type === "single") {
+        setShowModalSessionUpdateSingle(true);
+      } else if (selectedSession_type === "bulk") {
+        setShowModalConfirmSessionBulk(true);
+      }
+    }, 100); // ✅ Small delay ensures correct state update
+  }, 50); // ✅ Allows state updates before using `event`
+};
 
 
-console.log("confirmSessionconfirmSession",user_role_id);
+// console.log("confirmSessionconfirmSession",user_role_id);
 // ====================================================
 // ==============Single session modal update===============================
 const handleChangeSingleSessionUpdatestartTime = (time) => {
@@ -1952,8 +1973,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
           </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
-
+             
               {selectedValueRadioConfirmSession === "no" ? (
               <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
             ) : (
