@@ -255,8 +255,16 @@ console.log("ddddddddLine 121d",confirmSession);
     setDivs(null);
   };
 
+  // ========When i choose student in add session modal then clear the previous student value=========
+  useEffect(() => {
+    if (!showModal) {
+      setSelectedStudentDropdown(null);
+    }
+  }, [showModal]);
+  
+
   const [formValue, setFormValue] = useState({ time: null });
-  console.log("dfgthy",formValue.date);
+  // console.log("dfgthy",formValue.date);
   // ===========For Single Ssson Add ============
   const [StartTimeValue, setStartTimeValue] = useState({ time: null });
   const [EndTimeValue, setEndTimeValue] = useState({ time: null });
@@ -1740,7 +1748,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
                {/* ===================For Single ====================== */}
               {selectedValueRadio === "single" && (
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose1 Date</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose Date</Form.ControlLabel>
                 <DatePicker
                   value={formValue.date ? new Date(selectedDate) : null}
                   onChange={handleDateChange}
@@ -1920,7 +1928,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
             <Modal.Body>
               <div className="stu-pro-field-div">
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Confirm Session</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose Selection</Form.ControlLabel>
                   <div className="flex items-center space-x-4">
                     <label className="flex items-center space-x-2">
                       <Radio
@@ -1952,9 +1960,9 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
               
               </div>
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
-                  format="yyyy-MM-dd"
+                  format="MM-dd-yyyy"
                   value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
 
                 />
@@ -2002,9 +2010,9 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
               </Form.Group>
               </div>
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
-                  format="yyyy-MM-dd"
+                  format="MM-dd-yyyy"
                   value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
                 />
               </Form.Group>

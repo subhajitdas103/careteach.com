@@ -52,10 +52,11 @@
     border-radius: 17px;
     padding: 3px 17px;
     margin-right: 9px;
-    margin-top: -2rem;
+    margin-top: -37px;
     display: inline-block;  /* Ensures it behaves like a block */
     cursor: pointer;        /* Shows pointer on hover */
     font-size: 20px; 
+    align-items: center;
 }
 .rbc-event, .rbc-day-slot .rbc-background-event {
   border: none;
@@ -153,7 +154,7 @@
   
 .rbc-calendar{
     height: 505px;
-margin-top: 3rem;
+margin-top: 3.5rem;
 margin-left: 1rem;
 margin-right: 1rem;
 }

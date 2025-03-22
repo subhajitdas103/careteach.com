@@ -463,7 +463,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
             }}
           >
             <List>
-              {['A', 'B', 'C'].map((grade) => (
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'K'].map((grade) => (
                 <ListItem key={grade}>
                   <FormControlLabel
                     control={
@@ -527,17 +527,25 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                 <li>
                   <button
                     className="dropdown-item"
-                    onClick={() => handlePetStatusChange("Service A")}
+                    onClick={() => handlePetStatusChange("Pending")}
                   >
-                    Service A
+                    Pending
                   </button>
                 </li>
                 <li>
                   <button
                     className="dropdown-item"
-                    onClick={() => handlePetStatusChange("Service B")}
+                    onClick={() => handlePetStatusChange("Approved")}
                   >
-                    Service B
+                    Approved
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handlePetStatusChange("Declined")}
+                  >
+                    Declined
                   </button>
                 </li>
               </ul>
