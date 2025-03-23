@@ -415,6 +415,16 @@ public function updateProvider($id, Request $request)
         return response()->json(['error' => 'Email is already associated with another provider.'], 400);
     }
 
+  
+
+// Get old name
+$oldName = $provider->provider_first_name . ' ' . $provider->provider_last_name;
+
+// Get new name from request
+$newName = $request->input('first_name') . ' ' . $request->input('last_name');
+
+
+
     // Map request fields directly to database columns
     $dataToUpdate = [
         'provider_first_name' => $request->input('first_name'),
@@ -440,6 +450,10 @@ public function updateProvider($id, Request $request)
 
     // Update the provider's details
     $provider->update($dataToUpdate);
+
+    if ($oldName !== $newName) {
+        AssignProviderModel::where('provider_id', $id)->update(['provider_name' => $newName]);
+    }
 
     return response()->json(['message' => 'Provider updated successfully'], 200);
 }

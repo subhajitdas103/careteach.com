@@ -881,7 +881,7 @@ const fetchProviderDetails = async () => {
       </div>
 
         <div>
-              <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
+              <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save  Provider</button>
               <ToastContainer />
             </div>
     </header>

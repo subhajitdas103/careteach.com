@@ -208,7 +208,13 @@ const fetchAssignedProviderDetails = async () => {
 
     const [last_name, setLastName] = useState(student?.last_name || '');
     const [grade, setGrade] = useState("");
-    const [school_name, setSchoolName] = useState(student?.school_name || '');
+    // const [school_name, setSchoolName] = useState(student?.school_name || '');
+    const [selectedSchool, setSelectedSchool] = useState(student?.school_name || "");
+
+    useEffect(() => {
+      setSelectedSchool(student?.school_name || "");
+    }, [student]);
+    
     const [home_address, setHomeaddress] = useState(student?.home_address || '');
     const [doe_rate, setDOE] = useState(student?.doe_rate || '');
     const [DOEError, setDOEError] = useState("");
@@ -308,19 +314,10 @@ useEffect(() => {
         }
       };
     // =================School=============================
-    useEffect(() => {
-      if (student && student.school_name) {
-        setSchoolName(student.school_name);
-      }
-    }, [student]);
+  
     
 
-    const handleSchoolNameChange = (event) => {
-      setSchoolName(event.target.value);
-      if (event.target.value) {
-        setSchoolNameError('');
-      }
-    };
+  
     // ====================Home Address=====================
     useEffect(() => {
       if (student && student.home_address) {
@@ -532,7 +529,7 @@ useEffect(() => {
         first_name,
         last_name,
         grade,
-        school_name,
+        selectedSchool,
         home_address,
         doe_rate,
         iep_doc,
@@ -633,6 +630,32 @@ useEffect(() => {
     
    
   // ======================================================
+
+
+   const [schools, setSchools] = useState([]);
+   const fetchSchoolDetails = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
+      const data = await response.json();
+      setSchools(data); 
+      // setSelectedSchool(data[0].school_name);// Update the state with fetched data
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching school details:', error);
+    }
+  };
+   useEffect(() => {
+      fetchSchoolDetails();
+    }, []);
+  console.log("hhhhhhhh",schools);
+  // ===========================================================
+  
+   const handleSchoolChange = (schoolName) => {
+    setSelectedSchool(schoolName);
+   
+    console.log('Selected school:', schoolName); 
+  };
+
     return (
     <div className="dashboard-container">
       {loading ? (
@@ -724,16 +747,41 @@ useEffect(() => {
             </div>
 
           <div className="stu-pro-field-div">
+            
+
               <div className="col-md-6 student-profile-field widthcss">
-                <label>School Name*</label>
-                <input
-                  type="text"
-                  name="schoolName"
-                  className="stu-pro-input-field"
-                  placeholder="Enter a School Name"  value={school_name} onChange={handleSchoolNameChange}
-                />
-              
+              <label>School Name:</label>
+              <div className="dropdown">
+                <button
+                  className="btn btn-secondary dropdown-toggle stu-pro-input-field"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  {selectedSchool || "Choose School"} {/* Display selected school or default text */}
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+  {schools.length > 0 ? (
+    schools.map((school) => {
+      console.log("Rendering school:", school.school_name); // Debugging
+      return (
+        <li key={school.id}>
+          <button
+            className="dropdown-item"
+            onClick={() => handleSchoolChange(school.school_name)}
+          >
+            {school.school_name}
+          </button>
+        </li>
+      );
+    })
+  ) : (
+    <li><span className="dropdown-item">No schools available</span></li>
+  )}
+</ul>
+
               </div>
+            </div>
             
             <div className="col-md-6 student-profile-field widthcss">
                 <label>Grade*</label>
