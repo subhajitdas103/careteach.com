@@ -877,10 +877,17 @@ useEffect(() => {
 }, [selectedStudent, shouldFetch]);  // Dependencies: selectedStudent and shouldFetch
 
 
-   const studentOptions = studentData.map(student => ({
-    label: `${student.first_name} ${student.last_name}`,
-    value: student,
-  }));
+  //  const studentOptions = studentData.map(student => ({
+  //   label: `${student.first_name} ${student.last_name}`,
+  //   value: student,
+  // }));
+  const studentOptions = [
+    { label: "All Students", value: "all" }, // Add "All" option
+    ...studentData.map(student => ({
+      label: `${student.first_name} ${student.last_name}`,
+      value: student,
+    }))
+  ];
 
 
 const validDate = formValue.date ? new Date(formValue.date) : null;

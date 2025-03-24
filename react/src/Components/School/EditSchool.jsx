@@ -464,7 +464,7 @@ const handleEditSchool = async () => {
         
           <div className="col-md-6 student-profile-field">
             <label>Status:</label>
-            <div className="radio-btn">
+            <div className="radio-btn status_radioBTN">
               <div className="radio">
                 <input
                   type="radio"

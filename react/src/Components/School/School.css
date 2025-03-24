@@ -19,4 +19,8 @@
     border-radius: 50%;
     background-color: red; /* Red dot for inactive status */
   }
-  
+  .status_radioBTN{
+    position: relative !important;
+    margin-top: -23px !important;
+margin-left: 100px !important;
+}

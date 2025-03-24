@@ -485,7 +485,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
 
           <div className="col-md-6 student-profile-field">
             <FormControl>
-              <FormLabel id="license-exp-date-applicable">License Exp Date Applicable?</FormLabel>
+              <FormLabel id="license-exp-date-applicable">License Exp. Date Applicable?</FormLabel>
               <RadioGroup
                 aria-labelledby="license-exp-date-applicable"
                 name="controlled-radio-buttons-group"
@@ -501,7 +501,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
 
         <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>License Exp Date*</label>
+              <label>License Exp. Date*</label>
               <DatePicker
                 selected={licenseExpDate}
                 onChange={handleLicenseExpDateChangeDate}
@@ -568,8 +568,10 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                 />
               </div>
                 <div className="col-md-6 student-profile-field">
+               
                 <FormControl component="fieldset">
-                    <FormLabel component="legend">Bilingual</FormLabel>
+                    {/* <FormLabel component="legend"></FormLabel> */}
+                    <label>Bilingual:</label>
                     <RadioGroup
                       aria-labelledby="bilingual-radio-group"
                       name="bilingual-radio-group"
@@ -610,9 +612,11 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
               </div>
 
           <div className="stu-pro-field-div">
+            
             <div className="col-md-6 student-profile-field">
                 <FormControl component="fieldset">
-                  <FormLabel component="legend">Status:</FormLabel>
+                  {/* <FormLabel component="legend">Status:</FormLabel> */}
+                  <label>Status:</label>
                   <RadioGroup
                     aria-labelledby="status-radio-group"
                     name="status-radio-group"

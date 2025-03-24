@@ -788,12 +788,12 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No Notes Per Hr*</label>
+              <label>No. of  Notes Per hr.*</label>
               <input
                 type="text"
                 name="notesPerHour"
                 className="stu-pro-input-field"
-                placeholder="Enter No Notes Per Hr" value={notesPerHour} onChange={handlenotesPerHour}
+                placeholder="Enter No. of  Notes Per hour" value={notesPerHour} onChange={handlenotesPerHour}
               />
             </div>
 
@@ -899,13 +899,13 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Phone No:</label>
+              <label>Phone No. :</label>
               <input
                 type="text"
                 maxLength="12" 
                 name="phoneNumber"
                 className="stu-pro-input-field"
-                placeholder="Enter parent phone no." value={parent_phnumber} onChange={handleParentPHnumber}
+                placeholder="Enter Parent phone No." value={parent_phnumber} onChange={handleParentPHnumber}
               />
             </div>
           </div>
@@ -1050,7 +1050,7 @@ console.log(schools);
                       name="yearlyMandate"
                       className="stu-pro-input-field"
                       value={formData.yearlyMandate}
-                      placeholder="Enter yearly mandate"
+                      placeholder="Enter Yearly Mandate"
                       onChange={(e) => handleInputChange(index, 'yearlyMandate', e.target.value)}
                     />
                   </div>

@@ -737,7 +737,7 @@ const fetchProviderDetails = async () => {
 
             <div className="col-md-6 student-profile-field">
               <FormControl>
-                <FormLabel id="license-exp-date-applicable">License Exp Date Applicable?</FormLabel>
+                <FormLabel id="license-exp-date-applicable">License Exp. Date Applicable?</FormLabel>
                 <RadioGroup
                   aria-labelledby="license-exp-date-applicable"
                   name="controlled-radio-buttons-group"
@@ -753,12 +753,12 @@ const fetchProviderDetails = async () => {
 
          <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>License Exp Date*</label>
+              <label>License Exp. Date*</label>
                 <DatePicker
                     value={licenseExpDate} // Bind the selected date to the DatePicker
                     onChange={handleLicenseExpDateChangeDate} // Handle the change of the date
                     format="MM/dd/yyyy" 
-                    placeholder="License Exp Date"
+                    placeholder="License Exp. Date"
                    // Format the date to "DD/MM/YYYY"
                     style={{ width: "100%", height: "45px" }}
                 />
@@ -821,7 +821,8 @@ const fetchProviderDetails = async () => {
           </div>
             <div className="col-md-6 student-profile-field">
               <FormControl component="fieldset">
-                <FormLabel component="legend">Bilingual</FormLabel>
+                {/* <FormLabel component="legend">Bilingual</FormLabel> */}
+                <label>Bilingual:</label>
                 <RadioGroup
                   aria-labelledby="bilingual-radio-group"
                   name="bilingual-radio-group"
@@ -864,7 +865,8 @@ const fetchProviderDetails = async () => {
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
                 <FormControl component="fieldset">
-                  <FormLabel component="legend">Status:</FormLabel>
+                  {/* <FormLabel component="legend">Status:</FormLabel> */}
+                  <label>Status:</label>
                   <RadioGroup
                     aria-labelledby="status-radio-group"
                     name="status-radio-group"

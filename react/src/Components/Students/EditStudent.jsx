@@ -1245,7 +1245,7 @@ useEffect(() => {
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Phone No:</label>
+              <label>Phone No. :</label>
               <input
                 type="text"
                 name="phoneNumber"
@@ -1421,7 +1421,7 @@ useEffect(() => {
                       name="yearlyMandate"
                       className="stu-pro-input-field"
                       value={formData.yearlyMandate}
-                      placeholder="Enter yearly mandate"
+                      placeholder="Enter Yearly Mandate"
                       onChange={(e) => handleInputChange(index, 'yearlyMandate', e.target.value)}
                     />
                   </div>
