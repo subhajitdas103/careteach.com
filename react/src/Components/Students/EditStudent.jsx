@@ -214,6 +214,7 @@ const fetchAssignedProviderDetails = async () => {
 
     useEffect(() => {
       setSelectedSchool(student?.school_name || "");
+      setSelectedSchoolID(student?.id || "");
     }, [student]);
     
     const [home_address, setHomeaddress] = useState(student?.home_address || '');
@@ -655,7 +656,7 @@ useEffect(() => {
    const handleSchoolChange = (schoolName , id) => {
     setSelectedSchool(schoolName);
     setSelectedSchoolID(id);
-    console.log('Selected school:', schoolName); 
+    console.log('Selected school:', id); 
   };
 
     return (
@@ -932,7 +933,7 @@ useEffect(() => {
                     multiple={false} 
                     fileList={fileList}// Ensure only one file can be uploaded
                     onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
-                    disabled={true}
+                    // disabled={true}
                     >
                     <Button>Select IEP Document</Button>
                     </Uploader>

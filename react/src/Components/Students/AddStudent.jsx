@@ -632,7 +632,7 @@ console.log(schools);
                   multiple={false} 
                   fileList={fileList}// Ensure only one file can be uploaded
                   onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
-                  disabled={true}
+                  // disabled={true}
                   >
                   <Button>Select IEP Document</Button>
                   </Uploader>

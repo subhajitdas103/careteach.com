@@ -1226,9 +1226,9 @@ const handleSessionClick = (event) => {
     if (!Array.isArray(confirmSession)) return;
 
     const isConfirmed = confirmSession.some(item => item.single_session_id === event.id);
-    // console.log("Immediate valueToSet:", isConfirmed ? 1 : 0);
-    // console.log("confirmSession:", confirmSession);
-    // console.log("single_session_autoID:", event.id);
+    console.log("Immediate valueToSet:", isConfirmed ? 1 : 0);
+    console.log("confirmSession:", confirmSession);
+    console.log("single_session_autoID:", event.id);
 
     if (isConfirmed) {
 
@@ -1243,9 +1243,9 @@ const handleSessionClick = (event) => {
     eventDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
 
-    // console.log("startTimeConfirmSession:", startTimeConfirmSession);
-    // console.log("endTimeConfirmSession:", endTimeConfirmSession);
-    // console.log("user_role_id:", user_role_id);
+    console.log("startTimeConfirmSession:", startTimeConfirmSession);
+    console.log("endTimeConfirmSession:", endTimeConfirmSession);
+    console.log("user_role_id:", user_role_id);
 
     // Close other modals before opening a new one
     setShowModalConfirmSession(false);
