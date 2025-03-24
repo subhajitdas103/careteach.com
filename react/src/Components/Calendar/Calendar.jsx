@@ -151,7 +151,14 @@ console.log("ddddddddLine 121d",confirmSession);
       const response = await axios.get(`${backendUrl}/api/SingleSession/${userRollID}/${userRollName}`);
       const data = response.data; // Axios automatically parses JSON
       // Transform the data to match the events structure
-      const formattedEvents = data.map((session) => {
+      const formattedEvents = data
+      .filter(session => {
+        return selectedStudent && selectedStudent.id
+          ? session.student_id === selectedStudent.id
+          : true; // Show all if no student is selected
+      })
+      
+      .map((session) => {
 
 
         // if (!session) return null;
@@ -806,7 +813,7 @@ useEffect(() => {
         Friday: 5,
         Saturday: 6,
       };
-
+        // ==========Select a student in calender as per student select ===========
       const formattedEvents = data
         .filter(session => {
           return selectedStudent && selectedStudent.id
@@ -1533,7 +1540,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
                 toolbar: ({ label }) => (
                   <div className="custom-toolbar">
                   <i
-                  className="fa fa-backward fc-back-icon_calendar"
+                  className="fa fa-backward fc-back-icon fc-back-icon_calendar"
                   aria-hidden="true"
                   id="back_provider_click"
                   onClick={backtodashboard}

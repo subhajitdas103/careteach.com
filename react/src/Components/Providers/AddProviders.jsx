@@ -344,6 +344,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                     selected={selectedDate} 
                     onChange={handleDateChange} 
                     style={{ width: "100%", height: "45px" }}
+                       format="MM/dd/yyyy"
                   />
                 </div>
                 <div className="col-md-6 student-profile-field">
@@ -507,6 +508,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                 className=""
                 placeholdertext="Enter License Exp Date"
                 style={{ width: '100%', height: '45px' }}
+                format="MM/dd/yyyy"
               />
             </div>
 
@@ -562,6 +564,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                   className=""
                   placeholdertext="Enter PETS Approval Date"
                   style={{ width: '100%', height: '45px' }}
+                  format="MM/dd/yyyy"
                 />
               </div>
                 <div className="col-md-6 student-profile-field">
@@ -623,11 +626,10 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
             </div>
           </div>
      </div>
-
         <div>
-              <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
-              <ToastContainer />
-            </div>
+          <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
+          <ToastContainer />
+        </div>
       </header>
     </div>
   );

@@ -126,21 +126,61 @@ const fetchAssignedProviderDetails = async () => {
     setFormDataList(updatedFormDataList);
   };
 
+  // const addService = () => {
+  //   setFormDataList([
+  //     ...formDataList,
+  //     { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true}
+  //   ]);
+  // };
+
+
   const addService = () => {
+
+    const lastService = formDataList[formDataList.length - 1];
+  
+    // Check if all required fields are filled (ensure numbers like 0 are allowed)
+    if (
+      lastService &&
+      (!lastService.service_type ||
+        !lastService.startDate ||
+        !lastService.endDate ||
+        lastService.weeklyMandate === "" ||  // Ensure empty string is blocked, but allow 0
+        lastService.yearlyMandate === "")
+    ) {
+      toast.error("Please complete the current service before adding a new one.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+  
+    // Add new service if validation passes
     setFormDataList([
       ...formDataList,
-      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true}
+      { id: '', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true }
     ]);
   };
+  
+  // const addService = () => {
+   
+  
+  //   // Add new service if validation passes
+  //   setFormDataList([
+  //     ...formDataList,
+  //     { id: '', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true }
+  //   ]);
+  // };
+  
 
   const removeService = (id) => {
-    if(id == '') {
-     setFormDataList((prevFormDataList) =>
+    if(!id) {
+      setFormDataList((prevFormDataList) =>
         prevFormDataList?.filter((service) => service.id !== id)
     );
     setStudentServices((prevServices) =>
         prevServices?.filter((service) => service.id !== id)
     );
+    return;
   }
     console.log("Attempting to delete service with ID:", id);
 
@@ -164,8 +204,12 @@ const fetchAssignedProviderDetails = async () => {
         })
         .catch((error) => {
             if (error.response) {
-              if (error.response.status === 404 && error.response.data.message.includes("The route api/DeleteStudentService could not be found")) {
-                return; // Do nothing (hides this error)
+              if (
+                error.response.status === 404 &&
+                (error.response.data.message.includes("The route api/DeleteStudentService could not be found") ||
+                 error.response.data.message.includes("An unexpected error occurred."))
+            ) {
+                return; 
             }
                 console.error('Error deleting service (response):', error.response);
 
@@ -177,14 +221,7 @@ const fetchAssignedProviderDetails = async () => {
 
             }
             
-            // else if (error.request) {
-            //     console.error('Error deleting service (request):', error.request);
-            //     toast.error("No response from server. Please try again.", {
-            //         position: "top-right",
-            //         autoClose: 5000,
-            //     });
-
-            // } 
+      
             
             else {
                 console.error('Error deleting service (message):', error.message);
@@ -1328,7 +1365,7 @@ useEffect(() => {
                   </div>
 
                   <div className="col-md-6 student-profile-field widthcss">
-                      <label>Start Date:</label>
+                      <label>Start Date*</label>
                       <DatePicker
                         className=""
                         value={formData.startDate ? new Date(formData.startDate) : null} 
@@ -1339,6 +1376,7 @@ useEffect(() => {
                             handleInputChange(index, 'startDate', formattedStartDate);  // Handle Date object change
                         }}
                         style={{ width: '100%' }}  // Optional: Set width to match the input field's size
+                        format="MM/dd/yyy"
                      />
                   </div>
                   {/* -------Delete Button of services----------- */}
@@ -1348,7 +1386,7 @@ useEffect(() => {
                 
                 <div className="stu-pro-field-div">
                     <div className="col-md-6 student-profile-field widthcss">
-                        <label>End Date:</label>
+                        <label>End Date:*</label>
                         <DatePicker
                             className=""
                             value={formData.endDate ? new Date(formData.endDate) : null}  // Convert string to Date object if needed
@@ -1357,6 +1395,7 @@ useEffect(() => {
                               const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
                               handleInputChange(index, 'endDate', formattedEndDate)}}  // Handle Date object change
                             style={{ width: '100%', height: '45px' }}  // Optional: Set height and width
+                            format="MM/dd/yyy"
                         />
                     </div>
 

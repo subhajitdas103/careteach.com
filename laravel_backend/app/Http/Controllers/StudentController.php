@@ -310,13 +310,13 @@ public function DeleteStudent($id)
                 'parent_type' => 'nullable|string|max:255',
     
                 // Service validation
-                'services' => 'nullable|array',
+                'services' => 'required|array',
                 'services.*.id' => 'nullable|integer',
-                'services.*.service_type' => 'nullable|string|max:255',
-                'services.*.startDate' => 'nullable|string|max:255',
-                'services.*.endDate' => 'nullable|string|max:255',
-                'services.*.weeklyMandate' => 'nullable|numeric',
-                'services.*.yearlyMandate' => 'nullable|numeric',
+                'services.*.service_type' => 'required|string|max:255',
+                'services.*.startDate' => 'required|string|max:255',
+                'services.*.endDate' => 'required|string|max:255',
+                'services.*.weeklyMandate' => 'required|numeric',
+                'services.*.yearlyMandate' => 'required|numeric',
             ]);
     
             $student = Students::findOrFail($id);

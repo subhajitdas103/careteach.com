@@ -316,6 +316,9 @@ public function deleteProvider($id)
             if (!$providers) {
                 return response()->json(['message' => 'Providers not found'], 404);
             }
+
+             // Delete users with matching role_id
+            $deletedUsers = User::where('roll_id', $id)->delete();
             $providers->delete();
 
             return response()->json(['message' => 'Providers deleted successfully'], 200);

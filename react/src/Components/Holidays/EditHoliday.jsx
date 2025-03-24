@@ -104,7 +104,7 @@ const EditHoliday = () => {
                     <div className="row dashbord-list personal-profile">
                         <div className="stu-pro-field-div">
                             <div className="col-md-6 student-profile-field">
-                                <label>Name:</label>
+                                <label>Name*</label>
                                 <input
                                     type="text"
                                     className="stu-pro-input-field sch-dropbtn"
@@ -118,7 +118,7 @@ const EditHoliday = () => {
 
                         <div className="stu-pro-field-div">
                             <div className="col-md-6 student-profile-field">
-                                <label>Start Date:</label>
+                                <label>Start Date*</label>
                                 <DatePicker
                                     value={startDate}
                                     placeholder="Select Start Date"
@@ -129,7 +129,7 @@ const EditHoliday = () => {
                             </div>
 
                             <div className="col-md-6 student-profile-field">
-                                <label>End Date:</label>
+                                <label>End Date*</label>
                                 <DatePicker
                                     value={endDate}
                                     placeholder="Select End Date"
