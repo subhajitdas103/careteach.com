@@ -448,12 +448,13 @@ $newName = $request->input('first_name') . ' ' . $request->input('last_name');
         'status' => $request->input('status'),
     ];
 
-    // Update the provider's details
-    $provider->update($dataToUpdate);
-
     if ($oldName !== $newName) {
         AssignProviderModel::where('provider_id', $id)->update(['provider_name' => $newName]);
     }
+    // Update the provider's details
+    $provider->update($dataToUpdate);
+
+   
 
     return response()->json(['message' => 'Provider updated successfully'], 200);
 }

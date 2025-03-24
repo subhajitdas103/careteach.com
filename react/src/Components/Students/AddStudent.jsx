@@ -128,7 +128,8 @@ const removeService = (index) => {
   const handleCheckboxChange = (e) => {
     setResolutionInvoice(e.target.checked);
   };
-  const [selectedSchool, setSelectedSchool] = useState('')
+  const [selectedSchool, setSelectedSchool] = useState('');
+  const [selectedSchoolID, setSelectedSchoolID] = useState('');
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
     const [grade, setGrade] = useState('');
@@ -297,8 +298,11 @@ const removeService = (index) => {
 console.log(schools);
 // ===========================================================
 
- const handleSchoolChange = (schoolName) => {
+ const handleSchoolChange = (schoolName , id) => {
+  console.log("Selected School ID:", id);
+  // console.log("Selected School Name:", name);
   setSelectedSchool(schoolName);
+  setSelectedSchoolID(id);
   console.log('Selected school:', schoolName); 
 };
     // ===================================================================
@@ -371,6 +375,7 @@ console.log(schools);
         parent_type,
         services: formDataList,
         userRollID,
+        selectedSchoolID,
       };
       try {
         const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
@@ -467,7 +472,7 @@ console.log(schools);
                       <li key={school.id}>
                         <button
                           className="dropdown-item"
-                          onClick={() => handleSchoolChange(school.school_name)}>
+                          onClick={() => handleSchoolChange(school.school_name , school.id,)}>
                           {school.school_name} {/* Ensure this is a string */}
                         </button>
                       </li>

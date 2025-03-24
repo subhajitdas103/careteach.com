@@ -210,6 +210,7 @@ const fetchAssignedProviderDetails = async () => {
     const [grade, setGrade] = useState("");
     // const [school_name, setSchoolName] = useState(student?.school_name || '');
     const [selectedSchool, setSelectedSchool] = useState(student?.school_name || "");
+    const [selectedSchoolID, setSelectedSchoolID] = useState(student?.id|| "");
 
     useEffect(() => {
       setSelectedSchool(student?.school_name || "");
@@ -543,6 +544,7 @@ useEffect(() => {
         parent_email,
         parent_phnumber,
         parent_type,
+        selectedSchoolID,
         // Add formDataList here to send the dynamic fields
         services: formDataList, // This includes all the dynamically added service forms
       };
@@ -650,9 +652,9 @@ useEffect(() => {
   console.log("hhhhhhhh",schools);
   // ===========================================================
   
-   const handleSchoolChange = (schoolName) => {
+   const handleSchoolChange = (schoolName , id) => {
     setSelectedSchool(schoolName);
-   
+    setSelectedSchoolID(id);
     console.log('Selected school:', schoolName); 
   };
 
@@ -761,24 +763,24 @@ useEffect(() => {
                   {selectedSchool || "Choose School"} {/* Display selected school or default text */}
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-  {schools.length > 0 ? (
-    schools.map((school) => {
-      console.log("Rendering school:", school.school_name); // Debugging
-      return (
-        <li key={school.id}>
-          <button
-            className="dropdown-item"
-            onClick={() => handleSchoolChange(school.school_name)}
-          >
-            {school.school_name}
-          </button>
-        </li>
-      );
-    })
-  ) : (
-    <li><span className="dropdown-item">No schools available</span></li>
-  )}
-</ul>
+                {schools.length > 0 ? (
+                  schools.map((school) => {
+                    console.log("Rendering school:", school.school_name); // Debugging
+                    return (
+                      <li key={school.id}>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleSchoolChange(school.school_name , school.id)}
+                        >
+                          {school.school_name}
+                        </button>
+                      </li>
+                    );
+                  })
+                ) : (
+                <li><span className="dropdown-item">No schools available</span></li>
+              )}
+            </ul>
 
               </div>
             </div>
