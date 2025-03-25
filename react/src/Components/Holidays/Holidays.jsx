@@ -90,14 +90,14 @@ const Holidays = () => {
   return (
     <div className="dashbord-container">
        {loading ? (
-              <div className="loader-container">
-                <div className="loader-content">
-                  <img src={logo} alt="Loading..." className="logo-loader" />
-                  <PropagateLoader color="#3498db" size={10} />
-                </div>
-              </div>
-            ) : (
-              <>
+        <div className="loader-container">
+          <div className="loader-content">
+            <img src={logo} alt="Loading..." className="logo-loader" />
+            <PropagateLoader color="#3498db" size={10} />
+          </div>
+        </div>
+      ) : (
+      <>
       <div className="row dashbord-list">
         <div className="heading-text">
           <h3 style={{ marginTop: "-42px" }}>Holidays</h3>

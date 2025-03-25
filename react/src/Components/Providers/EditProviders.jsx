@@ -18,6 +18,9 @@ import ClipLoader from "react-spinners/ClipLoader";
 import BeatLoader from "react-spinners/BeatLoader";
 import "react-loading-skeleton/dist/skeleton.css";
 import Skeleton from "react-loading-skeleton";
+import { PropagateLoader } from "react-spinners";
+// import logo from "../assets/logo.png"; 
+import logo from "../../Assets/logo.png";
 const EditProviders = () => {
 const [loading, setLoading] = useState(true);
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -487,63 +490,17 @@ const fetchProviderDetails = async () => {
   }, [ProviderID]);
     // ================================================
 
-
-
-
-
   return (
   <div className="dashbord-container">
-       {loading ? (
-     <div className="dashbord-container">
-     <div className="row dashbord-list">
-       <div className="heading-text">
-         <h3>
-           <Skeleton width={150} height={30} />
-         </h3>
-         <p>
-           <Skeleton width={200} height={20} />
-         </p>
-       </div>
-
-       <div className="row dashbord-list">
-         <div className="stu-pro-field-div">
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={100} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-           </div>
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={100} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-           </div>
-         </div>
-
-         <div className="stu-pro-field-div">
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={120} height={20} /></label>
-             <Skeleton height={45} width={'100%'} />
-           </div>
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={80} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-             <p className="error-message"><Skeleton width={150} height={15} /></p>
-           </div>
-         </div>
-
-         <div className="stu-pro-field-div">
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={80} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-           </div>
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={80} height={20} /></label>
-             <Skeleton height={80} width={'100%'} />
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
-      ) : (
-        <>
+      {loading ? (
+      <div className="loader-container">
+        <div className="loader-content">
+          <img src={logo} alt="Loading..." className="logo-loader" />
+          <PropagateLoader color="#3498db" size={10} />
+        </div>
+      </div>
+    ) : (
+    <>
       <header>
         <div className="row dashbord-list">
           <div className="heading-text personal-info-text">
