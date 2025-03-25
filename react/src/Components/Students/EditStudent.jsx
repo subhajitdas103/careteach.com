@@ -790,7 +790,7 @@ useEffect(() => {
             
 
               <div className="col-md-6 student-profile-field widthcss">
-              <label>School Name:</label>
+              <label>School Name*</label>
               <div className="dropdown">
                 <button
                   className="btn btn-secondary dropdown-toggle stu-pro-input-field"
@@ -1132,12 +1132,12 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No Notes Per Hr:</label>
+              <label>No. of Notes Per Hour:</label>
               <input
                 type="text"
                 name="notesPerHour"
                 className="stu-pro-input-field"
-                placeholder="Enter No Notes Per Hr" value={notesPerHour} onChange={handlenotesPerHour}
+                placeholder="Enter No. Notes Per Hour" value={notesPerHour} onChange={handlenotesPerHour}
               />
             </div>
 
@@ -1148,6 +1148,7 @@ useEffect(() => {
                 name="resolutionInvoice"
                 checked={resolutionInvoice}
                 onChange={handleCheckboxChange}
+                style={{ height: "20px", width: "20px" }}
               />
             </div>
           </div>
@@ -1155,7 +1156,7 @@ useEffect(() => {
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
             <label>Status:</label>
-            <div className="radio-btn">
+            <div className="radio-btn statusinaddstaudent">
               <div className="radio">
                 <input
                   type="radio"
@@ -1250,7 +1251,7 @@ useEffect(() => {
                 type="text"
                 name="phoneNumber"
                 className="stu-pro-input-field"
-                placeholder="Enter parent phone no." value={parent_phnumber} onChange={handleParentPHnumber}
+                placeholder="Enter Parent Phone No." value={parent_phnumber} onChange={handleParentPHnumber}
               />
             </div>
           </div>

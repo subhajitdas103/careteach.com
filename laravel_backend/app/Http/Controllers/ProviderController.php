@@ -243,7 +243,7 @@ public function addprovider(Request $request)
             'name' => $validatedData['first_name'] . ' ' . $validatedData['last_name'],
             'roll_id' => $Providers->id, // Add the provider ID to the user
             'roll_name' => 'Provider', // Hardcoded value
-            'password' => '$2y$10$sutLVVseLu.mVlhv8nPS2uiYSEENNQJPFm1dqPopbHAP4PlzjLe2u',
+            'password' => '$2y$10$FIJthcyu2R3/FA8HUcAvQe0impaNW2HlewVdmIuR9SosR8stXNH/K',
         ]);
 
         return response()->json(['message' => 'Student data saved successfully!'], 201);

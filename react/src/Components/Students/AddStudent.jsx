@@ -788,12 +788,12 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No. of  Notes Per hr.*</label>
+              <label>No. of Notes Per Hour.*</label>
               <input
                 type="text"
                 name="notesPerHour"
                 className="stu-pro-input-field"
-                placeholder="Enter No. of  Notes Per hour" value={notesPerHour} onChange={handlenotesPerHour}
+                placeholder="Enter No. of  Notes Per Hour" value={notesPerHour} onChange={handlenotesPerHour}
               />
             </div>
 
@@ -804,6 +804,7 @@ console.log(schools);
                 name="resolutionInvoice"
                 checked={resolutionInvoice}
                 onChange={handleCheckboxChange}
+                style={{ height: "20px", width: "20px" }}
               />
             </div>
           </div>
@@ -811,7 +812,7 @@ console.log(schools);
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
             <label>Status:</label>
-            <div className="radio-btn">
+            <div className="radio-btn statusinaddstaudent">
               <div className="radio">
                 <input
                   type="radio"
@@ -905,7 +906,7 @@ console.log(schools);
                 maxLength="12" 
                 name="phoneNumber"
                 className="stu-pro-input-field"
-                placeholder="Enter Parent phone No." value={parent_phnumber} onChange={handleParentPHnumber}
+                placeholder="Enter Parent Phone No." value={parent_phnumber} onChange={handleParentPHnumber}
               />
             </div>
           </div>
