@@ -821,6 +821,7 @@ const openModalAssignProvider = (id, name) => {
 <div>
     <ToastContainer />
     <div className="dashbord-container">
+      
       <div className="row dashbord-list">
         <div className="heading-text">
         <h3>Services and Provider for - {studentDetails?.first_name} {studentDetails?.last_name}</h3>

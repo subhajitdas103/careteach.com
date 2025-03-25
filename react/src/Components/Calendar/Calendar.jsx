@@ -1596,7 +1596,7 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
                       </div>
                     )}
     
-                    <div className="card flex justify-content-center" style={{ width: '225px', margin: '-2px 10px' }}>
+                    <div className="card flex justify-content-center" style={{ width: '225px', margin: '6px 10px' }}>
                       <PrimeReactDropdown
                         value={selectedStudent}
                         onChange={(e) => setSelectedStudent(e.value)}
