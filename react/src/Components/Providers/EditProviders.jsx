@@ -18,6 +18,9 @@ import ClipLoader from "react-spinners/ClipLoader";
 import BeatLoader from "react-spinners/BeatLoader";
 import "react-loading-skeleton/dist/skeleton.css";
 import Skeleton from "react-loading-skeleton";
+import { PropagateLoader } from "react-spinners";
+// import logo from "../assets/logo.png"; 
+import logo from "../../Assets/logo.png";
 const EditProviders = () => {
 const [loading, setLoading] = useState(true);
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -487,63 +490,17 @@ const fetchProviderDetails = async () => {
   }, [ProviderID]);
     // ================================================
 
-
-
-
-
   return (
   <div className="dashbord-container">
-       {loading ? (
-     <div className="dashbord-container">
-     <div className="row dashbord-list">
-       <div className="heading-text">
-         <h3>
-           <Skeleton width={150} height={30} />
-         </h3>
-         <p>
-           <Skeleton width={200} height={20} />
-         </p>
-       </div>
-
-       <div className="row dashbord-list">
-         <div className="stu-pro-field-div">
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={100} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-           </div>
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={100} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-           </div>
-         </div>
-
-         <div className="stu-pro-field-div">
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={120} height={20} /></label>
-             <Skeleton height={45} width={'100%'} />
-           </div>
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={80} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-             <p className="error-message"><Skeleton width={150} height={15} /></p>
-           </div>
-         </div>
-
-         <div className="stu-pro-field-div">
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={80} height={20} /></label>
-             <Skeleton height={40} width={'100%'} />
-           </div>
-           <div className="col-md-6 student-profile-field">
-             <label><Skeleton width={80} height={20} /></label>
-             <Skeleton height={80} width={'100%'} />
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
-      ) : (
-        <>
+      {loading ? (
+      <div className="loader-container">
+        <div className="loader-content">
+          <img src={logo} alt="Loading..." className="logo-loader" />
+          <PropagateLoader color="#3498db" size={10} />
+        </div>
+      </div>
+    ) : (
+    <>
       <header>
         <div className="row dashbord-list">
           <div className="heading-text personal-info-text">
@@ -587,18 +544,17 @@ const fetchProviderDetails = async () => {
             </div>
           </div>
 
-          <div className="stu-pro-field-div">
+           <div className="stu-pro-field-div">
                 <div className="col-md-6 student-profile-field ">
                   <label>Date of Birth:</label>
                   <DatePicker
                     value={selectedDate} // Bind the selected date to the DatePicker
                     onChange={handleDateChange}
-                    format="dd/MM/yyyy" // Set the date format to "DD/MM/YYYY"
+                    format="MM/dd/yyyy" // Set the date format to "DD/MM/YYYY"
                     placeholder="Enter Date of Birth"
                     style={{ width: "100%", height: "45px" }}
-                />
-
-  
+                
+                />  
                 </div>
                 <div className="col-md-6 student-profile-field">
                   <label>Email*</label>
@@ -613,7 +569,7 @@ const fetchProviderDetails = async () => {
                 </div>
           </div>
 
-          <div className="stu-pro-field-div">
+         <div className="stu-pro-field-div">
               <div className="col-md-6 student-profile-field">
                 <label>Phone*</label>
                 <input
@@ -700,45 +656,45 @@ const fetchProviderDetails = async () => {
           </div>
 
 
-  <div className="stu-pro-field-div">
-      <div className="col-md-6 student-profile-field">
-          <label>Grades Approved for*</label>
-          <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
-            {selectedGrades.length > 0 ? selectedGrades.join(', ') : 'Choose Grades'}
-          </Button>
-          <Popover
-            id={id}
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleCloseDropdown}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-          >
-            <List>
-              {['A', 'B', 'C'].map((grade) => (
-                <ListItem key={grade}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={selectedGrades.includes(grade)}
-                        onChange={handleGradeChange}
-                        name={grade}
-                      />
-                    }
-                    label={grade}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Popover>
-      </div>
-            
+         <div className="stu-pro-field-div">
+            <div className="col-md-6 student-profile-field">
+                <label>Grades Approved for*</label>
+                <Button className="gradesCSS" onClick={handleDropdownClick} variant="outlined" fullWidth>
+                  {selectedGrades.length > 0 ? selectedGrades.join(', ') : 'Choose Grades'}
+                </Button>
+                <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={anchorEl}
+                  onClose={handleCloseDropdown}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                >
+                  <List>
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'K'].map((grade) => (
+                      <ListItem key={grade}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={selectedGrades.includes(grade)}
+                              onChange={handleGradeChange}
+                              name={grade}
+                            />
+                          }
+                          label={grade}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Popover>
+            </div>
+                  
 
             <div className="col-md-6 student-profile-field">
               <FormControl>
-                <FormLabel id="license-exp-date-applicable">License Exp Date Applicable?</FormLabel>
+                <FormLabel id="license-exp-date-applicable">License Exp. Date Applicable?</FormLabel>
                 <RadioGroup
                   aria-labelledby="license-exp-date-applicable"
                   name="controlled-radio-buttons-group"
@@ -752,111 +708,122 @@ const fetchProviderDetails = async () => {
             </div>
           </div>
 
-        <div className="stu-pro-field-div">
+         <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>License Exp Date*</label>
+              <label>License Exp. Date*</label>
                 <DatePicker
                     value={licenseExpDate} // Bind the selected date to the DatePicker
                     onChange={handleLicenseExpDateChangeDate} // Handle the change of the date
-                    format="dd/MM/yyyy" 
-                    placeholder="License Exp Date"
+                    format="MM/dd/yyyy" 
+                    placeholder="License Exp. Date"
                    // Format the date to "DD/MM/YYYY"
                     style={{ width: "100%", height: "45px" }}
                 />
             </div>
 
                
-        <div className="col-md-6 student-profile-field">
-          <label>Pet Status:</label>
-          <div className="dropdown">
-            <button
-              className="btn btn-secondary dropdown-toggle stu-pro-input-field"
-              type="button"
-              id="dropdownMenuButton"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              {petStatus}
-            </button>
-            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <li>
+            <div className="col-md-6 student-profile-field">
+              <label>Pet Status:</label>
+              <div className="dropdown">
                 <button
-                  className="dropdown-item"
-                  onClick={() => handlePetStatusChange("Service A")}
+                  className="btn btn-secondary dropdown-toggle stu-pro-input-field"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
                 >
-                  Service A
+                  {petStatus}
                 </button>
-              </li>
-              <li>
-                <button
-                  className="dropdown-item"
-                  onClick={() => handlePetStatusChange("Service B")}
-                >
-                  Service B
-                </button>
-              </li>
-            </ul>
-          </div>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handlePetStatusChange("Pending")}
+                    >
+                      Pending
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handlePetStatusChange("Approved")}
+                    >
+                      Approved
+                    </button>
+                  </li>
+
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => handlePetStatusChange("Declined")}
+                    >
+                      Declined
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
         </div>
-      </div>
         
         <div className="stu-pro-field-div">
-              <div className="col-md-6 student-profile-field">
-                <label>PETS Approval Date*</label>
-                <DatePicker
-                    value={petsApprovalDate}
-                    onChange={handlePetsApprovalDateChange} // Handle the change of the date
-                    placeholder="Enter PETS Approval Date"
-                    format="dd/MM/yyyy" // Format the date to "DD/MM/YYYY"
-                    style={{ width: "100%", height: "45px" }}
-                />
-              </div>
-                <div className="col-md-6 student-profile-field">
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">Bilingual</FormLabel>
-                    <RadioGroup
-                      aria-labelledby="bilingual-radio-group"
-                      name="bilingual-radio-group"
-                      value={bilingual}
-                      onChange={handleBilingualChange}
-                    >
-                      <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
-                      <FormControlLabel value="No" control={<Radio />} label="No" />
-                    </RadioGroup>
-                  </FormControl>
-                </div>
+          <div className="col-md-6 student-profile-field">
+            <label>PETS Approval Date*</label>
+            <DatePicker
+                value={petsApprovalDate}
+                onChange={handlePetsApprovalDateChange} // Handle the change of the date
+                placeholder="Enter PETS Approval Date"
+                format="MM/dd/yyyy" // Format the date to "DD/MM/YYYY"
+                style={{ width: "100%", height: "45px" }}
+            />
+          </div>
+            <div className="col-md-6 student-profile-field">
+              <FormControl component="fieldset">
+                {/* <FormLabel component="legend">Bilingual</FormLabel> */}
+                <label>Bilingual:</label>
+                <RadioGroup
+                  aria-labelledby="bilingual-radio-group"
+                  name="bilingual-radio-group"
+                  value={bilingual}
+                  onChange={handleBilingualChange}
+                >
+                  <FormControlLabel value="Yes" control={<Radio />} label="Yes" />
+                  <FormControlLabel value="No" control={<Radio />} label="No" />
+                </RadioGroup>
+              </FormControl>
+            </div>
         </div>
 
             <div className="stu-pro-field-div">
-                  <div className="col-md-6 student-profile-field attachmentcss">
-                    <label htmlFor="ssn-input">Social Security Number*</label>
-                    <input
-                      id="ssn-input"
-                      type="text"
-                      value={ssNumber}
-                      onChange={handleSSnumberChange}
-                      className="stu-pro-input-field"
-                      placeholder="Enter SSN"
-                      maxLength="10"
-                    />
-                     {error && <p style={{ color: 'red', fontSize: '12px' }}>{error}</p>}
-                </div>
-                <div className="col-md-6 student-profile-field  attachmentcss">
-                  <label>Notes:</label>
-                  <input
-                    type="text"
-                    className="stu-pro-input-field"
-                    placeholder="Enter Some Notes"
-                    value={notes} 
-                    onChange={handleNotesChange} 
-                  />
-                </div>
+              <div className="col-md-6 student-profile-field attachmentcss">
+                <label htmlFor="ssn-input">Social Security Number*</label>
+                <input
+                  id="ssn-input"
+                  type="text"
+                  value={ssNumber}
+                  onChange={handleSSnumberChange}
+                  className="stu-pro-input-field"
+                  placeholder="Enter SSN"
+                  maxLength="10"
+                />
+                {error && <p style={{ color: 'red', fontSize: '12px' }}>{error}</p>}
               </div>
+              <div className="col-md-6 student-profile-field  attachmentcss">
+                <label>Notes:</label>
+                <input
+                  type="text"
+                  className="stu-pro-input-field"
+                  placeholder="Enter Some Notes"
+                  value={notes} 
+                  onChange={handleNotesChange} 
+                />
+              </div>
+            </div>
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
                 <FormControl component="fieldset">
-                  <FormLabel component="legend">Status:</FormLabel>
+                  {/* <FormLabel component="legend">Status:</FormLabel> */}
+                  <label>Status:</label>
                   <RadioGroup
                     aria-labelledby="status-radio-group"
                     name="status-radio-group"
@@ -871,10 +838,10 @@ const fetchProviderDetails = async () => {
           </div>
       </div>
 
-        <div>
-              <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
-              <ToastContainer />
-            </div>
+      <div>
+        <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save  Provider</button>
+        <ToastContainer />
+      </div>
     </header>
       </>
       )}

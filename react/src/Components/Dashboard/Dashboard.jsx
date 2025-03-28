@@ -90,8 +90,8 @@ const Dashboard = () => {
             <DashboardCard
               title="Holidays"
               iconClass="fa-glass-cheers"
-              onClick={() => alert("Coming Soon..")}
-              disabled
+              onClick={() => navigate("/Holidays")}
+             
             />
           )}
 

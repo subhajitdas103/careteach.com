@@ -243,7 +243,7 @@ public function addprovider(Request $request)
             'name' => $validatedData['first_name'] . ' ' . $validatedData['last_name'],
             'roll_id' => $Providers->id, // Add the provider ID to the user
             'roll_name' => 'Provider', // Hardcoded value
-            'password' => '$2y$10$sutLVVseLu.mVlhv8nPS2uiYSEENNQJPFm1dqPopbHAP4PlzjLe2u',
+            'password' => '$2y$10$FIJthcyu2R3/FA8HUcAvQe0impaNW2HlewVdmIuR9SosR8stXNH/K',
         ]);
 
         return response()->json(['message' => 'Student data saved successfully!'], 201);
@@ -316,6 +316,9 @@ public function deleteProvider($id)
             if (!$providers) {
                 return response()->json(['message' => 'Providers not found'], 404);
             }
+
+             // Delete users with matching role_id
+            $deletedUsers = User::where('roll_id', $id)->delete();
             $providers->delete();
 
             return response()->json(['message' => 'Providers deleted successfully'], 200);
@@ -415,6 +418,16 @@ public function updateProvider($id, Request $request)
         return response()->json(['error' => 'Email is already associated with another provider.'], 400);
     }
 
+  
+
+// Get old name
+$oldName = $provider->provider_first_name . ' ' . $provider->provider_last_name;
+
+// Get new name from request
+$newName = $request->input('first_name') . ' ' . $request->input('last_name');
+
+
+
     // Map request fields directly to database columns
     $dataToUpdate = [
         'provider_first_name' => $request->input('first_name'),
@@ -438,8 +451,13 @@ public function updateProvider($id, Request $request)
         'status' => $request->input('status'),
     ];
 
+    if ($oldName !== $newName) {
+        AssignProviderModel::where('provider_id', $id)->update(['provider_name' => $newName]);
+    }
     // Update the provider's details
     $provider->update($dataToUpdate);
+
+   
 
     return response()->json(['message' => 'Provider updated successfully'], 200);
 }

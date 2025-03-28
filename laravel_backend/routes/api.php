@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\HolidayController;
 Route::get('/user', function (Request $request) { 
     return $request->user();
 })->middleware('auth:sanctum');
@@ -78,3 +79,9 @@ Route::delete('/DeleteStudentService/{id}', [StudentController::class, 'DeleteSt
 Route::post('/UpdateSingleSession', [CalendarController::class, 'UpdateSingleSession']);
 Route::delete('/DeleteFutureSession', [CalendarController::class, 'DeleteFutureSession']);
 Route::get('/AssignProviderMinMaxDate/{id}', [CalendarController::class, 'AssignProviderMinMaxDate']);
+// ------Adi----
+Route::post('/addHoliday', [HolidayController::class, 'addHoliday']);
+Route::get('/fetchHolidayData',[HolidayController::class,'holidayData']);
+Route::delete('/DeleteHoliday/{id}', [HolidayController::class, 'DeleteHoliday']);
+Route::get('/FetchholidayDataBYID/{id}',[HolidayController::class,'FetchholidayDataBYID']);
+Route::post('/editholiday/{id}', [HolidayController::class,'editholiday']);

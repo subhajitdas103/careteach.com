@@ -12,8 +12,11 @@ import { DatePicker } from 'rsuite';
 import { IconButton, Tooltip } from '@mui/material';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "react-loading-skeleton/dist/skeleton.css";
-import Skeleton from "react-loading-skeleton";
+// import "react-loading-skeleton/dist/skeleton.css";
+// import Skeleton from "react-loading-skeleton";
+import { PropagateLoader } from "react-spinners";
+// import logo from "../assets/logo.png"; 
+import logo from "../../Assets/logo.png"; 
 // import React, { useState } from 'react';
 import { Uploader , Button } from 'rsuite';
   const AddStudent = () => {
@@ -126,21 +129,61 @@ const fetchAssignedProviderDetails = async () => {
     setFormDataList(updatedFormDataList);
   };
 
+  // const addService = () => {
+  //   setFormDataList([
+  //     ...formDataList,
+  //     { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true}
+  //   ]);
+  // };
+
+
   const addService = () => {
+
+    const lastService = formDataList[formDataList.length - 1];
+  
+    // Check if all required fields are filled (ensure numbers like 0 are allowed)
+    if (
+      lastService &&
+      (!lastService.service_type ||
+        !lastService.startDate ||
+        !lastService.endDate ||
+        lastService.weeklyMandate === "" ||  // Ensure empty string is blocked, but allow 0
+        lastService.yearlyMandate === "")
+    ) {
+      toast.error("Please complete the current service before adding a new one.", {
+        position: "top-right",
+        autoClose: 5000,
+      });
+      return;
+    }
+  
+    // Add new service if validation passes
     setFormDataList([
       ...formDataList,
-      { id:'', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true}
+      { id: '', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true }
     ]);
   };
+  
+  // const addService = () => {
+   
+  
+  //   // Add new service if validation passes
+  //   setFormDataList([
+  //     ...formDataList,
+  //     { id: '', service_type: '', startDate: '', endDate: '', weeklyMandate: '', yearlyMandate: '', isCloned: true }
+  //   ]);
+  // };
+  
 
   const removeService = (id) => {
-    if(id == '') {
-     setFormDataList((prevFormDataList) =>
+    if(!id) {
+      setFormDataList((prevFormDataList) =>
         prevFormDataList?.filter((service) => service.id !== id)
     );
     setStudentServices((prevServices) =>
         prevServices?.filter((service) => service.id !== id)
     );
+    return;
   }
     console.log("Attempting to delete service with ID:", id);
 
@@ -164,8 +207,12 @@ const fetchAssignedProviderDetails = async () => {
         })
         .catch((error) => {
             if (error.response) {
-              if (error.response.status === 404 && error.response.data.message.includes("The route api/DeleteStudentService could not be found")) {
-                return; // Do nothing (hides this error)
+              if (
+                error.response.status === 404 &&
+                (error.response.data.message.includes("The route api/DeleteStudentService could not be found") ||
+                 error.response.data.message.includes("An unexpected error occurred."))
+            ) {
+                return; 
             }
                 console.error('Error deleting service (response):', error.response);
 
@@ -175,14 +222,11 @@ const fetchAssignedProviderDetails = async () => {
                     autoClose: 5000,
                 });
 
-            } else if (error.request) {
-                console.error('Error deleting service (request):', error.request);
-                toast.error("No response from server. Please try again.", {
-                    position: "top-right",
-                    autoClose: 5000,
-                });
-
-            } else {
+            }
+            
+      
+            
+            else {
                 console.error('Error deleting service (message):', error.message);
                 toast.error("An unexpected error occurred.", {
                     position: "top-right",
@@ -204,7 +248,15 @@ const fetchAssignedProviderDetails = async () => {
 
     const [last_name, setLastName] = useState(student?.last_name || '');
     const [grade, setGrade] = useState("");
-    const [school_name, setSchoolName] = useState(student?.school_name || '');
+    // const [school_name, setSchoolName] = useState(student?.school_name || '');
+    const [selectedSchool, setSelectedSchool] = useState(student?.school_name || "");
+    const [selectedSchoolID, setSelectedSchoolID] = useState(student?.id|| "");
+
+    useEffect(() => {
+      setSelectedSchool(student?.school_name || "");
+      setSelectedSchoolID(student?.id || "");
+    }, [student]);
+    
     const [home_address, setHomeaddress] = useState(student?.home_address || '');
     const [doe_rate, setDOE] = useState(student?.doe_rate || '');
     const [DOEError, setDOEError] = useState("");
@@ -304,19 +356,10 @@ useEffect(() => {
         }
       };
     // =================School=============================
-    useEffect(() => {
-      if (student && student.school_name) {
-        setSchoolName(student.school_name);
-      }
-    }, [student]);
+  
     
 
-    const handleSchoolNameChange = (event) => {
-      setSchoolName(event.target.value);
-      if (event.target.value) {
-        setSchoolNameError('');
-      }
-    };
+  
     // ====================Home Address=====================
     useEffect(() => {
       if (student && student.home_address) {
@@ -528,7 +571,7 @@ useEffect(() => {
         first_name,
         last_name,
         grade,
-        school_name,
+        selectedSchool,
         home_address,
         doe_rate,
         iep_doc,
@@ -542,6 +585,7 @@ useEffect(() => {
         parent_email,
         parent_phnumber,
         parent_type,
+        selectedSchoolID,
         // Add formDataList here to send the dynamic fields
         services: formDataList, // This includes all the dynamically added service forms
       };
@@ -629,59 +673,43 @@ useEffect(() => {
     
    
   // ======================================================
+
+
+   const [schools, setSchools] = useState([]);
+   const fetchSchoolDetails = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/fetchSchoolData`);
+      const data = await response.json();
+      setSchools(data); 
+      // setSelectedSchool(data[0].school_name);// Update the state with fetched data
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching school details:', error);
+    }
+  };
+   useEffect(() => {
+      fetchSchoolDetails();
+    }, []);
+  console.log("hhhhhhhh",schools);
+  // ===========================================================
+  
+   const handleSchoolChange = (schoolName , id) => {
+    setSelectedSchool(schoolName);
+    setSelectedSchoolID(id);
+    console.log('Selected school:', id); 
+  };
+
     return (
     <div className="dashboard-container">
-      {loading ? (
-          
-           <div className="row dashbord-list">
-             <div className="heading-text">
-               <h3>
-                 <Skeleton width={150} height={30} />
-               </h3>
-               <p>
-                 <Skeleton width={200} height={20} />
-               </p>
-             </div>
-      
-             <div className="row dashbord-list">
-               <div className="stu-pro-field-div">
-                 <div className="col-md-6 student-profile-field">
-                   <label><Skeleton width={100} height={20} /></label>
-                   <Skeleton height={40} width={'100%'} />
-                 </div>
-                 <div className="col-md-6 student-profile-field">
-                   <label><Skeleton width={100} height={20} /></label>
-                   <Skeleton height={40} width={'100%'} />
-                 </div>
-               </div>
-      
-               <div className="stu-pro-field-div">
-                 <div className="col-md-6 student-profile-field">
-                   <label><Skeleton width={120} height={20} /></label>
-                   <Skeleton height={45} width={'100%'} />
-                 </div>
-                 <div className="col-md-6 student-profile-field">
-                   <label><Skeleton width={80} height={20} /></label>
-                   <Skeleton height={40} width={'100%'} />
-                   <p className="error-message"><Skeleton width={150} height={15} /></p>
-                 </div>
-               </div>
-      
-               <div className="stu-pro-field-div">
-                 <div className="col-md-6 student-profile-field">
-                   <label><Skeleton width={80} height={20} /></label>
-                   <Skeleton height={40} width={'100%'} />
-                 </div>
-                 <div className="col-md-6 student-profile-field">
-                   <label><Skeleton width={80} height={20} /></label>
-                   <Skeleton height={80} width={'100%'} />
-                 </div>
-               </div>
-             </div>
-           </div>
-       
+        {loading ? (
+        <div className="loader-container">
+          <div className="loader-content">
+            <img src={logo} alt="Loading..." className="logo-loader" />
+            <PropagateLoader color="#3498db" size={10} />
+          </div>
+        </div>
           ) : (
-            <>
+          <>
             <div className="row dashboard-list">
               <div className="heading-text personal-info-text">
                 <h2 style={{ marginLeft: '15px' ,marginTop: "-44px" }}>Edit Student</h2>
@@ -720,16 +748,41 @@ useEffect(() => {
             </div>
 
           <div className="stu-pro-field-div">
+            
+
               <div className="col-md-6 student-profile-field widthcss">
-                <label>School Name*</label>
-                <input
-                  type="text"
-                  name="schoolName"
-                  className="stu-pro-input-field"
-                  placeholder="Enter a School Name"  value={school_name} onChange={handleSchoolNameChange}
-                />
-              
+              <label>School Name*</label>
+              <div className="dropdown">
+                <button
+                  className="btn btn-secondary dropdown-toggle stu-pro-input-field"
+                  type="button"
+                  id="dropdownMenuButton"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  {selectedSchool || "Choose School"} {/* Display selected school or default text */}
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                {schools.length > 0 ? (
+                  schools.map((school) => {
+                    console.log("Rendering school:", school.school_name); // Debugging
+                    return (
+                      <li key={school.id}>
+                        <button
+                          className="dropdown-item"
+                          onClick={() => handleSchoolChange(school.school_name , school.id)}
+                        >
+                          {school.school_name}
+                        </button>
+                      </li>
+                    );
+                  })
+                ) : (
+                <li><span className="dropdown-item">No schools available</span></li>
+              )}
+            </ul>
+
               </div>
+            </div>
             
             <div className="col-md-6 student-profile-field widthcss">
                 <label>Grade*</label>
@@ -878,7 +931,7 @@ useEffect(() => {
                     multiple={false} 
                     fileList={fileList}// Ensure only one file can be uploaded
                     onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
-                    disabled={true}
+                    // disabled={true}
                     >
                     <Button>Select IEP Document</Button>
                     </Uploader>
@@ -1040,12 +1093,12 @@ useEffect(() => {
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No Notes Per Hr:</label>
+              <label>No. of Notes Per Hour:</label>
               <input
                 type="text"
                 name="notesPerHour"
                 className="stu-pro-input-field"
-                placeholder="Enter No Notes Per Hr" value={notesPerHour} onChange={handlenotesPerHour}
+                placeholder="Enter No. Notes Per Hour" value={notesPerHour} onChange={handlenotesPerHour}
               />
             </div>
 
@@ -1056,6 +1109,7 @@ useEffect(() => {
                 name="resolutionInvoice"
                 checked={resolutionInvoice}
                 onChange={handleCheckboxChange}
+                style={{ height: "20px", width: "20px" }}
               />
             </div>
           </div>
@@ -1063,7 +1117,7 @@ useEffect(() => {
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
             <label>Status:</label>
-            <div className="radio-btn">
+            <div className="radio-btn statusinaddstaudent">
               <div className="radio">
                 <input
                   type="radio"
@@ -1153,12 +1207,12 @@ useEffect(() => {
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Phone No:</label>
+              <label>Phone No. :</label>
               <input
                 type="text"
                 name="phoneNumber"
                 className="stu-pro-input-field"
-                placeholder="Enter parent phone no." value={parent_phnumber} onChange={handleParentPHnumber}
+                placeholder="Enter Parent Phone No." value={parent_phnumber} onChange={handleParentPHnumber}
               />
             </div>
           </div>
@@ -1273,7 +1327,7 @@ useEffect(() => {
                   </div>
 
                   <div className="col-md-6 student-profile-field widthcss">
-                      <label>Start Date:</label>
+                      <label>Start Date*</label>
                       <DatePicker
                         className=""
                         value={formData.startDate ? new Date(formData.startDate) : null} 
@@ -1284,6 +1338,7 @@ useEffect(() => {
                             handleInputChange(index, 'startDate', formattedStartDate);  // Handle Date object change
                         }}
                         style={{ width: '100%' }}  // Optional: Set width to match the input field's size
+                        format="MM/dd/yyy"
                      />
                   </div>
                   {/* -------Delete Button of services----------- */}
@@ -1293,7 +1348,7 @@ useEffect(() => {
                 
                 <div className="stu-pro-field-div">
                     <div className="col-md-6 student-profile-field widthcss">
-                        <label>End Date:</label>
+                        <label>End Date:*</label>
                         <DatePicker
                             className=""
                             value={formData.endDate ? new Date(formData.endDate) : null}  // Convert string to Date object if needed
@@ -1302,6 +1357,7 @@ useEffect(() => {
                               const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
                               handleInputChange(index, 'endDate', formattedEndDate)}}  // Handle Date object change
                             style={{ width: '100%', height: '45px' }}  // Optional: Set height and width
+                            format="MM/dd/yyy"
                         />
                     </div>
 
@@ -1327,7 +1383,7 @@ useEffect(() => {
                       name="yearlyMandate"
                       className="stu-pro-input-field"
                       value={formData.yearlyMandate}
-                      placeholder="Enter yearly mandate"
+                      placeholder="Enter Yearly Mandate"
                       onChange={(e) => handleInputChange(index, 'yearlyMandate', e.target.value)}
                     />
                   </div>

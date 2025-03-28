@@ -94,7 +94,7 @@ const Login = () => {
           <div className="col-12 col-md-6 user-loginarea">
             <form onSubmit={handleLogin}>
               <h1 className="h3 mb-3 fw-normal">User login</h1>
-              <p>Hey, enter your details to login</p>
+              {/* <p>Hey, enter your details to login</p> */}
               <div className="mb-3">
                 <input
                   type="email"

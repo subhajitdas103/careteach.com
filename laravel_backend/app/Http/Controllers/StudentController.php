@@ -7,6 +7,7 @@ use App\Models\Parents;
 use App\Models\StudentServices;
 use App\Models\AssignProviderModel;
 use App\Models\Users;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 // use App\Models\Student;
 
@@ -87,6 +88,7 @@ public function addstudent(Request $request)
             'last_name' => 'required|string|max:255',
             'grade' => 'required|string|max:255',
             'school_name' => 'required|string|max:255',
+            'selectedSchoolID' => 'required',
             'home_address' => 'required|string|max:255',
             'doe_rate' => 'required|string|max:255',
             'iep_doc' => 'nullable|string|max:255',
@@ -139,6 +141,7 @@ public function addstudent(Request $request)
             'last_name' => $validatedData['last_name'],
             'grade' => $validatedData['grade'],
             'school_name' => $validatedData['school_name'],
+            'school_id' => $validatedData['selectedSchoolID'],
             'home_address' => $validatedData['home_address'],
             'doe_rate' => $validatedData['doe_rate'],
             'iep_doc' => $validatedData['iep_doc'],
@@ -287,8 +290,9 @@ public function DeleteStudent($id)
                 'first_name' => 'required|string|max:255',
                 'last_name' => 'nullable|string|max:255',
                 'grade' => 'nullable|string|max:255',
-                'school_name' => 'nullable|string|max:255',
-                'home_address' => 'nullable|string|max:255',
+                'selectedSchool' => 'required|string|max:255',
+                'home_address' => 'required',
+                'selectedSchoolID' => 'required',
                 'doe_rate' => 'nullable|string|max:255',
                 'iep_doc' => 'nullable|string|max:255',
                 // 'iep_doc' => 'nullable|file|mimes:pdf,doc,docx|max:10048', // 2MB max
@@ -306,13 +310,13 @@ public function DeleteStudent($id)
                 'parent_type' => 'nullable|string|max:255',
     
                 // Service validation
-                'services' => 'nullable|array',
+                'services' => 'required|array',
                 'services.*.id' => 'nullable|integer',
-                'services.*.service_type' => 'nullable|string|max:255',
-                'services.*.startDate' => 'nullable|string|max:255',
-                'services.*.endDate' => 'nullable|string|max:255',
-                'services.*.weeklyMandate' => 'nullable|numeric',
-                'services.*.yearlyMandate' => 'nullable|numeric',
+                'services.*.service_type' => 'required|string|max:255',
+                'services.*.startDate' => 'required|string|max:255',
+                'services.*.endDate' => 'required|string|max:255',
+                'services.*.weeklyMandate' => 'required|numeric',
+                'services.*.yearlyMandate' => 'required|numeric',
             ]);
     
             $student = Students::findOrFail($id);
@@ -333,7 +337,8 @@ public function DeleteStudent($id)
                 'first_name' => $validatedData['first_name'],
                 'last_name' => $validatedData['last_name'],
                 'grade' => $validatedData['grade'],
-                'school_name' => $validatedData['school_name'],
+                'school_name' => $validatedData['selectedSchool'],
+                'school_id' => $validatedData['selectedSchoolID'],
                 'home_address' => $validatedData['home_address'],
                 'doe_rate' => $validatedData['doe_rate'],
                 'iep_doc' => $validatedData['iep_doc'],

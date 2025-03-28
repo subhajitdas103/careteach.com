@@ -128,7 +128,8 @@ const removeService = (index) => {
   const handleCheckboxChange = (e) => {
     setResolutionInvoice(e.target.checked);
   };
-  const [selectedSchool, setSelectedSchool] = useState('')
+  const [selectedSchool, setSelectedSchool] = useState('');
+  const [selectedSchoolID, setSelectedSchoolID] = useState('');
     const [first_name, setFirstName] = useState('');
     const [last_name, setLastName] = useState('');
     const [grade, setGrade] = useState('');
@@ -297,8 +298,11 @@ const removeService = (index) => {
 console.log(schools);
 // ===========================================================
 
- const handleSchoolChange = (schoolName) => {
+ const handleSchoolChange = (schoolName , id) => {
+  console.log("Selected School ID:", id);
+  // console.log("Selected School Name:", name);
   setSelectedSchool(schoolName);
+  setSelectedSchoolID(id);
   console.log('Selected school:', schoolName); 
 };
     // ===================================================================
@@ -371,6 +375,7 @@ console.log(schools);
         parent_type,
         services: formDataList,
         userRollID,
+        selectedSchoolID,
       };
       try {
         const response = await axios.post(`${backendUrl}/api/addstudent`, JSON.stringify(formData), {
@@ -467,7 +472,7 @@ console.log(schools);
                       <li key={school.id}>
                         <button
                           className="dropdown-item"
-                          onClick={() => handleSchoolChange(school.school_name)}>
+                          onClick={() => handleSchoolChange(school.school_name , school.id,)}>
                           {school.school_name} {/* Ensure this is a string */}
                         </button>
                       </li>
@@ -627,7 +632,7 @@ console.log(schools);
                   multiple={false} 
                   fileList={fileList}// Ensure only one file can be uploaded
                   onChange={(newFileList) => setFileList(newFileList.slice(-1))} 
-                  disabled={true}
+                  // disabled={true}
                   >
                   <Button>Select IEP Document</Button>
                   </Uploader>
@@ -783,12 +788,12 @@ console.log(schools);
 
           <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field widthcss">
-              <label>No Notes Per Hr*</label>
+              <label>No. of Notes Per Hour.*</label>
               <input
                 type="text"
                 name="notesPerHour"
                 className="stu-pro-input-field"
-                placeholder="Enter No Notes Per Hr" value={notesPerHour} onChange={handlenotesPerHour}
+                placeholder="Enter No. of  Notes Per Hour" value={notesPerHour} onChange={handlenotesPerHour}
               />
             </div>
 
@@ -799,6 +804,7 @@ console.log(schools);
                 name="resolutionInvoice"
                 checked={resolutionInvoice}
                 onChange={handleCheckboxChange}
+                style={{ height: "20px", width: "20px" }}
               />
             </div>
           </div>
@@ -806,7 +812,7 @@ console.log(schools);
         <div className="stu-pro-field-div">
           <div className="col-md-6 student-profile-field widthcss">
             <label>Status:</label>
-            <div className="radio-btn">
+            <div className="radio-btn statusinaddstaudent">
               <div className="radio">
                 <input
                   type="radio"
@@ -894,13 +900,13 @@ console.log(schools);
             </div>
 
             <div className="col-md-6 student-profile-field widthcss">
-              <label>Phone No:</label>
+              <label>Phone No. :</label>
               <input
                 type="text"
                 maxLength="12" 
                 name="phoneNumber"
                 className="stu-pro-input-field"
-                placeholder="Enter parent phone no." value={parent_phnumber} onChange={handleParentPHnumber}
+                placeholder="Enter Parent Phone No." value={parent_phnumber} onChange={handleParentPHnumber}
               />
             </div>
           </div>
@@ -998,7 +1004,7 @@ console.log(schools);
                       className=""
                       // value={formData.startDate}
                       value={formData.startDate ? new Date(formData.startDate) : null} // Ensure the value is a Date object
-                      dateFormat="MM/dd/yyyy" 
+                      format="MM/dd/yyyy" 
                       placeholder="Enter Start Date"
                       onChange={(value) => {
                         const formattedStartDate = value ? value.toLocaleDateString("en-CA") : null;
@@ -1015,7 +1021,7 @@ console.log(schools);
                       className=""
                       value={formData.endDate ? new Date(formData.endDate) : null} 
                       // value={formData.endDate}
-                       dateFormat="MM/dd/yyyy"
+                      format="MM/dd/yyyy"
                       placeholder="Enter End Date"
                       onChange={(value) => {
                         const formattedEndDate = value ? value.toLocaleDateString("en-CA") : null;
@@ -1045,7 +1051,7 @@ console.log(schools);
                       name="yearlyMandate"
                       className="stu-pro-input-field"
                       value={formData.yearlyMandate}
-                      placeholder="Enter yearly mandate"
+                      placeholder="Enter Yearly Mandate"
                       onChange={(e) => handleInputChange(index, 'yearlyMandate', e.target.value)}
                     />
                   </div>

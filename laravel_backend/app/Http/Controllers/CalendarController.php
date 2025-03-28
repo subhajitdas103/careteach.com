@@ -26,9 +26,9 @@ class CalendarController extends Controller
         ], [
            
             'selected_student.required' => 'The selected student field is required.',
-            'selected_student.required' => 'The selected student field is required.',
             'timeSlots.*.startTime.required' => 'Start time is required for each session.',
             'timeSlots.*.endTime.required' => 'End time is required for each session.',
+            'timeSlots.*.endTime.after' => 'End time must be after start time.',
         ]);
       
        
@@ -132,11 +132,19 @@ if ($totalUsedHours > $totalAssignedHours) {
     foreach ($validatedData['timeSlots'] as $slot) {
         $newStartTime = Carbon::parse($slot['startTime']);
         $newEndTime = Carbon::parse($slot['endTime']);
-    
+     // Log for debugging
+       // Correct order of log statements
+       Log::info('New Session Start Time: ' . $newStartTime);
+       Log::info('New Session End Time: ' . $newEndTime);
+       Log::info('Duration in minutes: ' . $newStartTime->diffInMinutes($newEndTime));
 
         // Enforce 8 AM to 10 PM rule
         $allowedStartTime = Carbon::parse('08:00:00');
         $allowedEndTime = Carbon::parse('22:00:00');
+
+        // Log to Laravel log file (storage/logs/laravel.log)
+        Log::info('New Session Start Time: ' . $newStartTime);
+        Log::info('New Session End Time: ' . $newEndTime);
 
         if ($newStartTime < $allowedStartTime || $newEndTime > $allowedEndTime) {
             return response()->json([
@@ -144,21 +152,49 @@ if ($totalUsedHours > $totalAssignedHours) {
             ], 422);
         }
 
-
-        foreach ($existingSessions as $session) {
-            $existingStartTime = Carbon::parse($session->start_time);
-            $existingEndTime = Carbon::parse($session->end_time);
-    
-            if (
-                ($newStartTime->between($existingStartTime, $existingEndTime) || 
-                $newEndTime->between($existingStartTime, $existingEndTime) ||  
-                ($newStartTime <= $existingStartTime && $newEndTime >= $existingEndTime))
-            ) {
-                return response()->json([
-                    'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
-                ], 422);
-            }
+        if ($newStartTime >= $newEndTime) {
+            return response()->json([
+                'errors' => ['timeSlots' => ['Start time must be before end time.']]
+            ], 422);
         }
+      if ($newStartTime->diffInMinutes($newEndTime) > 180) { // 180 minutes = 3 hours
+        Log::error('Session exceeds 3-hour limit.');
+        return response()->json([
+            'errors' => ['timeSlots' => ['Session duration cannot exceed 3 hours.']]
+        ], 422);
+    }
+
+    // Enforce minimum session duration of 1 minute
+     if ($newStartTime->diffInMinutes($newEndTime) < 1) { 
+        Log::error('Session duration is too short.');
+        return response()->json([
+            'errors' => ['timeSlots' => ['Session duration must be at least 1 minute.']]
+        ], 422);
+    }
+
+
+    $existingSessionsSingleSession = CalendarModel::where('user_roll_id', $validatedData['userRollID'])
+    ->where('date', $validatedData['date'])
+    ->get();
+
+
+    foreach ($existingSessionsSingleSession as $session) {
+        Log::info("Checking conflict with session:", $session->toArray());
+    
+        $existingStartTime = Carbon::parse($session->start_time);
+        $existingEndTime = Carbon::parse($session->end_time);
+    
+        // STRICT overlap check (Ensures full & partial conflicts are blocked)
+        if (
+            ($newStartTime < $existingEndTime && $newEndTime > $existingStartTime) ||  // Partial overlap
+            ($newStartTime == $existingStartTime && $newEndTime == $existingEndTime)   // Exact same session exists
+        ) {
+            return response()->json([
+                'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
+            ], 422);
+        }
+    }
+    
     }
     
         // -----------------------------------------------
@@ -166,6 +202,7 @@ if ($totalUsedHours > $totalAssignedHours) {
         foreach ($validatedData['timeSlots'] as $slot) {
             $sessions[] = [
                 'student_id' => $validatedData['id'],
+                'user_roll_id' => $validatedData['userRollID'],
                 'student_name' => $validatedData['selected_student'],
                 'session_name' => $validatedData['sessionType'],
                 'date' => $validatedData['date'],
@@ -189,18 +226,71 @@ if ($totalUsedHours > $totalAssignedHours) {
     }
 
 
-    public function FetchSingleSession($id,$roll_name)
-    {
-        try {
+    // public function FetchSingleSession($id,$roll_name)
+    // {
+    //     try {
     
-            $SingleSession = CalendarModel::orderBy('id', 'desc')->get();
-            // dd($students);
-            return response()->json($SingleSession); 
-        } catch (\Exception $e) {
-            \Log::error('Error fetching: ' . $e->getMessage());
-            return response()->json(['error' => 'Error fetching '], 500);
+    //         $SingleSession = CalendarModel::orderBy('id', 'desc')->get();
+    //         // dd($students);
+    //         return response()->json($SingleSession); 
+    //     } catch (\Exception $e) {
+    //         \Log::error('Error fetching: ' . $e->getMessage());
+    //         return response()->json(['error' => 'Error fetching '], 500);
+    //     }
+    // }
+// public function FetchSingleSession($id, $roll_name)
+// {
+//     try {
+//         $SingleSession = CalendarModel::where('user_roll_id', $id)
+//             // ->where('roll_name', $roll_name)
+//             ->orderBy('id', 'desc')
+//             ->first(); // Using first() instead of get() to fetch a single session
+
+//         if (!$SingleSession) {
+//             return response()->json(['error' => 'Session not found'], 404);
+//         }
+
+//         return response()->json($SingleSession);
+//     } catch (\Exception $e) {
+//         \Log::error('Error fetching session: ' . $e->getMessage());
+//         return response()->json(['error' => 'Error fetching session'], 500);
+//     }
+// }
+
+public function FetchSingleSession($id, $roll_name)
+{
+    try {
+        \Log::info("Fetching sessions for id: $id, role: $roll_name");
+
+        if ($roll_name == 'Admin') {
+            $sessions = CalendarModel::orderBy('id', 'desc')->get();
+        } else if ($roll_name == 'Provider') {
+            \Log::info("Querying sessions for Provider with user_roll_id: $id");
+            $sessions = CalendarModel::where('user_roll_id', $id)
+                ->orderBy('id', 'desc')
+                ->get();
+            \Log::info("Fetched sessions count: " . $sessions->count());
+        } else {
+            \Log::error("Invalid role: $roll_name");
+            return response()->json(['error' => 'Invalid role'], 400);
         }
+
+        if ($sessions->isEmpty()) {
+            \Log::info("No sessions found for user_roll_id: $id");
+            return response()->json([]);
+        }
+
+        return response()->json($sessions);
+    } catch (\Exception $e) {
+        \Log::error('Error fetching session: ' . $e->getMessage());
+        return response()->json(['error' => 'Error fetching session', 'message' => $e->getMessage()], 500);
     }
+}
+
+
+
+
+
     public function FetchBulkSessionDetails()
     {
         try {
@@ -450,16 +540,17 @@ public function CalendarConfirmSession(Request $request)
             'student_id' => 'required|integer|exists:students,id',
             'selectedDateConfirmSession' => 'required|date',
             'userRollID' => 'required|integer|exists:providers,id',
+            'singlesessionAutoID' => 'required',
         ]);
 
-        // Check if session already exists
-        $existingSession = ConfirmSession::where('student_id', $validatedData['student_id'])
-                                         ->where('date', $validatedData['selectedDateConfirmSession'])
-                                         ->exists();
+        // // Check if session already exists
+        // $existingSession = ConfirmSession::where('student_id', $validatedData['student_id'])
+        //                                  ->where('date', $validatedData['selectedDateConfirmSession'])
+        //                                  ->exists();
 
-        if ($existingSession) {
-            return response()->json(['error' => 'Session already exists for this student on this date'], 409);
-        }
+        // if ($existingSession) {
+        //     return response()->json(['error' => 'Session already exists for this student on this date'], 409);
+        // }
 
         // Insert session
         ConfirmSession::create([
@@ -469,6 +560,7 @@ public function CalendarConfirmSession(Request $request)
             'start_time' => $startTime, // Converted format
             'end_time' => $endTime, // Converted format
             'provider_id' => $validatedData['userRollID'],
+            'single_session_id' => $validatedData['singlesessionAutoID'],
         ]);
 
         return response()->json(['message' => 'Session confirmed successfully'], 201);
@@ -511,10 +603,13 @@ public function FetchConfirmessionDetails()
                 'selectedDateConfirmSession' => 'required|date_format:Y-m-d', 
                 'startTimeConfirmSession' => 'required',
                 'endTimeConfirmSession' => 'required',
-                'singlesessionAutoID' => 'required|integer|exists:single_session,id',
+                // 'singlesessionAutoID' => 'nullable|integer|exists:single_session,id',
                 'userRollID' => 'required|integer', 
             ]);
-            $singlesessionAutoID = $validatedData['singlesessionAutoID']; 
+            // $singlesessionAutoID = $validatedData['singlesessionAutoID']; 
+            // $singlesessionAutoID = $validatedData['singlesessionAutoID'] ?? null;
+            // Use input() instead of accessing validatedData directly
+$singlesessionAutoID = $request->input('singlesessionAutoID', null);
             $startTime = Carbon::createFromFormat('h:i A', $validatedData['startTimeConfirmSession'])->format('H:i:s');
             $endTime = Carbon::createFromFormat('h:i A', $validatedData['endTimeConfirmSession'])->format('H:i:s');
     
@@ -549,7 +644,7 @@ public function FetchConfirmessionDetails()
     $existingSessions = CalendarModel::where('student_id', $validatedData['student_id'])
     ->where('date', $validatedData['selectedDateConfirmSession'])
     ->when(isset($validatedData['session_id']), function ($query) use ($validatedData) {
-        return $query->where('id', '!=', $validatedData['singlesessionAutoID']);
+        return $query->where('id', '!=', $singlesessionAutoID);
     })
     ->get();
 
@@ -605,37 +700,30 @@ if ($start->greaterThanOrEqualTo($end)) {
      
    // Check for overlapping time slots
    // Get new session start and end times
-$newStartTime = Carbon::parse($validatedData['startTimeConfirmSession']);
-$newEndTime = Carbon::parse($validatedData['endTimeConfirmSession']);
+        $newStartTime = Carbon::parse($validatedData['startTimeConfirmSession']);
+        $newEndTime = Carbon::parse($validatedData['endTimeConfirmSession']);
 
-foreach ($existingSessions as $session) {
-    // **Ensure we skip the session being updated**
-    if ($session->id == $singlesessionAutoID) {
-        continue;
-    }
+        $existingSessionsTimeConflicts = CalendarModel::where('date', $validatedData['selectedDateConfirmSession'])
+        ->where('student_id', '!=', $validatedData['student_id']) 
+        ->where('user_roll_id', $validatedData['userRollID'])// Exclude the session being updated
+        ->get();
 
-    $existingStartTime = Carbon::parse($session->start_time);
-    $existingEndTime = Carbon::parse($session->end_time);
+        foreach ($existingSessionsTimeConflicts as $session) {
+            $existingStartTime = Carbon::parse($session->start_time);
+            $existingEndTime = Carbon::parse($session->end_time);
 
-    if (
-        ($newStartTime->gt($existingStartTime) && $newStartTime->lt($existingEndTime)) ||  // Starts inside another session
-        ($newEndTime->gt($existingStartTime) && $newEndTime->lt($existingEndTime)) ||      // Ends inside another session
-        ($newStartTime->lte($existingStartTime) && $newEndTime->gte($existingEndTime))     // Completely overlaps another session
-    ) {
-        return response()->json([
-            'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
-        ], 422);
-    }
-}
-
-    
-    
+            if (!($newEndTime->lte($existingStartTime) || $newStartTime->gte($existingEndTime))) {
+                return response()->json([
+                    'errors' => ['timeSlots' => ['Session time conflicts with an existing session.']]
+                ], 422);
+            }
+        }
 
         $studentData = $validatedData['selectedStudentUpdateSingleSession'];
         $studentName = $studentData['first_name'] . ' ' . $studentData['last_name'];
 
             // Update only the session with the matching ID
-            $updated = CalendarModel::where('id', $validatedData['singlesessionAutoID'])
+            $updated = CalendarModel::where('id', $singlesessionAutoID)
                 // ->where('student_id', $validatedData['student_id'])
                 ->update([
                     'student_name' => $studentName,
@@ -665,36 +753,43 @@ foreach ($existingSessions as $session) {
 
 
     public function DeleteFutureSession(Request $request)
-    {
-        try {
-            // Validate request data
-            $validatedData = $request->validate([
-                'student_id' => 'required|integer',
-                'selectedStudentUpdateSingleSession' => 'required',
-                'startTimeConfirmSession' => 'required|date_format:H:i:s',
-                'selectedDateConfirmSession' => 'required|date',
-                'endTimeConfirmSession' => 'required|date_format:H:i:s',
-            ]);
+{
+    try {
+        Log::info('DeleteFutureSession called', ['request_data' => $request->all()]);
 
-            // Find the session
-            $session = CalendarModel::where('student_id', $validatedData['student_id'])
-                ->where('start_time', $validatedData['startTimeConfirmSession'])
-                ->where('date', $validatedData['selectedDateConfirmSession'])
-                ->where('end_time', $validatedData['endTimeConfirmSession'])
-                ->first();
+        // Validate request data
+        $validatedData = $request->validate([
+            'student_id' => 'required|integer',
+            'selectedStudentUpdateSingleSession' => 'required',
+            'startTimeConfirmSession' => 'required|date_format:H:i:s',
+            'selectedDateConfirmSession' => 'required|date',
+            'endTimeConfirmSession' => 'required|date_format:H:i:s',
+        ]);
 
-            if (!$session) {
-                return response()->json(['message' => 'Session not found'], 404);
-            }
+        // Find the session
+        $session = CalendarModel::where('student_id', $validatedData['student_id'])
+         
+            ->where('date', $validatedData['selectedDateConfirmSession'])
+            
+            ->first();
 
-            // Delete session
-            $session->delete();
-
-            return response()->json(['message' => 'Session successfully deleted'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete session', 'details' => $e->getMessage()], 500);
+        if (!$session) {
+            Log::warning('Session not found', ['validatedData' => $validatedData]);
+            return response()->json(['message' => 'Session not found'], 404);
         }
+
+        // Delete session
+        $session->delete();
+        Log::info('Session successfully deleted', ['session_id' => $session->id]);
+
+        return response()->json(['message' => 'Session successfully deleted'], 200);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json(['error' => 'Validation failed', 'details' => $e->errors()], 422);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Failed to delete session', 'details' => $e->getMessage()], 500);
     }
+}
+
 
 
  

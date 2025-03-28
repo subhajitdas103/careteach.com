@@ -12,7 +12,7 @@ import School from "./Components/School/School";
 import EditSchool from "./Components/School/EditSchool";
 import CalendarComponent from "./Components/Calendar/Calendar";
 import Holidays from "./Components/Holidays/Holidays";
-import AddHoliday from "./Components/Holidays/AddHoliday";
+// import AddHoliday from "./Components/Holidays/AddHoliday";
 import AddProviders from "./Components/Providers/AddProviders";
 import EditProviders from "./Components/Providers/EditProviders";
 import AddSchool from "./Components/School/AddSchool";
@@ -22,7 +22,9 @@ import StudentDetails from "./Components/Students/StudentDetails";
 import ProtectedRoute from './Components/ProtectedRoute';
 import ForgotPassword from "./Components/ForgotPassword/ForgotPassword";
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-
+import EditHoliday from "./Components/Holidays/EditHoliday";
+// import AddSchool from "./Components/School/AddSchool";
+import AddHoliday from "./Components/Holidays/AddHoliday";
 // Higher-Order Component to wrap routes with Navbar
 const WithNavbar = ({ Component }) => (
   <>
@@ -61,14 +63,14 @@ const App = () => {
           path="/School" 
           element={<ProtectedRoute><WithNavbar Component={School} /></ProtectedRoute>} 
         />
-        <Route 
+        {/* <Route 
           path="/Holidays" 
           element={<ProtectedRoute><WithNavbar Component={Holidays} /></ProtectedRoute>} 
         />
         <Route 
           path="/AddHoliday" 
           element={<ProtectedRoute><WithNavbar Component={AddHoliday} /></ProtectedRoute>} 
-        />
+        /> */}
         <Route 
           path="/Calendar" 
           element={<ProtectedRoute><WithNavbar Component={CalendarComponent} /></ProtectedRoute>} 
@@ -107,7 +109,24 @@ const App = () => {
           path="/EditSchool/:SchoolID" 
           element={<ProtectedRoute><WithNavbar Component={EditSchool} /></ProtectedRoute>} 
         />
+
+
+        <Route 
+          path="/EditHoliday/:id" 
+          element={<ProtectedRoute><WithNavbar Component={EditHoliday} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/Holidays" 
+          element={<ProtectedRoute><WithNavbar Component={Holidays} /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/AddHoliday" 
+          element={<ProtectedRoute><WithNavbar Component={AddHoliday} /></ProtectedRoute>} 
+        />
+
       </Routes>
+
+      
     </Router>
   );
 };

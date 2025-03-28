@@ -1,0 +1,16 @@
+.holiday_button {
+    font-size: 18px;
+    font-family: inherit;
+    font-weight: 600;
+    background-color: #4979a0;
+    color: #fff;
+    float: right;
+    border: 1px solid #4979a0;
+    /* width: 125px; */
+    height: 40px;
+    border-radius: 25px;
+    text-align: center;
+    padding: 5px 15px 1px 15px;
+    margin: 0px 27px 35px 0px;
+    cursor: pointer;
+}

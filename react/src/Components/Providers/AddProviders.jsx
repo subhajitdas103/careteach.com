@@ -344,6 +344,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                     selected={selectedDate} 
                     onChange={handleDateChange} 
                     style={{ width: "100%", height: "45px" }}
+                       format="MM/dd/yyyy"
                   />
                 </div>
                 <div className="col-md-6 student-profile-field">
@@ -463,7 +464,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
             }}
           >
             <List>
-              {['A', 'B', 'C'].map((grade) => (
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'K'].map((grade) => (
                 <ListItem key={grade}>
                   <FormControlLabel
                     control={
@@ -484,7 +485,7 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
 
           <div className="col-md-6 student-profile-field">
             <FormControl>
-              <FormLabel id="license-exp-date-applicable">License Exp Date Applicable?</FormLabel>
+              <FormLabel id="license-exp-date-applicable">License Exp. Date Applicable?</FormLabel>
               <RadioGroup
                 aria-labelledby="license-exp-date-applicable"
                 name="controlled-radio-buttons-group"
@@ -500,13 +501,14 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
 
         <div className="stu-pro-field-div">
             <div className="col-md-6 student-profile-field">
-              <label>License Exp Date*</label>
+              <label>License Exp. Date*</label>
               <DatePicker
                 selected={licenseExpDate}
                 onChange={handleLicenseExpDateChangeDate}
                 className=""
                 placeholdertext="Enter License Exp Date"
                 style={{ width: '100%', height: '45px' }}
+                format="MM/dd/yyyy"
               />
             </div>
 
@@ -527,17 +529,25 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                 <li>
                   <button
                     className="dropdown-item"
-                    onClick={() => handlePetStatusChange("Service A")}
+                    onClick={() => handlePetStatusChange("Pending")}
                   >
-                    Service A
+                    Pending
                   </button>
                 </li>
                 <li>
                   <button
                     className="dropdown-item"
-                    onClick={() => handlePetStatusChange("Service B")}
+                    onClick={() => handlePetStatusChange("Approved")}
                   >
-                    Service B
+                    Approved
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => handlePetStatusChange("Declined")}
+                  >
+                    Declined
                   </button>
                 </li>
               </ul>
@@ -554,11 +564,14 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
                   className=""
                   placeholdertext="Enter PETS Approval Date"
                   style={{ width: '100%', height: '45px' }}
+                  format="MM/dd/yyyy"
                 />
               </div>
                 <div className="col-md-6 student-profile-field">
+               
                 <FormControl component="fieldset">
-                    <FormLabel component="legend">Bilingual</FormLabel>
+                    {/* <FormLabel component="legend"></FormLabel> */}
+                    <label>Bilingual:</label>
                     <RadioGroup
                       aria-labelledby="bilingual-radio-group"
                       name="bilingual-radio-group"
@@ -599,9 +612,11 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
               </div>
 
           <div className="stu-pro-field-div">
+            
             <div className="col-md-6 student-profile-field">
                 <FormControl component="fieldset">
-                  <FormLabel component="legend">Status:</FormLabel>
+                  {/* <FormLabel component="legend">Status:</FormLabel> */}
+                  <label>Status:</label>
                   <RadioGroup
                     aria-labelledby="status-radio-group"
                     name="status-radio-group"
@@ -615,11 +630,10 @@ const PetsApprovalDateFormat = petsApprovalDate ? new Date(petsApprovalDate).toI
             </div>
           </div>
      </div>
-
         <div>
-              <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
-              <ToastContainer />
-            </div>
+          <button id="addProviderBtn" className="save-student-btn" onClick={addProviderClick}>Save Provider</button>
+          <ToastContainer />
+        </div>
       </header>
     </div>
   );

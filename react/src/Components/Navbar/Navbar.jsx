@@ -33,7 +33,7 @@ const Navbar = () => {
         <ToastContainer />
           <div className="top_nav nav-hidden-print">
               <div className="row nav_menu " style={{ height: '60px' }}>
-                  <div className="navbar nav_title" style={{ border: 0 }}>
+                  <div className="navbar nav_title" style={{ border: 0 , height:46}}>
                       <div className="nav-title-logo">
                         <a href="/Dashboard">
                           <img src={logo} alt="Logo" className="header-logo" />

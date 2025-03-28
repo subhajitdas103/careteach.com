@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\SchoolModel; 
-// use App\Models\Students;
+use App\Models\Students;
 // use App\Models\Parents;
 // use App\Models\StudentServices;
 // use App\Models\Providers;
@@ -165,8 +165,12 @@ public function deleteSchooldata($id)
             return response()->json(['error' => 'School not found'], 404);
         }
 
+         // Update the school_name in StudentModel for all students linked to this school
+         Students::where('school_id', $id)->update(['school_name' => $validatedData['schoolName']]);
         // Update the school data
         $school->update($dataToUpdate);
+
+
 
         // Return a success message
         return response()->json(['message' => 'School updated successfully!'], 200);

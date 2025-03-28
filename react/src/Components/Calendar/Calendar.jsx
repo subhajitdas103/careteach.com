@@ -8,6 +8,7 @@ import { faPlus,faMinusCircle  } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './Calendar.css';
+
 import PropagateLoader from "react-spinners/PropagateLoader";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons'; // Importing the plus icon
@@ -61,6 +62,7 @@ const CalendarComponent = () => {
   const [showModalofSession, setShowModalConfirmSession] = useState(false); 
   const [showModalofSessionSingle, setShowModalSessionUpdateSingle] = useState(false);
   const [showModalofSessionBulk, setShowModalConfirmSessionBulk] = useState(false); 
+  const [showModalofSingleSessionPastDateDelete, setshowModalofSingleSessionPastDateDelete] = useState(false); 
   
   const [SelectedDateConfirmSession, setSelectedDateConfirmSession] = useState(false);
   
@@ -112,7 +114,7 @@ const CalendarComponent = () => {
   // ====================Confirm Session================================
   const [confirmSession, setConfirmSession] = useState(null);
 
-console.log("confirmSession",confirmSession);
+
 
 useEffect(() => {
   const FetchConfirmSessionDetails = async () => {
@@ -134,18 +136,30 @@ useEffect(() => {
 // ==========================================
 const [shouldFetchSingle, setShouldFetchSingle] = useState(false);
 console.log("ddddddddLine 121d",confirmSession);
-useEffect(() => {
+
+
+
+
+  
   const FetchSingleSessionDetails = async () => {
     try {
+      if (!userRollID || !userRollName) {
+        console.warn("Skipping fetch, missing parameters:", { userRollID, userRollName });
+        return;
+      }
       // const response = await axios.get(`${backendUrl}/api/SingleSession`);
       const response = await axios.get(`${backendUrl}/api/SingleSession/${userRollID}/${userRollName}`);
-
       const data = response.data; // Axios automatically parses JSON
-      
       // Transform the data to match the events structure
-      const formattedEvents = data.map((session) => {
+      const formattedEvents = data
+      .filter(session => {
+        return selectedStudent && selectedStudent.id
+          ? session.student_id === selectedStudent.id
+          : true; // Show all if no student is selected
+      })
+      
+      .map((session) => {
 
-       
 
         // if (!session) return null;
         const sessionStartTime = moment(`${session.date} ${session.start_time}`, 'YYYY-MM-DD h:mm A').toDate();
@@ -166,7 +180,7 @@ useEffect(() => {
             return cs.student_id === session.student_id && cs.date === session.date;
           });
           
-        const eventStyle = isMatched ? { backgroundColor: '#cb1313' } : {}; 
+        const eventStyle = isMatched ? { backgroundColor: 'rgb(73, 121, 160)' } : {}; 
 
           const matchedData = confirmSession && Array.isArray(confirmSession)
           ? confirmSession.some(cs => 
@@ -188,10 +202,13 @@ useEffect(() => {
           title: `${session.student_name} - ${formattedStartTime} - ${formattedEndTime}`,
           start: sessionStartTime, // Combined Date and start_time
           end: sessionEndTime, 
+          student_name: session.student_name,
           student_id :session.student_id,
           session_name: session.session_name, 
           session_date :session.date, 
           id:session.id,
+          user_id:session.user_roll_id,
+          
           // eventClass: matchedData ? 'matched-event' : '', // Apply conditional class
           style: eventStyle,
         };
@@ -205,10 +222,15 @@ useEffect(() => {
       console.error('Error fetching session details:', error);
     }
   };
-
+  useEffect(() => {
   FetchSingleSessionDetails();
-  setShouldFetchSingle(false); 
-}, [selectedStudent,shouldFetchSingle]);
+ 
+
+  if (selectedStudent || shouldFetchSingle) {
+   
+    setShouldFetchSingle(false);  // Reset shouldFetch after data is fetched
+  }
+}, [selectedStudent, shouldFetchSingle,userRollID,userRollName]);  // Dependencies: selectedStudent and shouldFetch
 
 
 // =====================================
@@ -240,8 +262,16 @@ useEffect(() => {
     setDivs(null);
   };
 
+  // ========When i choose student in add session modal then clear the previous student value=========
+  useEffect(() => {
+    if (!showModal) {
+      setSelectedStudentDropdown(null);
+    }
+  }, [showModal]);
+  
+
   const [formValue, setFormValue] = useState({ time: null });
-  console.log("dfgthy",formValue.date);
+  // console.log("dfgthy",formValue.date);
   // ===========For Single Ssson Add ============
   const [StartTimeValue, setStartTimeValue] = useState({ time: null });
   const [EndTimeValue, setEndTimeValue] = useState({ time: null });
@@ -783,7 +813,7 @@ useEffect(() => {
         Friday: 5,
         Saturday: 6,
       };
-
+        // ==========Select a student in calender as per student select ===========
       const formattedEvents = data
         .filter(session => {
           return selectedStudent && selectedStudent.id
@@ -840,16 +870,24 @@ useEffect(() => {
   // Fetch data when selectedStudent or shouldFetch is updated
   if (selectedStudent || shouldFetch) {
    
-    setShouldFetch(false);  // Reset shouldFetch after data is fetched
+    setShouldFetch(false);
+    // Reset shouldFetch after data is fetched
   }
 
 }, [selectedStudent, shouldFetch]);  // Dependencies: selectedStudent and shouldFetch
 
 
-   const studentOptions = studentData.map(student => ({
-    label: `${student.first_name} ${student.last_name}`,
-    value: student,
-  }));
+  //  const studentOptions = studentData.map(student => ({
+  //   label: `${student.first_name} ${student.last_name}`,
+  //   value: student,
+  // }));
+  const studentOptions = [
+    { label: "All Students", value: "all" }, // Add "All" option
+    ...studentData.map(student => ({
+      label: `${student.first_name} ${student.last_name}`,
+      value: student,
+    }))
+  ];
 
 
 const validDate = formValue.date ? new Date(formValue.date) : null;
@@ -898,16 +936,19 @@ const handleCloseModalSession = () => {
   setShowModalConfirmSession(false); // Hide the modal
   setShowModalSessionUpdateSingle(false); // Hide the modal);
   setShowModalConfirmSessionBulk(false);
+  setshowModalofSingleSessionPastDateDelete(false);
 };
 
 // ====================Confirm Session================================
   const [selectedDateConfirmSession, setConfirmSessionSelectedDate] = useState(null);
   const [selectedSession_type, setSession_type] = useState(null);
+  const [studentNameSingleSession, SetstudentNameSingleSession] = useState(null);
   const [selectedSession_studentID, setSession_StudentID] = useState(null);
   const [startTimeConfirmSession, setStartTimeConfirmSession] = useState(null);
   const [SingleSessionDate, setSingleSessiondate] = useState(null);
   const [endTimeConfirmSession, setEndTimeConfirmSession] = useState(null);
   const [bulk_session_id, set_bulk_session_id] = useState(null);
+  const [user_role_id, setUserRollID] = useState(null);
   
   const [selectedValueRadioConfirmSession, setSelectedValueRadioConfirmSession] = useState("yes");
   const [selectedEvent, setSelectedEvent] = useState({
@@ -922,9 +963,12 @@ console.log("selected_session_type",selectedEvent);
       const eventEndDate = new Date(selectedEvent.end);
       const session_name = selectedEvent.session_name;
       const selected_session_studentID = selectedEvent.student_id;
+
+      const single_session_student_name = selectedEvent.student_name;
       const single_session_date = selectedEvent.session_date;
       const bulk_session_id = selectedEvent.bulk_session_id;
       const single_seesion_autoID = selectedEvent.id;
+      const user_roll_id = selectedEvent.user_id;
       // Format the start time to 'hh:mm AM/PM'
       const eventStartTime = eventStartDate.toLocaleTimeString([], {
         hour: '2-digit',
@@ -951,7 +995,8 @@ console.log("selected_session_type",selectedEvent);
       setEndTimeConfirmSession(eventEndTime);
       set_bulk_session_id(bulk_session_id);
       setSingleSessionAutoID(single_seesion_autoID);
-  
+      SetstudentNameSingleSession(single_session_student_name);
+      setUserRollID(user_roll_id);
       // Log times for debugging
       console.log("Event Date:", eventDate);
       console.log("Start Time:", eventStartTime);
@@ -963,8 +1008,6 @@ console.log("selected_session_type",selectedEvent);
   }, [selectedEvent]);
   
   
- 
-
       // Handle changes in radio buttons
   const handleChangeConfirmSession = (e) => {
     setSelectedValueRadioConfirmSession(e.target.value);
@@ -972,14 +1015,11 @@ console.log("selected_session_type",selectedEvent);
     
   }
 
-  console.log("AAAA",selectedSession_type);
-  console.log("AAAA",selectedSession_studentID);
-  console.log("AAAA",selectedDateConfirmSession);
-  console.log("AAAA",bulk_session_id);
 //  ===============================================
   
 const onclickConfirmSession = () => {
   const requestData = {
+    singlesessionAutoID: singlesessionAutoID,
     userRollID: userRollID,
     session_type: selectedSession_type,
     student_id: selectedSession_studentID,
@@ -1002,15 +1042,39 @@ const onclickConfirmSession = () => {
         autoClose: 5000,
       });
       console.log("Session confirmed:", response.data);
-    })
+          // Fetch the updated session details
+    
+    // Manually update confirmSession state before fetching
+    // setShowModalConfirmSession(false);
+    
+       setShowModalConfirmSession(false);
+       setShowModalSessionUpdateSingle(false);
+       setShowModalConfirmSessionBulk(false);
+   
+       setConfirmSession((prev) => {
+        // Check if the ID already exists
+        if (prev.some((session) => session.single_session_id === singlesessionAutoID)) {
+          return prev; // If already present, return previous state (no changes)
+        }
+      
+        return [...prev, { single_session_id: singlesessionAutoID }];
+    
+      });
+      setshowModalofSingleSessionPastDateDelete(false);
+    
+      FetchSingleSessionDetails();
+
+  })
     .catch((error) => {
       // Handle errors
       if (error.response && error.response.data) {
         // Display the exact message from the server
-        toast.error(error.response.data.message || "Session alreday Exists.", {
+        toast.error(error.response.data.message, {
           position: "top-right",
           autoClose: 5000,
         });
+     
+       
         console.error("Error response from server:", error.response.data);
       } else {
         // General error fallback
@@ -1023,38 +1087,39 @@ const onclickConfirmSession = () => {
     });
 };
 
-
-
+// ====================Delete Session================================
   
   // ===================================================
 
   const onclickDeleteSession = (selectedSession_type, selectedSession_studentID, SingleSessionDate , selectedDateConfirmSession , bulk_session_id) => {
+    // Optimistically remove deleted session from UI
+    setEvents(prevEvents =>
+      prevEvents.filter(event => 
+        !(event.session_date === SingleSessionDate && event.student_id === selectedSession_studentID)
+      )
+    );
+
     axios
       .delete(`${backendUrl}/api/DeleteSession`, {
-        headers: { 'Content-Type': 'application/json' }, // Explicit headers
+        headers: { 'Content-Type': 'application/json' },
         data: {
           session_type: selectedSession_type,
           student_id: selectedSession_studentID,
           single_session_date: SingleSessionDate,
-          selectedDateConfirmSession : selectedDateConfirmSession,
-          bulk_session_id :bulk_session_id,
+          selectedDateConfirmSession: selectedDateConfirmSession,
+          bulk_session_id: bulk_session_id,
         },
       })
-      
       .then(() => {
-        // FetchSingleSessionDetails();
-        // FetchBulkSessionDetails(); 
-         
-
-
-         setShowModalConfirmSession(false); 
+        setShowModalConfirmSession(false); 
+     
         toast.success("Session successfully deleted!", {
           position: "top-right",
           autoClose: 5000,
         });
-        // Trigger re-fetch for the next deletion or update
-      setShouldFetch(true);
-      setShouldFetchSingle(true);
+
+        // Force re-fetch immediately
+        setShouldFetchSingle(true);
       })
       .catch((error) => {
         console.error('Error deleting session:', error);
@@ -1062,9 +1127,12 @@ const onclickConfirmSession = () => {
           position: "top-right",
           autoClose: 5000,
         });
+
+        // Rollback UI if delete fails
+        setShouldFetchSingle(true);
       });
-  };
-  
+};
+
   const [showMoreEvents, setShowMoreEvents] = useState(false);
 
 // Handler to toggle the visibility of additional events
@@ -1146,40 +1214,72 @@ const handleEndTimeChangeBulk = (value, index) => {
   const newBulkDivs = [...bulkDivs];
   newBulkDivs[index].endTime = value;
   setBulkDivs(newBulkDivs);
+ 
 };
 // ====================When click on Session in calender , then show as per session type=================
-const handleSessionClick = (event) => {
-  setSelectedEvent(null); // Force re-run of useEffect by clearing first
-  setTimeout(() => setSelectedEvent(event), 0); // Delay ensures state update
-};
-
+const [singlesessionAutoID, setSingleSessionAutoID] = useState(null);
 useEffect(() => {
-  if (!selectedEvent) return;
 
-  const eventDate = new Date(selectedEvent.start);
-  const today = new Date();
+}, [singlesessionAutoID]); // Debugging change
 
-  eventDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
 
-  console.log("Latest selectedSession_type:", selectedSession_type);
+// ==============Single Session Delete Modal open as per date ================
+const handleSessionClick = (event) => {
 
-  // Reset modal states before opening the correct one
-  setShowModalConfirmSession(false);
-  setShowModalSessionUpdateSingle(false);
-  setShowModalConfirmSessionBulk(false);
+  if (userRollName === "Admin") {
+    return; // ❌ Prevent function execution for admins
+  }
+  
+  setSelectedEvent(null);
+  setSingleSessionAutoID(null); // Reset session ID to avoid stale state
 
   setTimeout(() => {
-    if (eventDate < today) {
-      setShowModalConfirmSession(true);
-    } else if (selectedSession_type === "single") {
-      setShowModalSessionUpdateSingle(true);
-    } else if (selectedSession_type === "bulk") {
-      setShowModalConfirmSessionBulk(true);
-    }
-  }, 0); // Small delay ensures re-render
-}, [selectedEvent, selectedSession_type]);
+    setSelectedEvent(event);
+    setSingleSessionAutoID(event.id);
 
+    if (!Array.isArray(confirmSession)) return;
+
+    const isConfirmed = confirmSession.some(item => item.single_session_id === event.id);
+    console.log("Immediate valueToSet:", isConfirmed ? 1 : 0);
+    console.log("confirmSession:", confirmSession);
+    console.log("single_session_autoID:", event.id);
+
+    if (isConfirmed) {
+
+      setshowModalofSingleSessionPastDateDelete(true); // ✅ Open delete modal if confirmed
+      return;
+    }
+
+    // Ensure `event.start` is accessed only after `selectedEvent` is set
+    const eventDate = new Date(event.start);
+    const today = new Date();
+
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    console.log("startTimeConfirmSession:", startTimeConfirmSession);
+    console.log("endTimeConfirmSession:", endTimeConfirmSession);
+    console.log("user_role_id:", user_role_id);
+
+    // Close other modals before opening a new one
+    setShowModalConfirmSession(false);
+    setShowModalSessionUpdateSingle(false);
+    setShowModalConfirmSessionBulk(false);
+
+    setTimeout(() => {
+      if (eventDate <= today) {
+        setShowModalConfirmSession(true);
+      } else if (selectedSession_type === "single") {
+        setShowModalSessionUpdateSingle(true);
+      } else if (selectedSession_type === "bulk") {
+        setShowModalConfirmSessionBulk(true);
+      }
+    }, 100); // ✅ Small delay ensures correct state update
+  }, 50); // ✅ Allows state updates before using `event`
+};
+
+
+// console.log("confirmSessionconfirmSession",user_role_id);
 // ====================================================
 // ==============Single session modal update===============================
 const handleChangeSingleSessionUpdatestartTime = (time) => {
@@ -1235,11 +1335,9 @@ const handleChangeSingleSessionUpdateEndTime = (time) => {
     }
   };
 
-  const [singlesessionAutoID, setSingleSessionAutoID] = useState(false);
-console.log("singlesessionAutoID",singlesessionAutoID);
   const onclickUpdateSingleSession = () => {
     const requestData = {
-      singlesessionAutoID: singlesessionAutoID,
+      singlesessionAutoID: selectedEvent.id,
       userRollID: userRollID,
       selectedStudentUpdateSingleSession : selectedStudentUpdateSingleSession,
       student_id: selectedSession_studentID,
@@ -1327,6 +1425,12 @@ console.log("singlesessionAutoID",singlesessionAutoID);
 
     ) => {
       try {
+
+        setEvents(prevEvents =>
+          prevEvents.filter(event => 
+            !(event.session_date === SingleSessionDate && event.student_id === selectedSession_studentID)
+          )
+        );
         await axios.delete(`${backendUrl}/api/DeleteFutureSession`, {
           headers: { "Content-Type": "application/json" },
           data: {
@@ -1337,7 +1441,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
             endTimeConfirmSession : formattedEndTime,
           },
         });
-    
+        setshowModalofSingleSessionPastDateDelete(false);
         setShowModalSessionUpdateSingle(false);
         toast.success("Session successfully deleted!", {
           position: "top-right",
@@ -1358,6 +1462,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           }
         );
       }
+      setShouldFetchSingle(true);
     };
     // -----------------------------------------------------
 
@@ -1387,8 +1492,20 @@ console.log("singlesessionAutoID",singlesessionAutoID);
       } else {
       }
     }, [userRollID]); // Dependency array: the effect will run when userRollID changes
+
+
+
+    // ---------------Auto Select student name in update single session-------------------------------
+    useEffect(() => {
+      if (studentData.length > 0 && selectedSession_studentID) {
+        const selectedStudent = studentData.find(student => student.id === selectedSession_studentID);
+        setselectedStudentUpdateSingleSession(selectedStudent || null);
+      }
+    }, [selectedSession_studentID, studentData]);
     
 
+ 
+// ------------------------------------------------
     return (
       <div style={{ color: '#4979a0', backgroundColor: 'white' }}>
         {loading ? (
@@ -1403,6 +1520,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
             <ToastContainer />
             <h2>Calendar</h2>
     
+            {userRollID  ? (
             <Calendar
               localizer={localizer}
               events={[...events, ...Bulkevents]}
@@ -1424,8 +1542,17 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               eventPropGetter={(event) => ({
                 style: event.style || {},
               })}
+              
               components={{
                 toolbar: ({ label }) => (
+                  <div className="custom-toolbar">
+                  <i
+                  className="fa fa-backward fc-back-icon fc-back-icon_calendar"
+                  aria-hidden="true"
+                  id="back_provider_click"
+                  onClick={backtodashboard}
+                ></i>
+
                   <div
                     className="rbc-toolbar"
                     style={{
@@ -1434,6 +1561,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                       alignItems: 'center',
                     }}
                   >
+                    
                     <div className="rbc-btn-group">
                       <button onClick={() => setView('month')}>Month</button>
                       <button onClick={() => setView('week')}>Week</button>
@@ -1453,13 +1581,6 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                     >
                       {label}
                     </div>
-                    <i
-                      className="fa fa-backward fc-back-icon_calendar"
-                      aria-hidden="true"
-                      id="back_provider_click"
-                      onClick={backtodashboard}
-                    ></i>
-    
                     {view !== 'week' && (
                       <div className="rbc-btn-group" style={{ display: 'flex', alignItems: 'center' }}>
                         <button onClick={() => handleNavigate('PREV')}>Prev</button>
@@ -1475,7 +1596,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                       </div>
                     )}
     
-                    <div className="card flex justify-content-center" style={{ width: '225px', margin: '-2px 10px' }}>
+                    <div className="card flex justify-content-center" style={{ width: '225px', margin: '6px 10px' }}>
                       <PrimeReactDropdown
                         value={selectedStudent}
                         onChange={(e) => setSelectedStudent(e.value)}
@@ -1485,6 +1606,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                         highlightOnSelect={false}
                       />
                     </div>
+                  </div>
                   </div>
                 ),
     
@@ -1533,6 +1655,9 @@ console.log("singlesessionAutoID",singlesessionAutoID);
 
               }}
             />
+          ) : (
+            <p>You do not have permission to view this calendar.</p>
+          )}
           </>
         )}
       
@@ -1573,6 +1698,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                     name="radio-buttons"
                     inputProps={{ "aria-label": "bulk" }}
                     className="text-blue-600"
+                    disabled={true}
                   />
                   <span>Bulk Session</span>
                 </label>
@@ -1640,7 +1766,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <DatePicker
                   value={formValue.date ? new Date(selectedDate) : null}
                   onChange={handleDateChange}
-                  format="yyyy-MM-dd" // Correct date format
+                  format="MM-dd-yyyy" // Correct date format
                 />
               </Form.Group>
                 )}
@@ -1816,7 +1942,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
             <Modal.Body>
               <div className="stu-pro-field-div">
               <Form.Group controlId="time">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Confirm Session</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Choose Selection</Form.ControlLabel>
                   <div className="flex items-center space-x-4">
                     <label className="flex items-center space-x-2">
                       <Radio
@@ -1848,9 +1974,9 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               
               </div>
               <Form.Group controlId="date">
-                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
-                  format="yyyy-MM-dd"
+                  format="MM-dd-yyyy"
                   value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
 
                 />
@@ -1875,13 +2001,61 @@ console.log("singlesessionAutoID",singlesessionAutoID);
           </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={handleCloseModalSession}>Close</Button>
-
+             
               {selectedValueRadioConfirmSession === "no" ? (
               <Button variant="primary" onClick={() => onclickDeleteSession(selectedSession_type,selectedSession_studentID ,SingleSessionDate,selectedDateConfirmSession,bulk_session_id)}>Confirm Session</Button>
             ) : (
               <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}>Confirm Session</Button>
             )}
+            </Modal.Footer>
+          </Modal.Dialog>
+        </div>
+      )}
+      {/* ===========Delete Single Session Past Date======================= */}
+      {showModalofSingleSessionPastDateDelete && (
+        <div className="modal show" style={{ display: 'block' }}>
+          <Modal.Dialog>
+            <Modal.Header closeButton onClick={handleCloseModalSession}>
+              <Modal.Title>Delete Session</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">  
+              </Form.Group>
+              </div>
+              <Form.Group controlId="date">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
+                <DatePicker
+                  format="MM-dd-yyyy"
+                  value={selectedEvent.start ? new Date(selectedEvent.start) : null} disabled
+                />
+              </Form.Group>
+
+              <div className="stu-pro-field-div">
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Time</Form.ControlLabel>
+                 <Input className="rs_input_custom"  placeholder="Default Input"
+                  value={startTimeConfirmSession  || "" } disabled
+                />
+              </Form.Group>
+              <br/>
+              <Form.Group controlId="time">
+                <Form.ControlLabel className ="fontsizeofaddsessionmodal">End Time</Form.ControlLabel>
+                
+                <Input className="rs_input_custom" placeholder="Default Input"
+                  value={endTimeConfirmSession  || ""} disabled 
+                />
+              </Form.Group>
+            </div>
+          </Modal.Body>
+            <Modal.Footer>
+            <Button
+            className="delete_button_update_single_session"
+            variant="danger"
+            onClick={() => handleDeleteFutureSession(selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession , selectedStudentUpdateSingleSession)} // Replace handleDelete with your actual function
+          >
+            <i className="fa fa-trash" aria-hidden="true"></i>
+          </Button>
             </Modal.Footer>
           </Modal.Dialog>
         </div>
@@ -1895,23 +2069,22 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <Modal.Title>Update Session</Modal.Title>
               </Modal.Header>
               <Modal.Body>
+              <Form.ControlLabel className ="fontsizeofaddsessionmodal">Student Name</Form.ControlLabel>
               <SelectPicker
               className="updateSinglesessionmodalclass"
               data={studentOptions}
               value={selectedStudentUpdateSingleSession}
               onChange={setselectedStudentUpdateSingleSession}
               placeholder="Select a Student"
-              searchable={false}  // 🔥 This should remove the search box
+              searchable={false}  //  This should remove the search box
               style={{ width: 224 }}
               />
-
               <Form.Group controlId="date">
                 <Form.ControlLabel className ="fontsizeofaddsessionmodal">Date</Form.ControlLabel>
                 <DatePicker
-                  format="yyyy-MM-dd"
+                  format="MM-dd-yyyy"
                   value={selectedDateConfirmSession ? new Date(selectedDateConfirmSession) : null}
                   onChange={handleDateChangeInSingleSessionUpdate}
-
                 />
               </Form.Group>
 
@@ -1964,7 +2137,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <Form.Group controlId="date">
                   <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                   <DatePicker
-                    format="yyyy-MM-dd"
+                    format="MM-dd-yyyy"
                     value={selectedEvent.start ? new Date(selectedEvent.start) : null}
                   />
 
@@ -1973,7 +2146,7 @@ console.log("singlesessionAutoID",singlesessionAutoID);
                 <Form.Group controlId="date">
                   <Form.ControlLabel className ="fontsizeofaddsessionmodal">Start Date</Form.ControlLabel>
                   <DatePicker
-                    format="yyyy-MM-dd"
+                    format="MM-dd-yyyy"
                     value={selectedEvent.start ? new Date(selectedEvent.start) : null}
 
                   />
@@ -1998,16 +2171,11 @@ console.log("singlesessionAutoID",singlesessionAutoID);
               </Form.Group>
             </div>
           </Modal.Body>
-
             <Modal.Footer>
-             
-
-             
               <Button variant="primary" onClick={() => onclickConfirmSession(selectedSession_type,selectedSession_studentID ,startTimeConfirmSession,selectedDateConfirmSession,endTimeConfirmSession)}
                 disabled={true} 
                 >Update Session
               </Button>
-            
             </Modal.Footer>
           </Modal.Dialog>
         </div>
