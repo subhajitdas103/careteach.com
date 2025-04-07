@@ -1225,7 +1225,7 @@ useEffect(() => {
                 
                 <div className="stu-pro-field-div">
                   
-                <div style={{ display: 'flex', alignItems: 'center', marginLeft: '-1rem', marginTop: '-7rem' }}>
+                <div className="stu-service-div">
                   <Tooltip title= "Remove Service"  arrow>
                     <IconButton
                       onClick={() => removeService(formData.id)}

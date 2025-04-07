@@ -38,12 +38,12 @@ const ForgotPassword = () => {
   return (
     <div className="login_body">
       <main className="form-signin w-100 m-auto">
-        <div className="col-md-12 d-flex log-in-area">
-          <div className="col-md-6">
+        <div className="row log-in-area">
+          <div className=" col-12 col-md-6">
             <img className="Klogo-image" src={logo} alt="Logo" />
             <h2 className="text-under">Care Teach</h2>
           </div>
-          <div className="col-md-6 user-loginarea">
+          <div className="col-12 col-md-6 user-loginarea">
             <form onSubmit={handleForgotPassword}>
               <h1 className="h3 mb-3 fw-normal">Forgot Password</h1>
               <p>Enter your email address to receive a password reset link.</p>

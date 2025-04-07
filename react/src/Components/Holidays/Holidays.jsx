@@ -147,7 +147,7 @@ const Holidays = () => {
                </td>
                 <td className="col-md-1">
                   <div className="status-area">
-                    <div onClick={() => handleEdit(holiday.id)}>
+                    <div className="status-area-edit-btn" onClick={() => handleEdit(holiday.id)}>
                       <i className="fa fa-edit fa-1x fa-icon-img"></i>
                     </div>
                     <button

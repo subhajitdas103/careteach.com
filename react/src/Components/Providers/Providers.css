@@ -250,7 +250,7 @@ body{
 
 
 .fa-1x {
-    font-size: 0.9em !important;
+    font-size: 0.9em;
     padding-left: 10px;
 }
 /* 
@@ -1133,8 +1133,67 @@ input[type=radio] {
     height: 100%;
     margin: auto;
 }
+@media screen and (max-width: 822px) {
+    .table thead th {
+        font-size: 12px !important;
+    }
 
+    .table tbody td {
+        font-size: 10px !important;
+        word-break: break-word;
+    }
 
+    .status-area{
+        display: block !important;
+        text-align: center;
+    }
 
+    .fa-1x {
+        font-size: 1.2em !important;
+    }
+
+    .fa-icon-img {
+        border-radius: 5px;
+        width: 97px;
+        padding: 15px 37px !important;
+    }
+
+    .fa-icon-img:hover {
+        border-radius: 5px;
+        width: 97px;
+    }
+
+    .holiday-delete {
+        padding-bottom: 10px;
+    }
+
+    .status-area-edit-btn {
+        padding-bottom: 10px;
+    }
+
+    .student-edit-click {
+        padding-bottom: 10px;
+    }
+/* 
+    .stu-pro-field-div {
+        display: block !important;
+    } */
+
+    .assign-pro-btn {
+        font-size: 12px;
+    }
+    
+}
+
+@media screen and (max-width: 600px) {
+    .stu-pro-field-div {
+        display: block !important;
+    }
+
+    .student-profile-field {
+        width:100%;
+    }
+    
+}
 
 

@@ -5,7 +5,7 @@ import logo from "../../Assets/logo.png"; // Importing Logo as Loader
 import './Dashboard.css';
 import PropagateLoader from "react-spinners/PropagateLoader";
 const DashboardCard = ({ title, iconClass, onClick, disabled }) => (
-  <div className="col-lg-3 col-md-6">
+  <div className="col-lg-3 col-md-6 col-sm-6">
     <div className="panel panel-success">
       <div className="panel-success-box">
         <div className="panel-heading">

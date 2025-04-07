@@ -557,7 +557,7 @@ body{
 
 
 .fa-1x {
-    font-size: 0.9em !important;
+    font-size: 0.9em ;
     padding-left: 10px;
 }
 /* 
@@ -1455,7 +1455,22 @@ input[type=radio] {
     margin: auto;
 }
 
+.stu-service-div {
+    display: flex;
+    align-items: center;
+    margin-left: -1rem; 
+    margin-Top: -7rem;
+}
 
+@media screen and (max-width: 822px) {
+    .stu-service-div {
+        margin-Top: 0rem;
+    }
+
+    .student-profile-field {
+        width:50%;
+    }
+}
 
 
 

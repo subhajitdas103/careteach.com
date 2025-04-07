@@ -470,8 +470,6 @@ const fetchProviderDetails = async () => {
 
       const allProvider = await response.json();
 
-     
-      console.log("Fetched Provider Data", allProvider);  // Log the fetched data for debugging
       setAllProviderData(allProvider); 
 
     } catch (error) {

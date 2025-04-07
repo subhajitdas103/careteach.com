@@ -13,9 +13,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import useAuth from "../../hooks/useAuth";
 // import "react-loading-skeleton/dist/skeleton.css";
 // import Skeleton from "react-loading-skeleton";
- import { PropagateLoader } from "react-spinners";
+ import { PropagateLoader , FadeLoader} from "react-spinners";
  // import logo from "../assets/logo.png"; 
  import logo from "../../Assets/logo.png";
+//  import { PropagateLoader } from "react-spinners";
+
 const Providers = () => {
   const [loading, setLoading] = useState(true);
   const { userRollID, userRollName } = useAuth(); 
@@ -142,9 +144,10 @@ const handleCloseModal = () => {
 };
 // =============================
 const [ProviderDataAssignProvider, setAssignofStudentData] = useState(null);
-
+const [modalLoading, setModalLoading] = useState(false); 
 const StudentOfAssignedProviders = async (id) => {
-  setLoading(true);
+  // setLoading(true);
+  setModalLoading(true);
   try {
     const response = await fetch(`${backendUrl}/api/FetchStudentOfAssignedProviders/${id}`, {
       method: "GET",
@@ -164,7 +167,8 @@ const StudentOfAssignedProviders = async (id) => {
     console.error("Error fetching provider data:", error);
   }
 finally {
-  setLoading(false); // Hide loader after the fetch completes
+  // setLoading(false); // Hide loader after the fetch completes
+  setModalLoading(false); 
 }
 };
 
@@ -270,9 +274,7 @@ const handleStudentClick = (studentId) => {
                   </td>
                   <td className="col-md-2">
                     <div className="status-area">
-                    
-                   
-                        <div>
+                        <div className="status-area-edit-btn">
                           <button
                             type="button"
                             onClick={() => redirectToEditProviders(provider.id)}
@@ -315,59 +317,62 @@ const handleStudentClick = (studentId) => {
       </>
       )}
 
-          {/* Modal for provider details */}
-          {selectedProviderToDelete && (
-            <Modal show={show} onHide={handleClose}>
-              <Modal.Header closeButton>
-                <Modal.Title>Delete Provider</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-              <p>
-                Are you sure you want to delete the provider{" "}
-                <strong className="provider-name-delete-modal">
-                  {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
-                </strong>
-                ?
-              </p>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
-                <i className="fa fa-trash" aria-hidden="true"></i>
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          )}
+      {/* Modal for provider details */}
+      {selectedProviderToDelete && (
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Delete Provider</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+          <p>
+            Are you sure you want to delete the provider{" "}
+            <strong className="provider-name-delete-modal">
+              {selectedProviderToDelete.provider_first_name} {selectedProviderToDelete.provider_last_name}
+            </strong>
+            ?
+          </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button className="delete-button" variant="danger"  onClick={confirmDelete}>
+            <i className="fa fa-trash" aria-hidden="true"></i>
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
 
-               {/* View Student Click Modal */}
-              <Modal show={isModalOpen} onHide={handleCloseModal}>
-                <Modal.Header >
-                  <Modal.Title>Associated Students</Modal.Title>
-                </Modal.Header>
-                
-                <Modal.Body>
-                  {ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
-                      <ul>
-                        {ProviderDataAssignProvider.map((assignStudent) => (
-                          <li
-                            key={assignStudent.student_id}
-                            onClick={() => handleStudentClick(assignStudent.student_id)}
-                            className="assign-student-name-mouse-over"
-                          >
-                            {assignStudent.student_name}
-                          </li>
-                        ))}
-                      </ul>
-                  ) : (
-                    <p>No Associated Student found.</p>
-                  )}
-                </Modal.Body>
-  
-                <Modal.Footer>
-                  <Button variant="secondary" onClick={handleCloseModal}>
-                    Close
-                  </Button>
-                </Modal.Footer>
-              </Modal>
+        {/* View Student Click Modal */}
+      <Modal show={isModalOpen} onHide={handleCloseModal}>
+        <Modal.Header >
+          <Modal.Title>Associated Students</Modal.Title>
+        </Modal.Header>
+        
+        <Modal.Body>
+        {modalLoading ? (
+            <div className="text-center my-3 d-flex flex-column align-items-center justify-content-center">
+            <FadeLoader color="#3498db" size={2} />
+          </div>
+        ) : ProviderDataAssignProvider && ProviderDataAssignProvider.length > 0 ? (
+          <ul>
+            {ProviderDataAssignProvider.map((assignStudent) => (
+              <li
+                key={assignStudent.student_id}
+                onClick={() => handleStudentClick(assignStudent.student_id)}
+                className="assign-student-name-mouse-over"
+              >
+                {assignStudent.student_name}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No Associated Student found.</p>
+        )}
+      </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </div>
 </div>

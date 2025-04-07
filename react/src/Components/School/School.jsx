@@ -193,7 +193,7 @@ const School = () => {
                   </td>
                   <td>
                     <div className="status-area">
-                      <div id="edit_school_btn">
+                      <div className="status-area-edit-btn" id="edit_school_btn">
                         <i className="fa fa-edit fa-1x fa-icon-img"  onClick={() => editSchool(school.id)}></i>
                       </div>
                       <button
